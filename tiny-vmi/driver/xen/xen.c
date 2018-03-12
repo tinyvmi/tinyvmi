@@ -716,6 +716,8 @@ xen_get_vcpureg_hvm(
     reg_t reg,
     unsigned long vcpu)
 {
+    
+    dbprint(VMI_DEBUG_XEN, "now in %s\n", __FUNCTION__);
     status_t ret = VMI_SUCCESS;
     struct hvm_hw_cpu* hvm_cpu = NULL;
     xen_instance_t *xen = xen_get_instance(vmi);
@@ -992,6 +994,8 @@ xen_get_vcpureg_hvm(
     }
 
 _bail:
+
+    dbprint(VMI_DEBUG_XEN, "\t%s: done.\n", __FUNCTION__);
     return ret;
 }
 
@@ -2274,6 +2278,7 @@ xen_get_vcpureg(
     reg_t reg,
     unsigned long vcpu)
 {
+    dbprint(VMI_DEBUG_XEN, "now in %s\n", __FUNCTION__);
 #if defined(ARM32) || defined(ARM64)
     return xen_get_vcpureg_arm(vmi, value, reg, vcpu);
 #elif defined(I386) || defined (X86_64)

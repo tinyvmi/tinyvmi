@@ -54,18 +54,19 @@
 // #include "rekall.h"
 #include "debug.h"
 #include "arch/arch_interface.h"
-// #include "os/os_interface.h"
+#include "os/os_interface.h"
 
 #include <xenctrl.h>
 
 
 //Lele: testing with constant values, all need replacement. 
 // default return value of xen_get_domainid_from_name
-#define DOMAIN_ID 2
+#define DOMAIN_ID 1
 // default enable hvm
 // #define HVM 1
 // default 32-bit guest system
 #define WIDTH 4
+#define OS_DISABLED
 
 /* * Legacy from LibVMI 0.10.1
 */
@@ -272,7 +273,7 @@ struct vmi_instance {
 
     os_t os_type;           /**< type of os: VMI_OS_LINUX, etc */
 
-    // os_interface_t os_interface; /**< Guest OS specific functions */
+    os_interface_t os_interface; /**< Guest OS specific functions */
 
     void* os_data; /**< Guest OS specific data */
 
@@ -407,9 +408,18 @@ addr_t canonical_addr(addr_t va) {
 #  define UNUSED_FUNCTION(x) UNUSED_ ## x
 #endif
 
+/*-------------------------------------
+ * accessors.c
+ */
+    void *vmi_read_page(
+    vmi_instance_t vmi,
+    addr_t frame_num);
 
-
-
+status_t vmi_pagetable_lookup_cache(
+    vmi_instance_t vmi,
+    addr_t dtb,
+    addr_t vaddr,
+    addr_t *paddr);
 
 /*-----------------------------------------
  * memory.c
@@ -545,33 +555,48 @@ int test_print_physical(vmi_instance_t *vmi,int pfn);
 // addr_t v2p_pae (vmi_instance_t vmi, addr_t dtb, addr_t vaddr);
 // uint64_t get_pdpi (vmi_instance_t instance, uint32_t vaddr, uint32_t cr3);
 
-void *vmi_read_page(
-    vmi_instance_t vmi,
-    addr_t frame_num);
+// void *vmi_read_page(
+//     vmi_instance_t vmi,
+//     addr_t frame_num);
 
-void *
-xen_get_memory(
-    vmi_instance_t vmi,
-    addr_t paddr,
-    uint32_t length);
-
-
-void *xen_get_memory_pfn(vmi_instance_t vmi,addr_t pfn,int prot);
-
-int vmi_get_bit(
-    reg_t reg,
-    int bit);
+// int vmi_get_bit(
+//     reg_t reg,
+//     int bit);
 
 // int entry_present (os_t os_type, uint64_t entry);
-int page_size_flag (uint64_t entry);
-uint32_t get_large_paddr (vmi_instance_t instance, uint32_t vaddr,
-        uint32_t pgd_entry);
+// int page_size_flag (uint64_t entry);
+
+// uint32_t get_large_paddr (vmi_instance_t instance, uint32_t vaddr,
+        // uint32_t pgd_entry);
 
 // uint64_t get_pgd_pae (vmi_instance_t instance, uint32_t vaddr, uint64_t pdpe);
 // uint64_t get_pte_pae (vmi_instance_t instance, uint32_t vaddr, uint64_t pgd);
 // uint64_t get_paddr_pae (uint32_t vaddr, uint64_t pte);
 
 int test_v2p_pae(vmi_instance_t vmi, addr_t vaddr);
+
+
+
+
+/**********
+ * xen.c
+ *
+ */
+
+void *
+xen_get_memory(
+    vmi_instance_t vmi,
+    addr_t paddr,
+    uint32_t length);
+ 
+status_t xen_pause_vm(
+    vmi_instance_t vmi);
+
+status_t xen_resume_vm(
+    vmi_instance_t vmi);
+
+
+void *xen_get_memory_pfn(vmi_instance_t vmi,addr_t pfn,int prot);
 
 
 /*-------------------------------------
@@ -742,18 +767,21 @@ void test_idt_vector(vmi_instance_t vmi,int IndexInIDT);
 status_t test_map_addr(vmi_instance_t vmi, addr_t vaddr);
 status_t test_module_list(vmi_instance_t vmi, addr_t vaddr);
 
-/**********
- * tiny_xen.c
- *
+
+
+/*----------------------------------------------
+ * os/windows/core.c
  */
- 
-status_t xen_pause_vm(
-    vmi_instance_t vmi);
+    addr_t get_ntoskrnl_base(
+        vmi_instance_t vmi,
+        addr_t page_paddr);
 
-status_t xen_resume_vm(
-    vmi_instance_t vmi);
-
-
+/*----------------------------------------------
+ * os/windows/kdbg.c
+ */
+    win_ver_t find_windows_version(
+        vmi_instance_t vmi,
+        addr_t kdbg);
 
 
 #endif //TINY_PRIVATE_H

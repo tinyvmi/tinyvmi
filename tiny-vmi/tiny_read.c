@@ -864,6 +864,8 @@ status_t vmi_read_pa(
     addr_t offset = 0;
     size_t buf_offset = 0;
 
+    dbprint(VMI_DEBUG_MEMCACHE, "now in %s\n", __FUNCTION__);
+    
     while (count > 0) {
         size_t read_len = 0;
 
@@ -893,6 +895,9 @@ status_t vmi_read_pa(
         buf_offset += read_len;
     }
     *bytes_read = buf_offset;
+
+    dbprint(VMI_DEBUG_MEMCACHE, "%s: DONE.\n", __FUNCTION__);
+
     return VMI_SUCCESS;
 }
 
@@ -903,22 +908,22 @@ status_t vmi_read_pa(
 //	-> xen_read_page(vmi,page): libvmi/driver/xen.c:L1653
 //	-> memory_cache_insert(vmi,paddr):libvmi/driver/memory_cache.c:L199
 //	->
-void *
-vmi_read_page (vmi_instance_t vmi, addr_t frame_num)
-{
-    if (!frame_num) {
-        return NULL ;
-    }
-    else {
-	//	return xen_get_memory_pfn(vmi, frame_num, PROT_READ);
-    //}
+// moved to accessors.c
+// void * vmi_read_page (vmi_instance_t vmi, addr_t frame_num)
+// {
+//     if (!frame_num) {
+//         return NULL ;
+//     }
+//     else {
+// 	//	return xen_get_memory_pfn(vmi, frame_num, PROT_READ);
+//     //}
 
-	addr_t paddr = frame_num << vmi->page_shift;
+// 	addr_t paddr = frame_num << vmi->page_shift;
 
-	return memory_cache_insert(vmi, paddr);
+// 	return memory_cache_insert(vmi, paddr);
 	
-    }
-}
+//     }
+// }
 
 
 // int test_print_physical(vmi_instance_t *vmi,int pfn){

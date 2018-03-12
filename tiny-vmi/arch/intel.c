@@ -57,6 +57,7 @@ status_t get_pdpi (vmi_instance_t instance,
     dbprint(VMI_DEBUG_MEMCACHE, "now in %s\n", __FUNCTION__);
 
     *pdpi_entry = get_pdptb(dtb) + pdpi_index(vaddr);
+    
     dbprint(VMI_DEBUG_MEMCACHE, "%s: get pdpi entry.\n", __FUNCTION__);
     if(VMI_FAILURE == vmi_read_64_pa(instance, *pdpi_entry, pdpi_value)) {
         dbprint(VMI_DEBUG_PTLOOKUP, "--PAE PTLookup: failed to read pdpi_entry = 0x%.16"PRIx64"\n", *pdpi_entry);

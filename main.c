@@ -66,10 +66,10 @@ int main(void) {
 	
 	//printf("--LELE: now test_v2p_pae with vaddress 0x%.16"PRIx64"\n",vaddr);
     //sleep(2/100);
-	//result=test_map_addr(vmi,vaddr);
+	result=test_map_addr(vmi,vaddr);
 	
 	sleep(2);
-	result=test_module_list(vmi,modules_addr);
+	//result=test_module_list(vmi,modules_addr);
 	sleep(1);
 
 _bail: 

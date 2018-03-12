@@ -32,58 +32,59 @@ status_t vmi_translate_kv2p(
 
 
 
-// addr_t vmi_pagetable_lookup (vmi_instance_t vmi, addr_t dtb, addr_t vaddr)
-status_t vmi_pagetable_lookup (
-    vmi_instance_t vmi,
-    addr_t dtb,
-    addr_t vaddr,
-    addr_t *paddr){
+// // moved to accessors.c
+// // addr_t vmi_pagetable_lookup (vmi_instance_t vmi, addr_t dtb, addr_t vaddr)
+// status_t vmi_pagetable_lookup (
+//     vmi_instance_t vmi,
+//     addr_t dtb,
+//     addr_t vaddr,
+//     addr_t *paddr){
 
-	    // addr_t paddr = 0;
+// 	    // addr_t paddr = 0;
 	
-		dbprint(VMI_DEBUG_CORE, "---in %s\n",__FUNCTION__);
+// 		dbprint(VMI_DEBUG_CORE, "---in %s\n",__FUNCTION__);
 		
-		/* check if entry exists in the cachec */
-		if (VMI_SUCCESS == v2p_cache_get(vmi, vaddr, dtb, paddr)) {
+// 		/* check if entry exists in the cachec */
+// 		if (VMI_SUCCESS == v2p_cache_get(vmi, vaddr, dtb, paddr)) {
 	
-			/* verify that address is still valid */
-			uint8_t value = 0;
+// 			/* verify that address is still valid */
+// 			uint8_t value = 0;
 	
-			if (VMI_SUCCESS == vmi_read_8_pa(vmi, paddr, &value)) {
-				return VMI_SUCCESS;
-			}
-			else {
-				v2p_cache_del(vmi, vaddr, dtb);
-			}
-		}
+// 			if (VMI_SUCCESS == vmi_read_8_pa(vmi, paddr, &value)) {
+// 				return VMI_SUCCESS;
+// 			}
+// 			else {
+// 				v2p_cache_del(vmi, vaddr, dtb);
+// 			}
+// 		}
 	
-		/* do the actual page walk in guest memory */
-		if (vmi->page_mode == VMI_PM_LEGACY) {
-			paddr = v2p_nopae(vmi, dtb, vaddr);
-		}
-		else if (vmi->page_mode == VMI_PM_PAE) {
-			paddr = v2p_pae(vmi, dtb, vaddr);
-		}
-		else if (vmi->page_mode == VMI_PM_IA32E) {
-			paddr = v2p_ia32e(vmi, dtb, vaddr);
-		}
-		else {
-			dbprint(VMI_DEBUG_CORE, "--ERROR:Invalid paging mode during vmi_pagetable_lookup, in %s\n",__FUNCTION__);
-		}
+// 		/* do the actual page walk in guest memory */
+// 		if (vmi->page_mode == VMI_PM_LEGACY) {
+// 			paddr = v2p_nopae(vmi, dtb, vaddr);
+// 		}
+// 		else if (vmi->page_mode == VMI_PM_PAE) {
+// 			paddr = v2p_pae(vmi, dtb, vaddr);
+// 		}
+// 		else if (vmi->page_mode == VMI_PM_IA32E) {
+// 			paddr = v2p_ia32e(vmi, dtb, vaddr);
+// 		}
+// 		else {
+// 			dbprint(VMI_DEBUG_CORE, "--ERROR:Invalid paging mode during vmi_pagetable_lookup, in %s\n",__FUNCTION__);
+// 		}
 	
-		/* add this to the cache */
-		if (paddr) {
+// 		/* add this to the cache */
+// 		if (paddr) {
             
-		    dbprint(VMI_DEBUG_CORE, "%s: now call v2p cache set\n",__FUNCTION__);
+// 		    dbprint(VMI_DEBUG_CORE, "%s: now call v2p cache set\n",__FUNCTION__);
 		
-			v2p_cache_set(vmi, vaddr, dtb, paddr);
-		}
+// 			v2p_cache_set(vmi, vaddr, dtb, paddr);
+// 		}
         
-		dbprint(VMI_DEBUG_CORE, "%s: Done\n",__FUNCTION__);
+// 		dbprint(VMI_DEBUG_CORE, "%s: Done\n",__FUNCTION__);
 		
-		return VMI_SUCCESS;
+// 		return VMI_SUCCESS;
 
-}
+// }
 
 // addr_t v2p_nopae (vmi_instance_t vmi, addr_t dtb, addr_t vaddr)
 // {
@@ -197,73 +198,74 @@ status_t vmi_pagetable_lookup (
 //     return 0;
 // }
 
-int
-vmi_get_bit(
-    reg_t reg,
-    int bit)
-{
-    reg_t mask = 1 << bit;
+// int
+// vmi_get_bit(
+//     reg_t reg,
+//     int bit)
+// {
+//     reg_t mask = 1 << bit;
 
-    if (reg & mask) {
-        return 1;
-    }
-    else {
-        return 0;
-    }
-}
+//     if (reg & mask) {
+//         return 1;
+//     }
+//     else {
+//         return 0;
+//     }
+// }
 
-int page_size_flag (uint64_t entry)
-{
+// int page_size_flag (uint64_t entry)
+// {
 
-    return vmi_get_bit(entry, 7);
-}
+//     return vmi_get_bit(entry, 7);
+// }
 
-uint32_t get_large_paddr (vmi_instance_t instance, uint32_t vaddr,
-        uint32_t pgd_entry)
-{
-    if (instance->page_mode != VMI_PM_PAE) {
-        return (pgd_entry & 0xFFC00000) | (vaddr & 0x3FFFFF);
-    }
-    else {
-        return (pgd_entry & 0xFFE00000) | (vaddr & 0x1FFFFF);
-    }
-}
+// uint32_t get_large_paddr (vmi_instance_t instance, uint32_t vaddr,
+//         uint32_t pgd_entry)
+// {
+//     if (instance->page_mode != VMI_PM_PAE) {
+//         return (pgd_entry & 0xFFC00000) | (vaddr & 0x3FFFFF);
+//     }
+//     else {
+//         return (pgd_entry & 0xFFE00000) | (vaddr & 0x1FFFFF);
+//     }
+// }
 
-uint64_t ptba_base_pae (uint64_t pde)
-{
-    return pde & 0xFFFFFF000ULL;
-}
+// moved to intel.c
+// uint64_t ptba_base_pae (uint64_t pde)
+// {
+//     return pde & 0xFFFFFF000ULL;
+// }
 
 /* page table */
-uint32_t pte_index (vmi_instance_t instance, uint32_t address)
-{
-    // if (!instance->pae) {
-    if (instance->page_mode != VMI_PM_PAE) {
-        return (((address) >> 12) & 0x3FF) * sizeof(uint32_t);
-    }
-    else {
-        return (((address) >> 12) & 0x1FF) * sizeof(uint64_t);
-    }
-}
+// uint32_t pte_index (vmi_instance_t instance, uint32_t address)
+// {
+//     // if (!instance->pae) {
+//     if (instance->page_mode != VMI_PM_PAE) {
+//         return (((address) >> 12) & 0x3FF) * sizeof(uint32_t);
+//     }
+//     else {
+//         return (((address) >> 12) & 0x1FF) * sizeof(uint64_t);
+//     }
+// }
 
-uint64_t get_pte_pae (vmi_instance_t instance, uint32_t vaddr, uint64_t pgd)
-{
-    uint64_t value;
-    uint32_t pte_entry = ptba_base_pae(pgd) + pte_index(instance, vaddr);
-    printf("--PTLookup: pte_entry = 0x%.8x\n", pte_entry);
-    vmi_read_64_pa(instance, pte_entry, &value);
-    return value;
-}
+// uint64_t get_pte_pae (vmi_instance_t instance, uint32_t vaddr, uint64_t pgd)
+// {
+//     uint64_t value;
+//     uint32_t pte_entry = ptba_base_pae(pgd) + pte_index(instance, vaddr);
+//     printf("--PTLookup: pte_entry = 0x%.8x\n", pte_entry);
+//     vmi_read_64_pa(instance, pte_entry, &value);
+//     return value;
+// }
 
-uint64_t pte_pfn_pae (uint64_t pte)
-{
-    return pte & 0xFFFFFF000ULL;
-}
+// uint64_t pte_pfn_pae (uint64_t pte)
+// {
+//     return pte & 0xFFFFFF000ULL;
+// }
 
-uint64_t get_paddr_pae (uint32_t vaddr, uint64_t pte)
-{
-    return pte_pfn_pae(pte) | (vaddr & 0xFFF);
-}
+// uint64_t get_paddr_pae (uint32_t vaddr, uint64_t pte)
+// {
+//     return pte_pfn_pae(pte) | (vaddr & 0xFFF);
+// }
 
 
 

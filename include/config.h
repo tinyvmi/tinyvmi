@@ -8,7 +8,10 @@
 /* #undef ARM64 */
 
 /* Enable or disable the address cache (v2p, pid, etc) */
-#define ENABLE_ADDRESS_CACHE 1
+// #define ENABLE_ADDRESS_CACHE 1
+#define ENABLE_ADDRESS_CACHE 0
+
+#define ENABLE_V2P_CACHE 1
 
 /* Enable libvmi.conf */
 #define ENABLE_CONFIGFILE 1
@@ -33,7 +36,8 @@
 #define ENABLE_VMIFS 0
 
 /* Define to 1 to Windows support. */
-#define ENABLE_WINDOWS 1
+// #define ENABLE_WINDOWS 1
+#define ENABLE_WINDOWS 0
 
 /* Define to 1 to enable Xen support. */
 #define ENABLE_XEN 1

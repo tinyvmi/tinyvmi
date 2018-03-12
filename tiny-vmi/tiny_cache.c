@@ -219,14 +219,75 @@ status_t v2p_cache_del(
 
 void
 v2p_cache_flush(
-    vmi_instance_t vmi)
+    vmi_instance_t vmi, addr_t dtb)
 {
+
+    // if ( ~0ull == dtb )
+    //     g_hash_table_remove_all(vmi->v2p_cache);
+    // else {
+    //     // GHashTable *v = g_hash_table_lookup(vmi->v2p_cache, &dtb);
+    //     // if ( v )
+    //          g_hash_table_remove_all(v);
+    // }
     tiny_cache_remove_all(vmi->v2p_cache);
-    printf("--V2P cache flushed,in %s\n",__FUNCTION__);
+    // printf("--V2P cache flushed,in %s\n",__FUNCTION__);
+    dbprint(VMI_DEBUG_V2PCACHE, "--V2P cache flushed\n");
+	
 }
 
 
 // Below are wrapper functions for external API access to the cache
+void
+vmi_pidcache_add(
+    vmi_instance_t vmi,
+    vmi_pid_t pid,
+    addr_t dtb)
+{
+    return pid_cache_set(vmi, pid, dtb);
+}
+
+void
+vmi_pidcache_flush(
+    vmi_instance_t vmi)
+{
+    return pid_cache_flush(vmi);
+}
+
+void
+vmi_symcache_add(
+    vmi_instance_t vmi,
+    addr_t base_addr,
+    vmi_pid_t pid,
+    char *sym,
+    addr_t va)
+{
+    return sym_cache_set(vmi, base_addr, pid, sym, va);
+}
+
+void
+vmi_symcache_flush(
+    vmi_instance_t vmi)
+{
+    return sym_cache_flush(vmi);
+}
+
+void
+vmi_rvacache_add(
+    vmi_instance_t vmi,
+    addr_t base_addr,
+    vmi_pid_t pid,
+    addr_t rva,
+    char *sym)
+{
+    return rva_cache_set(vmi, base_addr, pid, rva, sym);
+}
+
+void
+vmi_rvacache_flush(
+    vmi_instance_t vmi)
+{
+    return rva_cache_flush(vmi);
+}
 
 void
 vmi_v2pcache_add(
@@ -240,7 +301,8 @@ vmi_v2pcache_add(
 
 void
 vmi_v2pcache_flush(
-    vmi_instance_t vmi, addr_t dtb)
+    vmi_instance_t vmi,
+    addr_t dtb)
 {
-    return v2p_cache_flush(vmi);
+    return v2p_cache_flush(vmi, dtb);
 }

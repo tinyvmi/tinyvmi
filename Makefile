@@ -5,7 +5,10 @@ include $(XEN_ROOT)/Config.mk
 OBJS=main.o ./tiny-vmi/tiny_test.o
 # OBJS += ./tiny-vmi/driver/xen/tiny_xen.o 
 OBJS += ./tiny-vmi/tiny_cache.o ./tiny-vmi/mem_cache.o
+
+OBJS += ./tiny-vmi/accessors.o  
 OBJS += ./tiny-vmi/tiny_kv2p.o  
+
 OBJS += ./tiny-vmi/tiny_vmi_init.o ./tiny-vmi/tiny_read.o ./tiny-vmi/tiny_GetVaOfVetorInIDT.o
 
 OB_drivers = ./tiny-vmi/driver/driver_interface.o 
@@ -22,6 +25,19 @@ OB_arch += ./tiny-vmi/arch/amd64.o
 OB_arch += ./tiny-vmi/arch/arm_aarch32.o
 OB_arch += ./tiny-vmi/arch/arm_aarch64.o
 OB_arch += ./tiny-vmi/arch/intel.o
+
+# OB_arch += ./tiny-vmi/os/linux/core.o
+# OB_arch += ./tiny-vmi/os/linux/memory.o
+# OB_arch += ./tiny-vmi/os/linux/symbols.o
+
+
+# OB_arch += ./tiny-vmi/os/windows/core.o
+# OB_arch += ./tiny-vmi/os/windows/kdbg.o
+# OB_arch += ./tiny-vmi/os/windows/memory.o
+# OB_arch += ./tiny-vmi/os/windows/preparse.o
+# OB_arch += ./tiny-vmi/os/windows/process.o
+# OB_arch += ./tiny-vmi/os/windows/symbols.o
+# OB_arch += ./tiny-vmi/os/windows/unicode.o
 
 
 OBJS += $(OB_xc) $(OB_xs) $(OB_xen) $(OB_arch)
