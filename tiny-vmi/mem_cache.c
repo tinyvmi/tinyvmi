@@ -120,6 +120,8 @@ status_t tiny_list_foreach(tiny_list_t list,void * remove_entry, mem_cache_t mem
 }
 status_t tiny_list_free(tiny_list_t list){
 
+    if (!list)
+        return VMI_SUCCESS;
 	tiny_list_node_t node=list->head;
 	tiny_list_node_t next=list->head;
 	list->head=NULL;
@@ -262,20 +264,38 @@ clean_cache(
    
     printf("--MEMORY cache cleanup round complete (cache size = %u)\n",
             mem_cache_size(vmi->memory_cache));*/
-	tiny_list_free(vmi->memory_cache_lru);
+
+    dbprint(VMI_DEBUG_MEMCACHE,"now in %s\n", __FUNCTION__);
+
+    if (vmi->memory_cache_lru){
+
+    	tiny_list_free(vmi->memory_cache_lru);
+        dbprint(VMI_DEBUG_MEMCACHE,"%s: tiny list cleared\n", __FUNCTION__);
+    }else{
+        
+        dbprint(VMI_DEBUG_MEMCACHE,"%s: tiny list is empty.\n", __FUNCTION__);
+    }
+    
 	mem_cache_t mem_c=vmi->memory_cache;
-	for(i=0;i<mem_c->count;i++){
-		printf("---searching the key:%d<paddr>=<0x%lx>, in %s\n",i,mem_c->cache_lines[i]->key,__FUNCTION__);
-		free(mem_c->cache_lines[i]->key);
-		
-		mem_cache_entry_free(mem_c->cache_lines[i]->entry);
-		
-		free(mem_c->cache_lines[i]->entry);
-		free(mem_c->cache_lines[i]);
-		
-	}
-			
-    printf("--MEMORY cache cleanup round complete, in %s \n",__FUNCTION__);
+
+    if (!mem_c){
+        dbprint(VMI_DEBUG_MEMCACHE,"%s: mem cache is empty\n", __FUNCTION__);
+    }else{
+
+        for(i=0;i<mem_c->count;i++){
+            dbprint(VMI_DEBUG_MEMCACHE,"---searching the key:%d<paddr>=<0x%lx>, in %s\n",i,mem_c->cache_lines[i]->key,__FUNCTION__);
+            free(mem_c->cache_lines[i]->key);
+            
+            mem_cache_entry_free(mem_c->cache_lines[i]->entry);
+            
+            free(mem_c->cache_lines[i]->entry);
+            free(mem_c->cache_lines[i]);
+            
+        }
+        dbprint(VMI_DEBUG_MEMCACHE,"%s: mem cache cleared\n", __FUNCTION__);
+   
+    }             
+    dbprint(VMI_DEBUG_MEMCACHE,"--MEMORY cache cleanup round complete, in %s \n",__FUNCTION__);
 
 }
 
@@ -323,6 +343,7 @@ mem_cache_entry_t create_new_entry (vmi_instance_t vmi, addr_t paddr,
    //             vmi->size);
    //     return 0;
    // }
+    dbprint(VMI_DEBUG_MEMCACHE, "now in %s\n", __FUNCTION__);
 
     mem_cache_entry_t entry =
         (mem_cache_entry_t)
@@ -338,15 +359,32 @@ mem_cache_entry_t create_new_entry (vmi_instance_t vmi, addr_t paddr,
         clean_cache(vmi);
     }
 
+    dbprint(VMI_DEBUG_MEMCACHE, "%s: Done\n", __FUNCTION__);
+    
     return entry;
 }
 
+	
+//---------------------------------------------------------
+// External API functions
 
 
+// void
+// memory_cache_init(
+//     vmi_instance_t vmi,unsigned long age_limit)
+// {
 void
 memory_cache_init(
-    vmi_instance_t vmi,unsigned long age_limit)
-{
+    vmi_instance_t vmi,
+    void *(*get_data) (vmi_instance_t,
+                       addr_t,
+                       uint32_t),
+    void (*release_data) (void *,
+                          size_t),
+    unsigned long age_limit) {
+    
+	///////////////////////////
+	// the old tinyvmi with libvmi-0.10.1
 	printf("\nin %s\n",__FUNCTION__);
     vmi->memory_cache = (mem_cache_t) malloc(sizeof(struct mem_cache_array));
 	
@@ -363,9 +401,22 @@ memory_cache_init(
     vmi->memory_cache_age = age_limit;
     vmi->memory_cache_size = 0;
     vmi->memory_cache_size_max = MAX_PAGE_CACHE_SIZE;
-	
-}
 
+	/////////////////////////////////
+	// v v v libvmi-tkl
+
+	// vmi->memory_cache =
+    //     g_hash_table_new_full(g_int64_hash, g_int64_equal,
+    //                           g_free,
+                            //   memory_cache_entry_free);
+    // vmi->memory_cache_lru = g_queue_new();
+    // vmi->memory_cache_age = age_limit;
+    // vmi->memory_cache_size_max = MAX_PAGE_CACHE_SIZE;
+    vmi->get_data_callback = get_data;
+    vmi->release_data_callback = release_data;
+
+    dbprint(VMI_DEBUG_MEMCACHE, "done %s\n", __FUNCTION__);
+}
 
 
 
@@ -384,11 +435,11 @@ memory_cache_insert(
 	//printf("now in %s\n",__FUNCTION__);
     mem_key_t key = &paddr;
     if ((entry = mem_cache_lookup(vmi->memory_cache, key)) != NULL) {
-        printf("--MEMORY cache hit 0x%"PRIx64"\n", paddr);
+        dbprint(VMI_DEBUG_MEMCACHE, "--MEMORY cache hit 0x%"PRIx64"\n", paddr);
         return validate_and_return_data(vmi, entry);
-    }
-    else {
-        printf("--MEMORY cache set 0x%"PRIx64"\n", paddr);
+    } else {
+
+        dbprint(VMI_DEBUG_MEMCACHE, "--MEMORY cache set 0x%"PRIx64"\n", paddr);
 
         entry = create_new_entry(vmi, paddr, vmi->page_size);
         if (!entry) {
@@ -410,18 +461,66 @@ memory_cache_insert(
 		//printf("---key2 for list=0x%lx, in %s\n",*key2,__FUNCTION__);
         vmi->memory_cache_lru = tiny_list_prepend(vmi->memory_cache_lru, key2);
         vmi->memory_cache_size++;
+        
+        dbprint(VMI_DEBUG_MEMCACHE, "--MEMORY cache set DONE\n");
 
         return entry->data;
     }
+}
+
+
+void memory_cache_remove(
+    vmi_instance_t vmi,
+    addr_t paddr)
+{
+    addr_t paddr_aligned = paddr & ~(((addr_t) vmi->page_size) - 1);
+
+    if (paddr != paddr_aligned) {
+        errprint("Memory cache request for non-aligned page\n");
+        return;
+    }
+
+    // gint64 *key = (gint64*)&paddr;
+    // g_hash_table_remove(vmi->memory_cache, key);
+
+    mem_key_t key = (mem_key_t) & paddr;
+    mem_cache_remove(vmi->memory_cache, key);
 }
 
 void
 memory_cache_destroy(
     vmi_instance_t vmi)
 {
+    dbprint(VMI_DEBUG_MEMCACHE, "now in %s\n", __FUNCTION__);
+
     uint32_t tmp = vmi->memory_cache_size_max;
 
+    dbprint(VMI_DEBUG_MEMCACHE, "%s: set mem cache size max to 0\n", __FUNCTION__);
     vmi->memory_cache_size_max = 0;
+    dbprint(VMI_DEBUG_MEMCACHE, "%s: clean cache\n", __FUNCTION__);
     clean_cache(vmi);
+    dbprint(VMI_DEBUG_MEMCACHE, "%s: set back max cache size to %d\n", __FUNCTION__, tmp);
     vmi->memory_cache_size_max = tmp;
+
+	//////////////////////////////
+	// new libvmi-tkl:
+
+    //  vmi->memory_cache_size_max = 0;
+
+    // if (vmi->memory_cache_lru) {
+    //     g_queue_foreach(vmi->memory_cache_lru, (GFunc)g_free, NULL);
+    //     g_queue_free(vmi->memory_cache_lru);
+    //     vmi->memory_cache_lru = NULL;
+    // }
+
+    // if (vmi->memory_cache) {
+    //     g_hash_table_destroy(vmi->memory_cache);
+    //     vmi->memory_cache = NULL;
+    // }
+
+    // vmi->memory_cache_age = 0;
+    // vmi->memory_cache_size_max = 0;
+    vmi->get_data_callback = NULL;
+    vmi->release_data_callback = NULL;
+	
 }

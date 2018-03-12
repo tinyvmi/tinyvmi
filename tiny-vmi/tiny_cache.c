@@ -117,8 +117,7 @@ v2p_cache_entry_t tiny_cache_lookup(v2p_cache_t v2p_c,key_128_t key){
 	return v2p_c->cache_lines[key_i]->entry;
 }
 
-void
-v2p_cache_init(
+void v2p_cache_init(
     vmi_instance_t vmi)
 {
 	//printf("%s:size of v2p_cache array:%d",__FUNCTION__,MAX_V2P_CACHE*sizeof(v2p_cache_line_t));
@@ -136,21 +135,19 @@ v2p_cache_init(
 	
 }
 
-void
-v2p_cache_destroy(
+void v2p_cache_destroy(
     vmi_instance_t vmi)
 {
     tiny_cache_destroy(vmi->v2p_cache);
 }
 
-status_t
-v2p_cache_get(
+status_t v2p_cache_get(
     vmi_instance_t vmi,
     addr_t va,
     addr_t dtb,
     addr_t *pa)
 {
-	//printf("---in %s\n",__FUNCTION__);
+	dbprint(VMI_DEBUG_MEMCACHE, "---in %s\n",__FUNCTION__);
     v2p_cache_entry_t entry = NULL;
     struct key_128 local_key;
     key_128_t key = &local_key;
@@ -168,6 +165,8 @@ v2p_cache_get(
         return VMI_SUCCESS;
     }
 
+	dbprint(VMI_DEBUG_MEMCACHE, "%s: DONE.\n",__FUNCTION__);
+   
     return VMI_FAILURE;
 }
 
@@ -180,8 +179,7 @@ v2p_cache_entry_t v2p_cache_entry_create (vmi_instance_t vmi, addr_t pa)
     return entry;
 }
 
-void
-v2p_cache_set(
+void v2p_cache_set(
     vmi_instance_t vmi,
     addr_t va,
     addr_t dtb,
@@ -201,8 +199,7 @@ v2p_cache_set(
 	
 }
 
-status_t
-v2p_cache_del(
+status_t v2p_cache_del(
     vmi_instance_t vmi,
     addr_t va,
     addr_t dtb)
@@ -243,7 +240,7 @@ vmi_v2pcache_add(
 
 void
 vmi_v2pcache_flush(
-    vmi_instance_t vmi)
+    vmi_instance_t vmi, addr_t dtb)
 {
     return v2p_cache_flush(vmi);
 }

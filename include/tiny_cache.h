@@ -1,10 +1,13 @@
 
+#ifndef TINY_CACHE_H
+#define TINY_CACHE_H
 //#include "tiny_private.h"
+#include <tiny_glib.h>
 
 /**for cache, lele 2014.11.14 */
 
-typedef void* gpointer;
-typedef const void *gconstpointer;
+// typedef void* gpointer;
+// typedef const void *gconstpointer;
 
 #define MAX_V2P_CACHE 1280
 #define MAX_MEM_CACHE 1280
@@ -67,51 +70,42 @@ key_128_t key_128_build (vmi_instance_t vmi, uint64_t low, uint64_t high);
 
 v2p_cache_entry_t v2p_cache_entry_create (vmi_instance_t vmi, addr_t pa);
 
-void
-v2p_cache_init(
+void v2p_cache_init( vmi_instance_t vmi);
+
+void v2p_cache_destroy(
     vmi_instance_t vmi);
 
-void
-v2p_cache_destroy(
-    vmi_instance_t vmi);
-
-status_t
-v2p_cache_get(
+status_t v2p_cache_get(
     vmi_instance_t vmi,
     addr_t va,
     addr_t dtb,
     addr_t *pa);
 
-void
-v2p_cache_set(
+void v2p_cache_set(
     vmi_instance_t vmi,
     addr_t va,
     addr_t dtb,
     addr_t pa);
 
-status_t
-v2p_cache_del(
+status_t v2p_cache_del(
     vmi_instance_t vmi,
     addr_t va,
     addr_t dtb);
 
-void
-v2p_cache_flush(
+void v2p_cache_flush(
     vmi_instance_t vmi);
 
 
 // Below are wrapper functions for external API access to the cache
 
-void
-vmi_v2pcache_add(
+void vmi_v2pcache_add(
     vmi_instance_t vmi,
     addr_t va,
     addr_t dtb,
     addr_t pa);
 
-void
-vmi_v2pcache_flush(
-    vmi_instance_t vmi);
+void vmi_v2pcache_flush(
+    vmi_instance_t vmi, addr_t dtb);
 	
 /** 
 *	memory cache
@@ -119,8 +113,8 @@ vmi_v2pcache_flush(
 */
 
 
-//
-// Physical memory cache 
+// //
+// // Physical memory cache 
 
 typedef int64_t *mem_key_t;
 
@@ -190,9 +184,29 @@ tiny_list_t tiny_list_remove_link(tiny_list_t lru, tiny_list_node_t last);
 tiny_list_t tiny_list_remove(tiny_list_t list,mem_key_t key);
 tiny_list_t tiny_list_prepend(tiny_list_t list,mem_key_t key);
 
-void memory_cache_init(vmi_instance_t vmi,unsigned long age_limit);
+// void memory_cache_init(vmi_instance_t vmi,unsigned long age_limit);
+
+void memory_cache_init(
+    vmi_instance_t vmi,
+    void *(*get_data) (vmi_instance_t,
+                       addr_t,
+                       uint32_t),
+    void (*release_data) (void *,
+                          size_t),
+    unsigned long age_limit);
+
 
 void *memory_cache_insert(vmi_instance_t vmi, addr_t paddr);
 
+void memory_cache_remove(
+    vmi_instance_t vmi,
+    addr_t paddr);
+    
 void memory_cache_destroy(vmi_instance_t vmi);
 //
+
+
+
+
+
+#endif // TINY_CACHE_H

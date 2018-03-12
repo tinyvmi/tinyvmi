@@ -36,7 +36,7 @@ status_t test_map_addr(vmi_instance_t vmi, addr_t vaddr){
 		//		return 0;
 		//	}
 	
-		if (PAGE_SIZE != vmi_read_va(vmi, vaddr, 0, memory, PAGE_SIZE)) {
+		if (VMI_FAILURE == vmi_read_va(vmi, vaddr, 0, PAGE_SIZE, memory, NULL)) {
 				printf("failed to map memory.\n");
 				return VMI_FAILURE;
 			}
@@ -91,7 +91,9 @@ status_t test_module_list(vmi_instance_t vmi, addr_t vaddr){//lele,2014.12.11
     //char *name = argv[1];
 
     /* pause the vm for consistent memory access */
-    xen_pause_vm(vmi);
+    printf("now pause vm\n");
+
+	xen_pause_vm(vmi);
 
     //vmi_read_addr_ksym(vmi, "modules", &next_module);
 	next_module=vaddr;

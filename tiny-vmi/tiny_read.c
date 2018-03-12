@@ -8,15 +8,24 @@
 #include "tiny_private.h"
 
 
+#include "driver/xen/xen.h"
+#include "driver/xen/xen_private.h"
+// #include "driver/xen/xen_events.h"
+#include "driver/driver_interface.h"
+// #include "driver/memory_cache.h"
+// #include "driver/xen/altp2m_private.h"
+
+
 /**implementation**/
 
-size_t
+status_t
 vmi_read_va(
     vmi_instance_t vmi,
     addr_t vaddr,
-    int pid,
+    vmi_pid_t pid,
+    size_t count,
     void *buf,
-    size_t count)
+    size_t *bytes_read)
 {
     unsigned char *memory = NULL;
     addr_t paddr = 0;
@@ -27,7 +36,7 @@ vmi_read_va(
     if (NULL == buf) {
         printf("--%s: buf passed as NULL, returning without read\n",
                 __FUNCTION__);
-        return 0;
+        return VMI_FAILURE;
     }
 
     while (count > 0) {
@@ -36,14 +45,14 @@ vmi_read_va(
         if (pid) {
             //paddr = vmi_translate_uv2p(vmi, vaddr + buf_offset, pid);
             printf("--%s: vmi_translate_uv2p not implemented\n",__FUNCTION__);
-			return 0;
+			return VMI_FAILURE;
         }
         else {
-            paddr = vmi_translate_kv2p(vmi, vaddr + buf_offset);
+             vmi_translate_kv2p(vmi, vaddr + buf_offset, &paddr);
         }
 
         if (!paddr) {
-            return buf_offset;
+            return VMI_FAILURE;
         }
 
         /* access the memory */
@@ -51,7 +60,7 @@ vmi_read_va(
         offset = (vmi->page_size - 1) & paddr;
         memory = vmi_read_page(vmi, pfn);
         if (NULL == memory) {
-            return buf_offset;
+            return VMI_FAILURE;
         }
 
         /* determine how much we can read */
@@ -70,27 +79,35 @@ vmi_read_va(
         count -= read_len;
         buf_offset += read_len;
     }
+    *bytes_read = buf_offset;
 
-    return buf_offset;
+    return VMI_SUCCESS;
 }
 
 
 
-size_t
+status_t
 vmi_read_ksym(
     vmi_instance_t vmi,
-    char *sym,
+    const char *sym,
+    size_t count,
     void *buf,
-    size_t count)
+    size_t *bytes_read)
 {
-    addr_t vaddr = vmi_translate_ksym2v(vmi, sym);
 
-    if (0 == vaddr) {
+    size_t read_bytes = 0;
+    addr_t vaddr = 0;
+
+    status_t ret = vmi_translate_ksym2v(vmi, sym, &vaddr);
+
+    if (ret == VMI_FAILURE) {
         printf("--%s: vmi_translate_ksym2v failed for '%s'\n",
                 __FUNCTION__, sym);
-        return 0;
+        return VMI_FAILURE;
     }
-    return vmi_read_va(vmi, vaddr, 0, buf, count);
+    vmi_read_va(vmi, vaddr, 0, count, buf, &read_bytes);
+    
+    return VMI_SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////
@@ -102,14 +119,7 @@ vmi_read_X_ksym(
     void *value,
     int size)
 {
-    size_t len_read = vmi_read_ksym(vmi, sym, value, size);
-
-    if (len_read == size) {
-        return VMI_SUCCESS;
-    }
-    else {
-        return VMI_FAILURE;
-    }
+    return vmi_read_ksym(vmi, sym, size, value, NULL);
 }
 
 status_t
@@ -171,7 +181,7 @@ vmi_read_str_ksym(
     vmi_instance_t vmi,
     char *sym)
 {
-    addr_t vaddr = vmi_translate_ksym2v(vmi, sym);
+    vmi_translate_ksym2v(vmi, sym, &vaddr);
 
     return vmi_read_str_va(vmi, vaddr, 0);
 }
@@ -183,18 +193,12 @@ static status_t
 vmi_read_X_va(
     vmi_instance_t vmi,
     addr_t vaddr,
-    int pid,
+    vmi_pid_t pid,
     void *value,
-    int size)
+    size_t size)
 {
-    size_t len_read = vmi_read_va(vmi, vaddr, pid, value, size);
+    return vmi_read_va(vmi, vaddr, pid, size, value, NULL);
 
-    if (len_read == size) {
-        return VMI_SUCCESS;
-    }
-    else {
-        return VMI_FAILURE;
-    }
 }
 
 status_t
@@ -273,6 +277,9 @@ vmi_read_str_va(
  
     rtnval = NULL;
 
+    status_t ret;
+    ret = VMI_FAILURE;
+
     while (read_more) {
         if (pid) {
             //paddr = vmi_translate_uv2p(vmi, vaddr + len, pid);
@@ -280,10 +287,10 @@ vmi_read_str_va(
 			return 0;
         }
         else {
-            paddr = vmi_translate_kv2p(vmi, vaddr + len);
+            ret = vmi_translate_kv2p(vmi, vaddr + len, &paddr);
         }
 
-        if (!paddr) {
+        if (ret == VMI_FAILURE) {
             return rtnval;
         }
 
@@ -318,550 +325,292 @@ vmi_read_str_va(
     return rtnval;
 }
 
-status_t
+
+#if defined(I386) || defined(X86_64)
+
+static status_t
 tiny_get_vcpureg_pv64(
     vmi_instance_t vmi,
-    reg_t *value,
-    registers_t reg,
+    uint64_t *value,
+    reg_t reg,
     unsigned long vcpu)
 {
-    status_t ret = VMI_SUCCESS;
-    vcpu_guest_context_any_t ctx = { 0 };
-    xen_domctl_t domctl = { 0 };
+    vcpu_guest_context_x86_64_t* vcpu_ctx = NULL;
+    vcpu_guest_context_any_t ctx;
+    xen_instance_t *xen = xen_get_instance(vmi);
 
-    if (xc_vcpu_getcontext
-        ((vmi)->xchandle, vmi->domainid, vcpu, &ctx)) {
-        printf("Failed to get context information (PV domain).\n");
-        ret = VMI_FAILURE;
-        goto _bail;
+    if ( !vcpu_ctx ) {
+        if (xen->libxcw.xc_vcpu_getcontext(xen->xchandle, xen->domainid, vcpu, &ctx))
+        {
+            errprint("Failed to get context information (PV domain).\n");
+            return VMI_FAILURE;
+        }
+
+        vcpu_ctx = &ctx.x64;
     }
 
     switch (reg) {
     case RAX:
-        *value = (reg_t) ctx.x64.user_regs.rax;
+        *value = (reg_t) vcpu_ctx->user_regs.rax;
         break;
     case RBX:
-        *value = (reg_t) ctx.x64.user_regs.rbx;
+        *value = (reg_t) vcpu_ctx->user_regs.rbx;
         break;
     case RCX:
-        *value = (reg_t) ctx.x64.user_regs.rcx;
+        *value = (reg_t) vcpu_ctx->user_regs.rcx;
         break;
     case RDX:
-        *value = (reg_t) ctx.x64.user_regs.rdx;
+        *value = (reg_t) vcpu_ctx->user_regs.rdx;
         break;
     case RBP:
-        *value = (reg_t) ctx.x64.user_regs.rbp;
+        *value = (reg_t) vcpu_ctx->user_regs.rbp;
         break;
     case RSI:
-        *value = (reg_t) ctx.x64.user_regs.rsi;
+        *value = (reg_t) vcpu_ctx->user_regs.rsi;
         break;
     case RDI:
-        *value = (reg_t) ctx.x64.user_regs.rdi;
+        *value = (reg_t) vcpu_ctx->user_regs.rdi;
         break;
     case RSP:
-        *value = (reg_t) ctx.x64.user_regs.rsp;
+        *value = (reg_t) vcpu_ctx->user_regs.rsp;
         break;
     case R8:
-        *value = (reg_t) ctx.x64.user_regs.r8;
+        *value = (reg_t) vcpu_ctx->user_regs.r8;
         break;
     case R9:
-        *value = (reg_t) ctx.x64.user_regs.r9;
+        *value = (reg_t) vcpu_ctx->user_regs.r9;
         break;
     case R10:
-        *value = (reg_t) ctx.x64.user_regs.r10;
+        *value = (reg_t) vcpu_ctx->user_regs.r10;
         break;
     case R11:
-        *value = (reg_t) ctx.x64.user_regs.r11;
+        *value = (reg_t) vcpu_ctx->user_regs.r11;
         break;
     case R12:
-        *value = (reg_t) ctx.x64.user_regs.r12;
+        *value = (reg_t) vcpu_ctx->user_regs.r12;
         break;
     case R13:
-        *value = (reg_t) ctx.x64.user_regs.r13;
+        *value = (reg_t) vcpu_ctx->user_regs.r13;
         break;
     case R14:
-        *value = (reg_t) ctx.x64.user_regs.r14;
+        *value = (reg_t) vcpu_ctx->user_regs.r14;
         break;
     case R15:
-        *value = (reg_t) ctx.x64.user_regs.r15;
+        *value = (reg_t) vcpu_ctx->user_regs.r15;
         break;
 
     case RIP:
-        *value = (reg_t) ctx.x64.user_regs.rip;
+        *value = (reg_t) vcpu_ctx->user_regs.rip;
         break;
     case RFLAGS:
-        *value = (reg_t) ctx.x64.user_regs.rflags;
+        *value = (reg_t) vcpu_ctx->user_regs.rflags;
         break;
 
     case CR0:
-        *value = (reg_t) ctx.x64.ctrlreg[0];
-    	printf("--LELE: %s get cr0 from hw_ctxt: %x\n",__FUNCTION__,*value);
+        *value = (reg_t) vcpu_ctx->ctrlreg[0];
         break;
     case CR2:
-        *value = (reg_t) ctx.x64.ctrlreg[2];
+        *value = (reg_t) vcpu_ctx->ctrlreg[2];
         break;
     case CR3:
-        *value = (reg_t) ctx.x64.ctrlreg[3];
-        *value = (reg_t) xen_cr3_to_pfn_x86_64(*value) << XC_PAGE_SHIFT;
-    	printf("--LELE: %s get cr3 from hw_ctxt: %x\n",__FUNCTION__,*value);
+        *value = (reg_t) vcpu_ctx->ctrlreg[3];
+        *value = (reg_t) (xen_cr3_to_pfn_x86_64(*value) << XC_PAGE_SHIFT);
         break;
     case CR4:
-        *value = (reg_t) ctx.x64.ctrlreg[4];
+        *value = (reg_t) vcpu_ctx->ctrlreg[4];
         break;
 
     case DR0:
-        *value = (reg_t) ctx.x64.debugreg[0];
+        *value = (reg_t) vcpu_ctx->debugreg[0];
         break;
     case DR1:
-        *value = (reg_t) ctx.x64.debugreg[1];
+        *value = (reg_t) vcpu_ctx->debugreg[1];
         break;
     case DR2:
-        *value = (reg_t) ctx.x64.debugreg[2];
+        *value = (reg_t) vcpu_ctx->debugreg[2];
         break;
     case DR3:
-        *value = (reg_t) ctx.x64.debugreg[3];
+        *value = (reg_t) vcpu_ctx->debugreg[3];
         break;
     case DR6:
-        *value = (reg_t) ctx.x64.debugreg[6];
+        *value = (reg_t) vcpu_ctx->debugreg[6];
         break;
     case DR7:
-        *value = (reg_t) ctx.x64.debugreg[7];
+        *value = (reg_t) vcpu_ctx->debugreg[7];
         break;
     case FS_BASE:
-        *value = (reg_t) ctx.x64.fs_base;
+        *value = (reg_t) vcpu_ctx->fs_base;
         break;
     case GS_BASE:  // TODO: distinguish between kernel & user
-        *value = (reg_t) ctx.x64.gs_base_kernel;
+        *value = (reg_t) vcpu_ctx->gs_base_kernel;
         break;
     case LDTR_BASE:
-        *value = (reg_t) ctx.x64.ldt_base;
+        *value = (reg_t) vcpu_ctx->ldt_base;
         break;
     default:
-        ret = VMI_FAILURE;
-        break;
+        return VMI_FAILURE;
     }
 
-_bail:
-    return ret;
+    return VMI_SUCCESS;
 }
 
-status_t 
-tiny_get_vcpureg_pv32(
-    vmi_instance_t vmi,
-    reg_t *value,
-    registers_t reg,
-    unsigned long vcpu)
-{
-    status_t ret = VMI_SUCCESS;
-    vcpu_guest_context_any_t ctx = { 0 };
-    xen_domctl_t domctl = { 0 };
-	
-	if (NULL == (vmi)->xchandle) {
-	    (vmi)->xchandle = xc_interface_open(NULL, NULL, 0);
-	    printf("--LELE: open libxc interface.\n");
-	}
-	if (NULL == (vmi)->xchandle) {
-	    printf("Failed to open libxc interface.\n");
-	}
+
+// static status_t
+// tiny_get_vcpureg_pv32(
+//     vmi_instance_t vmi,
+//     uint64_t *value,
+//     reg_t reg,
+//     unsigned long vcpu)
+// {
+//     vcpu_guest_context_x86_32_t* vcpu_ctx = NULL;
+//     xen_instance_t *xen = xen_get_instance(vmi);
+//     vcpu_guest_context_any_t ctx;
+
+//     if (NULL == vcpu_ctx) {
+//         if (xen->libxcw.xc_vcpu_getcontext(xen->xchandle, xen->domainid, vcpu, &ctx))
+//         {
+//             errprint("Failed to get context information (PV domain).\n");
+//             return VMI_FAILURE;
+//         }
+//         vcpu_ctx = &ctx.x32;
+//     }
+
+//     switch (reg) {
+//     case RAX:
+//         *value = (reg_t) vcpu_ctx->user_regs.eax;
+//         break;
+//     case RBX:
+//         *value = (reg_t) vcpu_ctx->user_regs.ebx;
+//         break;
+//     case RCX:
+//         *value = (reg_t) vcpu_ctx->user_regs.ecx;
+//         break;
+//     case RDX:
+//         *value = (reg_t) vcpu_ctx->user_regs.edx;
+//         break;
+//     case RBP:
+//         *value = (reg_t) vcpu_ctx->user_regs.ebp;
+//         break;
+//     case RSI:
+//         *value = (reg_t) vcpu_ctx->user_regs.esi;
+//         break;
+//     case RDI:
+//         *value = (reg_t) vcpu_ctx->user_regs.edi;
+//         break;
+//     case RSP:
+//         *value = (reg_t) vcpu_ctx->user_regs.esp;
+//         break;
+
+//     case RIP:
+//         *value = (reg_t) vcpu_ctx->user_regs.eip;
+//         break;
+//     case RFLAGS:
+//         *value = (reg_t) vcpu_ctx->user_regs.eflags;
+//         break;
+
+//     case CR0:
+//         *value = (reg_t) vcpu_ctx->ctrlreg[0];
+//         break;
+//     case CR2:
+//         *value = (reg_t) vcpu_ctx->ctrlreg[2];
+//         break;
+//     case CR3:
+//         *value = (reg_t) vcpu_ctx->ctrlreg[3];
+//         *value = (reg_t) xen_cr3_to_pfn_x86_32(*value) << XC_PAGE_SHIFT;
+//         break;
+//     case CR4:
+//         *value = (reg_t) vcpu_ctx->ctrlreg[4];
+//         break;
+
+//     case DR0:
+//         *value = (reg_t) vcpu_ctx->debugreg[0];
+//         break;
+//     case DR1:
+//         *value = (reg_t) vcpu_ctx->debugreg[1];
+//         break;
+//     case DR2:
+//         *value = (reg_t) vcpu_ctx->debugreg[2];
+//         break;
+//     case DR3:
+//         *value = (reg_t) vcpu_ctx->debugreg[3];
+//         break;
+//     case DR6:
+//         *value = (reg_t) vcpu_ctx->debugreg[6];
+//         break;
+//     case DR7:
+//         *value = (reg_t) vcpu_ctx->debugreg[7];
+//         break;
+//     case LDTR_BASE:
+//         *value = (reg_t) vcpu_ctx->ldt_base;
+//         break;
+//     default:
+//         return VMI_FAILURE;
+//     }
+
+//     return VMI_SUCCESS;
+// }
 
 
-    if (xc_vcpu_getcontext
-        (vmi->xchandle,vmi->domainid, vcpu, &ctx)) {
-        printf("Failed to get context information (PV domain).\n");
-        ret = VMI_FAILURE;
-        goto _bail;
-    }
-
-    switch (reg) {
-    case RAX:
-        *value = (reg_t) ctx.x32.user_regs.eax;
-        break;
-    case RBX:
-        *value = (reg_t) ctx.x32.user_regs.ebx;
-        break;
-    case RCX:
-        *value = (reg_t) ctx.x32.user_regs.ecx;
-        break;
-    case RDX:
-        *value = (reg_t) ctx.x32.user_regs.edx;
-        break;
-    case RBP:
-        *value = (reg_t) ctx.x32.user_regs.ebp;
-        break;
-    case RSI:
-        *value = (reg_t) ctx.x32.user_regs.esi;
-        break;
-    case RDI:
-        *value = (reg_t) ctx.x32.user_regs.edi;
-        break;
-    case RSP:
-        *value = (reg_t) ctx.x32.user_regs.esp;
-        break;
-
-    case RIP:
-        *value = (reg_t) ctx.x32.user_regs.eip;
-        break;
-    case RFLAGS:
-        *value = (reg_t) ctx.x32.user_regs.eflags;
-        break;
-
-    case CR0:
-        *value = (reg_t) ctx.x32.ctrlreg[0];
-    	printf("--LELE: %s get cr0 from hw_ctxt: %x\n",__FUNCTION__,*value);
-        break;
-    case CR2:
-        *value = (reg_t) ctx.x32.ctrlreg[2];
-        break;
-    case CR3:
-        *value = (reg_t) ctx.x32.ctrlreg[3];
-        *value = (reg_t) xen_cr3_to_pfn_x86_32(*value) << XC_PAGE_SHIFT;
-    	printf("--LELE: %s get cr3 from hw_ctxt: %x\n",__FUNCTION__,*value);
-        break;
-    case CR4:
-        *value = (reg_t) ctx.x32.ctrlreg[4];
-        break;
-
-    case DR0:
-        *value = (reg_t) ctx.x32.debugreg[0];
-        break;
-    case DR1:
-        *value = (reg_t) ctx.x32.debugreg[1];
-        break;
-    case DR2:
-        *value = (reg_t) ctx.x32.debugreg[2];
-        break;
-    case DR3:
-        *value = (reg_t) ctx.x32.debugreg[3];
-        break;
-    case DR6:
-        *value = (reg_t) ctx.x32.debugreg[6];
-        break;
-    case DR7:
-        *value = (reg_t) ctx.x32.debugreg[7];
-        break;
-    case LDTR_BASE:
-        *value = (reg_t) ctx.x32.ldt_base;
-        break;
-    default:
-        ret = VMI_FAILURE;
-        break;
-    }
-
-_bail:
-    return ret;
-}
-
-status_t
-tiny_get_vcpureg_hvm(vmi_instance_t vmi,
-    reg_t *value,
-    registers_t reg,
-    unsigned long vcpu)
-{
-	
-    //libvmi_xenctrl_handle_t xchandle=NULL;
-
-    status_t ret = VMI_SUCCESS;
-    struct hvm_hw_cpu hw_ctxt = { 0 };
-	
-	if (NULL == (vmi)->xchandle) {
-	    (vmi)->xchandle = xc_interface_open(NULL, NULL, 0);
-	    printf("--LELE: open libxc interface.\n");
-	}
-	if (NULL == (vmi)->xchandle) {
-	    printf("Failed to open libxc interface.\n");
-	}
-
-
-    if (xc_domain_hvm_getcontext_partial
-        ((vmi)->xchandle, (vmi)->domainid,
-         HVM_SAVE_CODE(CPU), vcpu, &hw_ctxt, sizeof hw_ctxt) != 0) {
-        printf("--LELE:ERROR: Failed to get context information (HVM domain).\n");
-        ret = VMI_FAILURE;
-        return ret;
-    }
-    printf("--LELE: get the hw_ctxt\n");
-
-    switch (reg) {
-    case RAX:
-        *value = (reg_t) hw_ctxt.rax;
-        break;
-    case RBX:
-        *value = (reg_t) hw_ctxt.rbx;
-        break;
-    case RCX:
-        *value = (reg_t) hw_ctxt.rcx;
-        break;
-    case RDX:
-        *value = (reg_t) hw_ctxt.rdx;
-        break;
-    case RBP:
-        *value = (reg_t) hw_ctxt.rbp;
-        break;
-    case RSI:
-        *value = (reg_t) hw_ctxt.rsi;
-        break;
-    case RDI:
-        *value = (reg_t) hw_ctxt.rdi;
-        break;
-    case RSP:
-        *value = (reg_t) hw_ctxt.rsp;
-        break;
-    case R8:
-        *value = (reg_t) hw_ctxt.r8;
-        break;
-    case R9:
-        *value = (reg_t) hw_ctxt.r9;
-        break;
-    case R10:
-        *value = (reg_t) hw_ctxt.r10;
-        break;
-    case R11:
-        *value = (reg_t) hw_ctxt.r11;
-        break;
-    case R12:
-        *value = (reg_t) hw_ctxt.r12;
-        break;
-    case R13:
-        *value = (reg_t) hw_ctxt.r13;
-        break;
-    case R14:
-        *value = (reg_t) hw_ctxt.r14;
-        break;
-    case R15:
-        *value = (reg_t) hw_ctxt.r15;
-        break;
-    case RIP:
-        *value = (reg_t) hw_ctxt.rip;
-        break;
-    case RFLAGS:
-        *value = (reg_t) hw_ctxt.rflags;
-        break;
-
-    case CR0:
-        *value = (reg_t) hw_ctxt.cr0;
-    	printf("--LELE: %s get cr0 from hw_ctxt: %x\n",__FUNCTION__,*value);
-        break;
-    case CR2:
-        *value = (reg_t) hw_ctxt.cr2;
-        break;
-    case CR3:
-        *value = (reg_t) hw_ctxt.cr3;
-    	printf("--LELE: %s, get cr3 from hw_ctxt: %x\n",__FUNCTION__,*value);
-        break;
-    case CR4:
-        *value = (reg_t) hw_ctxt.cr4;
-        break;
-
-    case DR0:
-        *value = (reg_t) hw_ctxt.dr0;
-        break;
-    case DR1:
-        *value = (reg_t) hw_ctxt.dr1;
-        break;
-    case DR2:
-        *value = (reg_t) hw_ctxt.dr2;
-        break;
-    case DR3:
-        *value = (reg_t) hw_ctxt.dr3;
-        break;
-    case DR6:
-        *value = (reg_t) hw_ctxt.dr6;
-        break;
-    case DR7:
-        *value = (reg_t) hw_ctxt.dr7;
-        break;
-
-    case CS_SEL:
-        *value = (reg_t) hw_ctxt.cs_sel;
-        break;
-    case DS_SEL:
-        *value = (reg_t) hw_ctxt.ds_sel;
-        break;
-    case ES_SEL:
-        *value = (reg_t) hw_ctxt.es_sel;
-        break;
-    case FS_SEL:
-        *value = (reg_t) hw_ctxt.fs_sel;
-        break;
-    case GS_SEL:
-        *value = (reg_t) hw_ctxt.gs_sel;
-        break;
-    case SS_SEL:
-        *value = (reg_t) hw_ctxt.ss_sel;
-        break;
-    case TR_SEL:
-        *value = (reg_t) hw_ctxt.tr_sel;
-        break;
-    case LDTR_SEL:
-        *value = (reg_t) hw_ctxt.ldtr_sel;
-        break;
-
-    case CS_LIMIT:
-        *value = (reg_t) hw_ctxt.cs_limit;
-        break;
-    case DS_LIMIT:
-        *value = (reg_t) hw_ctxt.ds_limit;
-        break;
-    case ES_LIMIT:
-        *value = (reg_t) hw_ctxt.es_limit;
-        break;
-    case FS_LIMIT:
-        *value = (reg_t) hw_ctxt.fs_limit;
-        break;
-    case GS_LIMIT:
-        *value = (reg_t) hw_ctxt.gs_limit;
-        break;
-    case SS_LIMIT:
-        *value = (reg_t) hw_ctxt.ss_limit;
-        break;
-    case TR_LIMIT:
-        *value = (reg_t) hw_ctxt.tr_limit;
-        break;
-    case LDTR_LIMIT:
-        *value = (reg_t) hw_ctxt.ldtr_limit;
-        break;
-    case IDTR_LIMIT:
-        *value = (reg_t) hw_ctxt.idtr_limit;
-        break;
-    case GDTR_LIMIT:
-        *value = (reg_t) hw_ctxt.gdtr_limit;
-        break;
-
-    case CS_BASE:
-        *value = (reg_t) hw_ctxt.cs_base;
-        break;
-    case DS_BASE:
-        *value = (reg_t) hw_ctxt.ds_base;
-        break;
-    case ES_BASE:
-        *value = (reg_t) hw_ctxt.es_base;
-        break;
-    case FS_BASE:
-        *value = (reg_t) hw_ctxt.fs_base;
-        break;
-    case GS_BASE:
-        *value = (reg_t) hw_ctxt.gs_base;
-        break;
-    case SS_BASE:
-        *value = (reg_t) hw_ctxt.ss_base;
-        break;
-    case TR_BASE:
-        *value = (reg_t) hw_ctxt.tr_base;
-        break;
-    case LDTR_BASE:
-        *value = (reg_t) hw_ctxt.ldtr_base;
-    	printf("--LELE: %s, get LDTR_BASE from hw_ctxt: %x\n",__FUNCTION__,*value);
-        break;
-    case IDTR_BASE:
-        *value = (reg_t) hw_ctxt.idtr_base;
-    	printf("--LELE: %s, get IDTR_BASE from hw_ctxt: %x\n",__FUNCTION__,*value);
-        break;
-    case GDTR_BASE:
-        *value = (reg_t) hw_ctxt.gdtr_base;
-    	printf("--LELE: %s, get GDTR_BASE from hw_ctxt: %x\n",__FUNCTION__,*value);
-        break;
-
-    case CS_ARBYTES:
-        *value = (reg_t) hw_ctxt.cs_arbytes;
-        break;
-    case DS_ARBYTES:
-        *value = (reg_t) hw_ctxt.ds_arbytes;
-        break;
-    case ES_ARBYTES:
-        *value = (reg_t) hw_ctxt.es_arbytes;
-        break;
-    case FS_ARBYTES:
-        *value = (reg_t) hw_ctxt.fs_arbytes;
-        break;
-    case GS_ARBYTES:
-        *value = (reg_t) hw_ctxt.gs_arbytes;
-        break;
-    case SS_ARBYTES:
-        *value = (reg_t) hw_ctxt.ss_arbytes;
-        break;
-    case TR_ARBYTES:
-        *value = (reg_t) hw_ctxt.tr_arbytes;
-        break;
-    case LDTR_ARBYTES:
-        *value = (reg_t) hw_ctxt.ldtr_arbytes;
-        break;
-
-    case SYSENTER_CS:
-        *value = (reg_t) hw_ctxt.sysenter_cs;
-        break;
-    case SYSENTER_ESP:
-        *value = (reg_t) hw_ctxt.sysenter_esp;
-        break;
-    case SYSENTER_EIP:
-        *value = (reg_t) hw_ctxt.sysenter_eip;
-        break;
-    case SHADOW_GS:
-        *value = (reg_t) hw_ctxt.shadow_gs;
-        break;
-
-    case MSR_FLAGS:
-        *value = (reg_t) hw_ctxt.msr_flags;
-        break;
-    case MSR_LSTAR:
-        *value = (reg_t) hw_ctxt.msr_lstar;
-        break;
-    case MSR_CSTAR:
-        *value = (reg_t) hw_ctxt.msr_cstar;
-        break;
-    case MSR_SYSCALL_MASK:
-        *value = (reg_t) hw_ctxt.msr_syscall_mask;
-        break;
-    case MSR_EFER:
-        *value = (reg_t) hw_ctxt.msr_efer;
-        break;
-
-#ifdef DECLARE_HVM_SAVE_TYPE_COMPAT
-        /* Handle churn in struct hvm_hw_cpu (from xen/hvm/save.h)
-         * that would prevent otherwise-compatible Xen 4.0 branches
-         * from building.
-         *
-         * Checking this is less than ideal, but seemingly
-         * the cleanest means of accomplishing the necessary check.
-         *
-         * see http://xenbits.xen.org/hg/xen-4.0-testing.hg/rev/57721c697c46
-         */
-    case MSR_TSC_AUX:
-        *value = (reg_t) hw_ctxt.msr_tsc_aux;
-        break;
 #endif
 
-    case TSC:
-        *value = (reg_t) hw_ctxt.tsc;
-        break;
-    default:
-        ret = VMI_FAILURE;
-        break;
-    }
+// status_t
+// // tiny_get_vcpureg(
+//     vmi_instance_t vmi,
+//     uint64_t *value,
+//     reg_t reg,
+//     unsigned long vcpu)
+// {
+// #if defined(ARM32) || defined(ARM64)
+//     return xen_get_vcpureg_arm(vmi, value, reg, vcpu);
+// #elif defined(I386) || defined (X86_64)
+//     if (vmi->vm_type == HVM)
+//         return xen_get_vcpureg_hvm (vmi, value, reg, vcpu);
+//     else {
+//         if (vmi->vm_type == PV64)
+//             return xen_get_vcpureg_pv64(vmi, value, reg, vcpu);
+//         else if (vmi->vm_type == PV32)
+//             return xen_get_vcpureg_pv32(vmi, value, reg, vcpu);
+//     }
 
-    	printf("--LELE: end of function %s, ret=%d\n",__FUNCTION__,ret);
-    return ret;
-}
+//     return VMI_FAILURE;
+// #endif
+// }
 
 
 status_t
-tiny_get_vcpureg(
-    vmi_instance_t vmi,
-    reg_t *value,
-    registers_t reg,
-    unsigned long vcpu)
+tiny_test(
+    uint64_t domainid,
+    const char *name)
 {
-    if (!(vmi)->hvm) {
-        if (8 == vmi->addr_width) {
-            return tiny_get_vcpureg_pv64(vmi, value, reg, vcpu);
-        }
-        else {
-            return tiny_get_vcpureg_pv32(vmi, value, reg, vcpu);
+    struct vmi_instance _vmi = {0};
+    vmi_instance_t vmi = &_vmi;
+
+    dbprint(VMI_DEBUG_XEN, "now in %s\n", __FUNCTION__);
+  
+    if (domainid == VMI_INVALID_DOMID && name == NULL) {
+        errprint("VMI_ERROR: xen_test: domid or name must be specified\n");
+        return VMI_FAILURE;
+    }
+
+    if ( VMI_FAILURE == xen_init(vmi, 0, NULL) )
+        return VMI_FAILURE;
+
+    if (domainid == VMI_INVALID_DOMID) { /* name != NULL */
+        domainid = xen_get_domainid_from_name(vmi, name);
+        if (domainid == VMI_INVALID_DOMID) {
+            xen_destroy(vmi);
+            return VMI_FAILURE;
         }
     }
 
-    return tiny_get_vcpureg_hvm(vmi, value, reg, vcpu);
-}
+    if ( VMI_FAILURE == xen_check_domainid(vmi, domainid) ) {
+        xen_destroy(vmi);
+        return VMI_FAILURE;
+    }
 
+    xen_destroy(vmi);
+    return VMI_SUCCESS;
+}
 
 
 void tiny_print_hex(int pfn,unsigned char *data, unsigned long length)
@@ -955,6 +704,8 @@ void * tiny_get_memory_pfn(vmi_instance_t *vmi, addr_t pfn)
 	void *memory;
 	unsigned long domainid=(*vmi)->domainid;
 		
+    xen_instance_t *xen = xen_get_instance(vmi);
+    
 //libvmi_xenctrl_handle_t xchandle=NULL;
 
 	/* open handle to the libxc interface */
@@ -964,16 +715,17 @@ void * tiny_get_memory_pfn(vmi_instance_t *vmi, addr_t pfn)
 //	if (NULL == xchandle) {
 //	    printf("Failed to open libxc interface.\n");
 //	}
-  	if (NULL == (*vmi)->xchandle) {
-	    (*vmi)->xchandle = xc_interface_open(NULL, NULL, 0);
+  	if (NULL == xen->xchandle) {
+	    xen->xchandle = xc_interface_open(NULL, NULL, 0);
 	}
-	if (NULL == (*vmi)->xchandle) {
+	if (NULL == xen->xchandle) {
 	    printf("Failed to open libxc interface.\n");
+        return NULL;
 	}
 
-	printf("--test xchandle:%llx\n",(unsigned long long)(*vmi)->xchandle);
+	printf("--test xchandle:%llx\n",(unsigned long long)xen->xchandle);
 	printf("--test domainid:%d\n",(*vmi)->domainid);
-	memory = xc_map_foreign_range((*vmi)->xchandle,(*vmi)->domainid,XC_PAGE_SIZE,PROT_READ,(unsigned long)pfn);
+	memory = xc_map_foreign_range(xen->xchandle,(*vmi)->domainid,XC_PAGE_SIZE,PROT_READ,(unsigned long)pfn);
 	if (MAP_FAILED == memory || NULL == memory) {
 		printf("--tiny_get_memory_pfn failed on pfn=0x%"PRIx64"\n", pfn);
 		return NULL;
@@ -993,45 +745,48 @@ void * tiny_get_memory_pfn(vmi_instance_t *vmi, addr_t pfn)
 
 }
 
-//TODO assuming length == page size is safe for now, but isn't the most clean approach
-void *
-xen_get_memory_pfn(
-    vmi_instance_t vmi,
-    addr_t pfn,
-    int prot)
-{
-    void *memory = xc_map_foreign_range(vmi->xchandle,
-                                        vmi->domainid,
-                                        XC_PAGE_SIZE,
-                                        prot,
-                                        (unsigned long) pfn);
+// //TODO assuming length == page size is safe for now, but isn't the most clean approach
+// void *
+// xen_get_memory_pfn(
+//     vmi_instance_t vmi,
+//     addr_t pfn,
+//     int prot)
+// {
 
-    if (NULL == memory) {
-        printf("--xen_get_memory_pfn failed on pfn=0x%"PRIx64"\n", pfn);
-        return NULL;
-    }
+//     xen_instance_t *xen = xen_get_instance(vmi);
 
-#ifdef VMI_DEBUG
-    // copy memory to local address space - handy for examination
-    uint8_t buf[XC_PAGE_SIZE];
+//     void *memory = xc_map_foreign_range(xen->xchandle,
+//                                         vmi->domainid,
+//                                         XC_PAGE_SIZE,
+//                                         prot,
+//                                         (unsigned long) pfn);
 
-    memcpy(buf, memory, XC_PAGE_SIZE);
-#endif // VMI_DEBUG
+//     if (NULL == memory) {
+//         printf("--xen_get_memory_pfn failed on pfn=0x%"PRIx64"\n", pfn);
+//         return NULL;
+//     }
 
-    return memory;
-}
+// #ifdef VMI_DEBUG
+//     // copy memory to local address space - handy for examination
+//     uint8_t buf[XC_PAGE_SIZE];
 
-void *
-xen_get_memory(
-    vmi_instance_t vmi,
-    addr_t paddr,
-    uint32_t length)
-{
-    addr_t pfn = paddr >> vmi->page_shift;
+//     memcpy(buf, memory, XC_PAGE_SIZE);
+// #endif // VMI_DEBUG
 
-    //TODO assuming length == page size is safe for now, but isn't the most clean approach
-    return xen_get_memory_pfn(vmi, pfn, PROT_READ);
-}
+//     return memory;
+// }
+
+// void *
+// xen_get_memory(
+//     vmi_instance_t vmi,
+//     addr_t paddr,
+//     uint32_t length)
+// {
+//     addr_t pfn = paddr >> vmi->page_shift;
+
+//     //TODO assuming length == page size is safe for now, but isn't the most clean approach
+//     return xen_get_memory_pfn(vmi, pfn, PROT_READ);
+// }
 
 
 ///////////////////////////////////////////////////////////
@@ -1043,14 +798,9 @@ vmi_read_X_pa(
     void *value,
     int size)
 {
-    size_t len_read = vmi_read_pa(vmi, paddr, value, size);
+    size_t len_read = 0;
+    return vmi_read_pa(vmi, paddr, size, value, &len_read);
 
-    if (len_read == size) {
-        return VMI_SUCCESS;
-    }
-    else {
-        return VMI_FAILURE;
-    }
 }
 
 status_t
@@ -1090,13 +840,19 @@ vmi_read_64_pa(
 
 
 // Reads memory at a guest's physical address
-size_t
-vmi_read_pa(
+// size_t
+// vmi_read_pa(
+//     vmi_instance_t vmi,
+//     addr_t paddr,
+//     void *buf,
+//     size_t count)
+
+status_t vmi_read_pa(
     vmi_instance_t vmi,
     addr_t paddr,
+    size_t count,
     void *buf,
-    size_t count)
-{
+    size_t *bytes_read ){
     //TODO not sure how to best handle this with respect to page size.  Is this hypervisor dependent?
     //  For example, the pfn for a given paddr should vary based on the size of the page where the
     //  paddr resides.  However, it is hard to know the page size from just the paddr.  For now, just
@@ -1117,7 +873,7 @@ vmi_read_pa(
         offset = (vmi->page_size - 1) & phys_address;
         memory = vmi_read_page(vmi, pfn);
         if (NULL == memory) {
-            return buf_offset;
+            return VMI_FAILURE;
         }
 
         /* determine how much we can read */
@@ -1136,8 +892,8 @@ vmi_read_pa(
         count -= read_len;
         buf_offset += read_len;
     }
-
-    return buf_offset;
+    *bytes_read = buf_offset;
+    return VMI_SUCCESS;
 }
 
 
@@ -1165,29 +921,29 @@ vmi_read_page (vmi_instance_t vmi, addr_t frame_num)
 }
 
 
-int test_print_physical(vmi_instance_t *vmi,int pfn){
+// int test_print_physical(vmi_instance_t *vmi,int pfn){
 	
-	reg_t cr3=0;
-	int vcpu=0;
-	void *memory;
+// 	reg_t cr3=0;
+// 	int vcpu=0;
+// 	void *memory;
 	
-	printf("--LELE: now in %s\n",__FUNCTION__);
+// 	printf("--LELE: now in %s\n",__FUNCTION__);
 
-	printf("--LELE: test pfn:0x%.16"PRIx64" for domain : %d\n",pfn,(*vmi)->domainid);
+// 	printf("--LELE: test pfn:0x%.16"PRIx64" for domain : %d\n",pfn,(*vmi)->domainid);
 
-	sleep(2);
+// 	sleep(2);
 
-	memory=tiny_get_memory_pfn(vmi,pfn);
+// 	memory=tiny_get_memory_pfn(vmi,pfn);
 
-	tiny_print_hex(pfn,memory,XC_PAGE_SIZE>>4);
+// 	tiny_print_hex(pfn,memory,XC_PAGE_SIZE>>4);
 	
-	if(tiny_get_vcpureg_hvm((*vmi), &cr3,CR3, vcpu)==0){
-	   printf("--LELE: read cr3 0x%x, in domain %d, vcpu: %d\n", cr3, (*vmi)->domainid, vcpu);
-	}
-	else{
-	   printf("--LELE: ERROR calling tiny_get_vcpureg_hvm\n");
-	}
-	return 0;
-}
+// 	if(tiny_get_vcpureg_hvm((*vmi), &cr3,CR3, vcpu)==0){
+// 	   printf("--LELE: read cr3 0x%x, in domain %d, vcpu: %d\n", cr3, (*vmi)->domainid, vcpu);
+// 	}
+// 	else{
+// 	   printf("--LELE: ERROR calling tiny_get_vcpureg_hvm\n");
+// 	}
+// 	return 0;
+// }
 
 

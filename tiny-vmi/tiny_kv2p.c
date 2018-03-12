@@ -1,43 +1,56 @@
 #include "tiny_private.h"
 
 /* expose virtual to physical mapping for kernel space via api call */
-addr_t vmi_translate_kv2p (vmi_instance_t vmi, addr_t virt_address)
-{
+// addr_t vmi_translate_kv2p (vmi_instance_t vmi, addr_t virt_address)
+
+status_t vmi_translate_kv2p(
+    vmi_instance_t vmi,
+    addr_t virt_address,
+    addr_t *paddr) {
+
     reg_t cr3 = 0;
 
    // printf("---in %s\n",__FUNCTION__);
     if (vmi->kpgd) {
         cr3 = vmi->kpgd;
 	//	printf("---has vmi->kgpd, in %s\n",__FUNCTION__);
-    }
-    else {
+    } else {
 		//printf("---no vmi->kgpd in %s, read it...\n",__FUNCTION__);
-        tiny_get_vcpureg(vmi, &cr3, CR3, 0);
+        // tiny_get_vcpureg(vmi, &cr3, CR3, 0);
+        xen_get_vcpureg(vmi, &cr3, CR3, 0);
 		//printf("---no vmi->kgpd in %s, read done...\n",__FUNCTION__);
     }
     if (!cr3) {
         printf("--early bail on v2p lookup because cr3 is zero\n");
-        return 0;
-    }
-    else {
-        return vmi_pagetable_lookup(vmi, cr3, virt_address);
+        return VMI_FAILURE;
+    } else {
+
+        vmi_pagetable_lookup(vmi, cr3, virt_address, paddr);
+        return VMI_SUCCESS;
     }
 }
 
-addr_t vmi_pagetable_lookup (vmi_instance_t vmi, addr_t dtb, addr_t vaddr)
-{
-	addr_t paddr = 0;
+
+
+// addr_t vmi_pagetable_lookup (vmi_instance_t vmi, addr_t dtb, addr_t vaddr)
+status_t vmi_pagetable_lookup (
+    vmi_instance_t vmi,
+    addr_t dtb,
+    addr_t vaddr,
+    addr_t *paddr){
+
+	    // addr_t paddr = 0;
 	
-		//printf("---in %s\n",__FUNCTION__);
+		dbprint(VMI_DEBUG_CORE, "---in %s\n",__FUNCTION__);
 		
 		/* check if entry exists in the cachec */
-		if (VMI_SUCCESS == v2p_cache_get(vmi, vaddr, dtb, &paddr)) {
+		if (VMI_SUCCESS == v2p_cache_get(vmi, vaddr, dtb, paddr)) {
 	
 			/* verify that address is still valid */
 			uint8_t value = 0;
 	
 			if (VMI_SUCCESS == vmi_read_8_pa(vmi, paddr, &value)) {
-				return paddr;
+				return VMI_SUCCESS;
 			}
 			else {
 				v2p_cache_del(vmi, vaddr, dtb);
@@ -55,117 +68,134 @@ addr_t vmi_pagetable_lookup (vmi_instance_t vmi, addr_t dtb, addr_t vaddr)
 			paddr = v2p_ia32e(vmi, dtb, vaddr);
 		}
 		else {
-			printf("--ERROR:Invalid paging mode during vmi_pagetable_lookup, in %s\n",__FUNCTION__);
+			dbprint(VMI_DEBUG_CORE, "--ERROR:Invalid paging mode during vmi_pagetable_lookup, in %s\n",__FUNCTION__);
 		}
 	
 		/* add this to the cache */
 		if (paddr) {
+            
+		    dbprint(VMI_DEBUG_CORE, "%s: now call v2p cache set\n",__FUNCTION__);
+		
 			v2p_cache_set(vmi, vaddr, dtb, paddr);
 		}
-		return paddr;
+        
+		dbprint(VMI_DEBUG_CORE, "%s: Done\n",__FUNCTION__);
+		
+		return VMI_SUCCESS;
 
 }
 
-addr_t v2p_nopae (vmi_instance_t vmi, addr_t dtb, addr_t vaddr)
-{
-	printf("----- function '%s' not implemented\n",__FUNCTION__);
-	return NULL;
-}
-addr_t v2p_ia32e (vmi_instance_t vmi, addr_t dtb, addr_t vaddr)
-{
-	printf("----- function '%s' not implemented\n",__FUNCTION__);
-	return NULL;
-}
+// addr_t v2p_nopae (vmi_instance_t vmi, addr_t dtb, addr_t vaddr)
+// {
+// 	printf("----- function '%s' not implemented\n",__FUNCTION__);
+// 	return NULL;
+// }
+// addr_t v2p_ia32e (vmi_instance_t vmi, addr_t dtb, addr_t vaddr)
+// {
+// 	printf("----- function '%s' not implemented\n",__FUNCTION__);
+// 	return NULL;
+// }
 
 
-addr_t v2p_pae (vmi_instance_t vmi, addr_t dtb, addr_t vaddr)
-{
-    addr_t paddr = 0;
-    uint64_t pdpe, pgd, pte;
+// addr_t v2p_pae (vmi_instance_t vmi, addr_t dtb, addr_t vaddr)
+// {
+//     addr_t paddr = 0;
+//     uint64_t pdpe, pgd, pte;
 
-    printf("--PTLookup: lookup vaddr = 0x%.16"PRIx64"\n", vaddr);
-    printf("--PTLookup: dtb = 0x%.16"PRIx64"\n", dtb);
-    pdpe = get_pdpi(vmi, vaddr, dtb);
-    printf("--PTLookup: pdpe = 0x%.16"PRIx64"\n", pdpe);
-    if (!entry_present(vmi->os_type, pdpe)) {
-        return paddr;
-    }
-    pgd = get_pgd_pae(vmi, vaddr, pdpe);
-    printf("--PTLookup: pgd = 0x%.16"PRIx64"\n", pgd);
+//     printf("--PTLookup: lookup vaddr = 0x%.16"PRIx64"\n", vaddr);
+//     printf("--PTLookup: dtb = 0x%.16"PRIx64"\n", dtb);
+//     pdpe = get_pdpi(vmi, vaddr, dtb);
+//     printf("--PTLookup: pdpe = 0x%.16"PRIx64"\n", pdpe);
+//     if (!entry_present(vmi->os_type, pdpe)) {
+//         return paddr;
+//     }
+//     pgd = get_pgd_pae(vmi, vaddr, pdpe);
+//     printf("--PTLookup: pgd = 0x%.16"PRIx64"\n", pgd);
 
-    if (entry_present(vmi->os_type, pgd)) {
-        if (page_size_flag(pgd)) {
-            paddr = get_large_paddr(vmi, vaddr, pgd);
-            printf("--PTLookup: 2MB page\n");
-        }
-        else {
-            pte = get_pte_pae(vmi, vaddr, pgd);
-            printf("--PTLookup: pte = 0x%.16"PRIx64"\n", pte);
-            if (entry_present(vmi->os_type, pte)) {
-                paddr = get_paddr_pae(vaddr, pte);
-            }
-        }
-    }
-    printf("--PTLookup: paddr = 0x%.16"PRIx64"\n", paddr);
-    return paddr;
-}
+//     if (entry_present(vmi->os_type, pgd)) {
+//         if (page_size_flag(pgd)) {
+//             paddr = get_large_paddr(vmi, vaddr, pgd);
+//             printf("--PTLookup: 2MB page\n");
+//         }
+//         else {
+//             pte = get_pte_pae(vmi, vaddr, pgd);
+//             printf("--PTLookup: pte = 0x%.16"PRIx64"\n", pte);
+//             if (entry_present(vmi->os_type, pte)) {
+//                 paddr = get_paddr_pae(vaddr, pte);
+//             }
+//         }
+//     }
+//     printf("--PTLookup: paddr = 0x%.16"PRIx64"\n", paddr);
+//     return paddr;
+// }
 
-uint32_t get_pdptb (uint32_t pdpr)
-{
-    return pdpr & 0xFFFFFFE0;
-}
 
-uint32_t pdpi_index (uint32_t pdpi)
-{
-    return (pdpi >> 30) * sizeof(uint64_t);
-}
+// // moved to arch/intel.c
+// uint32_t get_pdptb (uint32_t pdpr)
+// {
+//     return pdpr & 0xFFFFFFE0;
+// }
 
-uint64_t get_pdpi (vmi_instance_t instance, uint32_t vaddr, uint32_t cr3)
-{
-    uint64_t value;
-    uint32_t pdpi_entry = get_pdptb(cr3) + pdpi_index(vaddr);
+// // moved to arch/intel.c
+// uint32_t pdpi_index (uint32_t pdpi)
+// {
+//     return (pdpi >> 30) * sizeof(uint64_t);
+// }
 
-    printf("--PTLookup: pdpi_entry = 0x%.8x\n", pdpi_entry);
-    vmi_read_64_pa(instance, pdpi_entry, &value);
-    return value;
-}
+// moved to arch/intel.c
+// uint64_t get_pdpi (vmi_instance_t instance, uint32_t vaddr, uint32_t cr3)
+// {
+//     uint64_t value;
+//     uint32_t pdpi_entry = get_pdptb(cr3) + pdpi_index(vaddr);
 
-uint64_t pdba_base_pae (uint64_t pdpe)
-{
-    return pdpe & 0xFFFFFF000ULL;
-}
+//     printf("--PTLookup: pdpi_entry = 0x%.8x\n", pdpi_entry);
+//     vmi_read_64_pa(instance, pdpi_entry, &value);
+//     return value;
+// }
 
-uint32_t pgd_index (vmi_instance_t instance, uint32_t address)
-{
-    if (!instance->pae) {
-        return (((address) >> 22) & 0x3FF) * sizeof(uint32_t);
-    }
-    else {
-        return (((address) >> 21) & 0x1FF) * sizeof(uint64_t);
-    }
-}
-uint64_t get_pgd_pae (vmi_instance_t instance, uint32_t vaddr, uint64_t pdpe)
-{
-    uint64_t value;
-    uint32_t pgd_entry = pdba_base_pae(pdpe) + pgd_index(instance, vaddr);
-    printf("--PTLookup: pgd_entry = 0x%.8x\n", pgd_entry);
-    vmi_read_64_pa(instance, pgd_entry, &value);
-    return value;
-}
+//  // moved to arch/intel.c
+// uint64_t pdba_base_pae (uint64_t pdpe)
+// {
+//     return pdpe & 0xFFFFFF000ULL;
+// }
 
-/* bit flag testing */
-int entry_present (os_t os_type, uint64_t entry)
-{
-    if (vmi_get_bit(entry, 0))
-        return 1;
-    /* Support Windows "Transition" pages (bit 11) and not "Prototype PTE" (bit 10)
-     * pages on Windows.  See http://code.google.com/p/vmitools/issues/detail?id=35
-     */
-    if (os_type == VMI_OS_WINDOWS
-            && (vmi_get_bit(entry, 11) && !(vmi_get_bit(entry, 10))))
-        return 1;
-    return 0;
-}
+// // moved to arch/intel.c
+// uint32_t pgd_index (vmi_instance_t instance, uint32_t address)
+// {
+//     if (instance->page_mode != VMI_PM_PAE) {
+//         return (((address) >> 22) & 0x3FF) * sizeof(uint32_t);
+//     }
+//     else {
+//         return (((address) >> 21) & 0x1FF) * sizeof(uint64_t);
+//     }
+// }
+
+// // moved to arch/intel.c
+// uint64_t get_pgd_pae (vmi_instance_t instance, uint32_t vaddr, uint64_t pdpe)
+// {
+//     uint64_t value;
+//     uint32_t pgd_entry = pdba_base_pae(pdpe) + pgd_index(instance, vaddr);
+//     printf("--PTLookup: pgd_entry = 0x%.8x\n", pgd_entry);
+//     vmi_read_64_pa(instance, pgd_entry, &value);
+//     return value;
+// }
+
+//////////////////////////////////////////////////////
+
+// moved to include/x86.h as macro ENTRY_PRESENT
+// /* bit flag testing */
+// int entry_present (os_t os_type, uint64_t entry)
+// {
+//     if (vmi_get_bit(entry, 0))
+//         return 1;
+//     /* Support Windows "Transition" pages (bit 11) and not "Prototype PTE" (bit 10)
+//      * pages on Windows.  See http://code.google.com/p/vmitools/issues/detail?id=35
+//      */
+//     if (os_type == VMI_OS_WINDOWS
+//             && (vmi_get_bit(entry, 11) && !(vmi_get_bit(entry, 10))))
+//         return 1;
+//     return 0;
+// }
 
 int
 vmi_get_bit(
@@ -191,7 +221,7 @@ int page_size_flag (uint64_t entry)
 uint32_t get_large_paddr (vmi_instance_t instance, uint32_t vaddr,
         uint32_t pgd_entry)
 {
-    if (!instance->pae) {
+    if (instance->page_mode != VMI_PM_PAE) {
         return (pgd_entry & 0xFFC00000) | (vaddr & 0x3FFFFF);
     }
     else {
@@ -207,7 +237,8 @@ uint64_t ptba_base_pae (uint64_t pde)
 /* page table */
 uint32_t pte_index (vmi_instance_t instance, uint32_t address)
 {
-    if (!instance->pae) {
+    // if (!instance->pae) {
+    if (instance->page_mode != VMI_PM_PAE) {
         return (((address) >> 12) & 0x3FF) * sizeof(uint32_t);
     }
     else {
@@ -248,7 +279,7 @@ int test_v2p_pae(vmi_instance_t vmi, addr_t vaddr) {
 	void *memory;
 	printf("--LELE: now in %s\n",__FUNCTION__);
 	
-        paddr = vmi_translate_kv2p (vmi, VirtualAddressOfKernelSymbol);
+    vmi_translate_kv2p (vmi, VirtualAddressOfKernelSymbol, &paddr);
 
 	if( 0 == paddr )
 	{

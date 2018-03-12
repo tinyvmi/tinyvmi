@@ -24,24 +24,75 @@
  * along with LibVMI.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef TINY_PRIVATE_H
+#define TINY_PRIVATE_H
+
+#define _GNU_SOURCE
+
+// #ifdef HAVE_CONFIG_H
+#include <config.h>
+// #endif /* HAVE_CONFIG_H */
+
 //#include <glib.h>
+#include <tiny_glib.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <math.h>
 #include <ctype.h>
 #include <time.h>
 #include <inttypes.h>
-#include <xenctrl.h>
+// #include "libvmi.h"
+// #include "libvmi_extra.h"
+// #include "cache.h"
 #include "tiny_libvmi.h"
-//#include "tiny_kv2p.h"
 #include "tiny_cache.h"
 
-//#include "tiny_GetVaOfVectorInIDT.h"
+// #include "events.h"
+// #include "shm.h"
+// #include "slat.h"
+// #include "rekall.h"
+#include "debug.h"
+#include "arch/arch_interface.h"
+// #include "os/os_interface.h"
 
+#include <xenctrl.h>
+
+
+//Lele: testing with constant values, all need replacement. 
+// default return value of xen_get_domainid_from_name
+#define DOMAIN_ID 2
+// default enable hvm
+// #define HVM 1
+// default 32-bit guest system
+#define WIDTH 4
+
+/* * Legacy from LibVMI 0.10.1
+*/
 #define PAGE_SHIFT 12
 #define XENCTRL_HANDLE_INVALID (-1)
 //typedef int libvmi_xenctrl_handle_t;
 typedef xc_interface *libvmi_xenctrl_handle_t;
+
+/**
+ * Internal-only enumeration for various VM types.
+ */
+typedef enum vm_type {
+    NORMAL,
+    HVM,
+    PV32,
+    PV64
+} vm_type_t;
+
+#include "driver/driver_interface.h"
+
+
+//#include "tiny_GetVaOfVectorInIDT.h"
+
+// #define PAGE_SHIFT 12
+// #define XENCTRL_HANDLE_INVALID (-1)
+// //typedef int libvmi_xenctrl_handle_t;
+// typedef xc_interface *libvmi_xenctrl_handle_t;
 
 /**
  * @brief LibVMI Instance.
@@ -51,33 +102,137 @@ typedef xc_interface *libvmi_xenctrl_handle_t;
  * be created using the vmi_init function.  When you are done with an instance,
  * its resources can be freed using the vmi_destroy function.
  */
+// struct vmi_instance {
+
+//     uint32_t domainid;                     /* add by wyq*/
+
+//     libvmi_xenctrl_handle_t xchandle;      /* add by wyq*/
+
+//     int addr_width;	    /**< address width, 4 or 8 for 32-bit/64-bit target system, 2014.11.04, lele*/
+
+//     int hvm;                /**< nonzero if HVM, 2014.11.03, lele*/
+
+//     vmi_mode_t mode;        /**< VMI_FILE, VMI_XEN, VMI_KVM */
+
+//     uint32_t flags;         /**< flags passed to init function */
+
+//     uint32_t init_mode;     /**< VMI_INIT_PARTIAL or VMI_INIT_COMPLETE */
+
+//     vmi_config_t config;    /**< configuration */
+
+//     uint32_t config_mode;     /**< VMI_CONFIG_NONE/FILE/STRING/GHASHTABLE */
+
+//     char *sysmap;           /**< system map file for domain's running kernel */
+
+//     char *image_type;       /**< image type that we are accessing */
+
+//     char *image_type_complete;  /**< full path for file images */
+
+//     uint32_t page_offset;   /**< page offset for this instance */
+
+//     uint32_t page_shift;    /**< page shift for last mapped page */
+
+//     uint32_t page_size;     /**< page size for last mapped page */
+
+//     addr_t kpgd;            /**< kernel page global directory */
+
+//     addr_t init_task;       /**< address of task struct for init */
+
+//     os_t os_type;           /**< type of os: VMI_OS_LINUX, etc */
+
+//     int pae;                /**< nonzero if PAE is enabled */
+
+//     int pse;                /**< nonzero if PSE is enabled */
+
+//     int lme;                /**< nonzero if LME is enabled */
+
+//     reg_t cr3;              /**< value in the CR3 register */
+
+//     page_mode_t page_mode;  /**< paging mode in use */
+
+//     uint64_t size;          /**< total size of target's memory */
+
+
+//     union {
+//         struct linux_instance {
+
+//             int tasks_offset;    /**< task_struct->tasks */
+
+//             int mm_offset;       /**< task_struct->mm */
+
+//             int pid_offset;      /**< task_struct->pid */
+
+//             int pgd_offset;      /**< mm_struct->pgd */
+
+//             int name_offset;     /**< task_struct->comm */
+//         } linux_instance;
+//         struct windows_instance {
+
+//             addr_t ntoskrnl;          /**< base phys address for ntoskrnl image */
+
+//             addr_t ntoskrnl_va;       /**< base virt address for ntoskrnl image */
+
+//             addr_t kdversion_block;   /**< kernel virtual address for start of KdVersionBlock structure */
+
+//             addr_t sysproc;      /**< physical address for the system process */
+
+//             int tasks_offset;    /**< EPROCESS->ActiveProcessLinks */
+
+//             int pdbase_offset;   /**< EPROCESS->Pcb.DirectoryTableBase */
+
+//             int pid_offset;      /**< EPROCESS->UniqueProcessId */
+
+//             int pname_offset;    /**< EPROCESS->ImageFileName */
+
+//             win_ver_t version;   /**< version of Windows */
+//         } windows_instance;
+//     } os;
+
+//     //GHashTable *pid_cache;  /**< hash table to hold the PID cache data */
+
+//     //GHashTable *sym_cache;  /**< hash table to hold the sym cache data */
+
+//     //GHashTable *rva_cache;  /**< hash table to hold the rva cache data */
+
+//     v2p_cache_t v2p_cache;  /**< v2p cache data */
+// 	int v2p_cache_count;
+
+//     void *driver;           /**< driver-specific information */
+
+// 	mem_cache_t memory_cache;  /**<memory cache */
+
+// 	tiny_list_t memory_cache_lru;  /**< list holding the most recently used pages */
+
+//     uint32_t memory_cache_age; /**< max age of memory cache entry */
+
+//     uint32_t memory_cache_size;/**< current size of memory cache */
+
+//     uint32_t memory_cache_size_max;/**< max size of memory cache */
+
+//     unsigned int num_vcpus; /**< number of VCPUs used by this instance */
+
+//  //   GHashTable *memory_events; /**< mem event to functions mapping (key: physical address) */
+
+//  //   GHashTable *reg_events; /**< reg event to functions mapping (key: reg) */
+
+//  //   GHashTable *ss_events; /**< single step event to functions mapping (key: vcpu_id) */
+
+//     //bool shutting_down; /**< flag indicating that libvmi is shutting down */
+// };
+
 struct vmi_instance {
 
-    uint32_t domainid;                     /* add by wyq*/
-
-    libvmi_xenctrl_handle_t xchandle;      /* add by wyq*/
-
-    int addr_width;	    /**< address width, 4 or 8 for 32-bit/64-bit target system, 2014.11.04, lele*/
-
-    int hvm;                /**< nonzero if HVM, 2014.11.03, lele*/
+    uint32_t domainid;  // lele
 
     vmi_mode_t mode;        /**< VMI_FILE, VMI_XEN, VMI_KVM */
 
-    uint32_t flags;         /**< flags passed to init function */
+    driver_interface_t driver; /**< The driver supporting the chosen mode */
 
-    uint32_t init_mode;     /**< VMI_INIT_PARTIAL or VMI_INIT_COMPLETE */
-
-    vmi_config_t config;    /**< configuration */
-
-    uint32_t config_mode;     /**< VMI_CONFIG_NONE/FILE/STRING/GHASHTABLE */
-
-    char *sysmap;           /**< system map file for domain's running kernel */
+    uint32_t init_flags;    /**< init flags (events, shm, etc.) */
 
     char *image_type;       /**< image type that we are accessing */
 
     char *image_type_complete;  /**< full path for file images */
-
-    uint32_t page_offset;   /**< page offset for this instance */
 
     uint32_t page_shift;    /**< page shift for last mapped page */
 
@@ -87,107 +242,209 @@ struct vmi_instance {
 
     addr_t init_task;       /**< address of task struct for init */
 
-    os_t os_type;           /**< type of os: VMI_OS_LINUX, etc */
+    union {
+        struct {
+            bool pse;        /**< true if PSE is enabled */
 
-    int pae;                /**< nonzero if PAE is enabled */
+            bool transition_pages; /**< true if transition-pages are enabled */
+        } x86;
 
-    int pse;                /**< nonzero if PSE is enabled */
+        struct {
+            int t0sz;           /**< TTBR0 VA size (2^(64-t0sz)) */
 
-    int lme;                /**< nonzero if LME is enabled */
+            int t1sz;           /**< TTBR1 VA size (2^(64-t1sz)) */
 
-    reg_t cr3;              /**< value in the CR3 register */
+            page_size_t tg0;    /**< TTBR0 granule size: 4KB/16KB/64KB */
+
+            page_size_t tg1;    /**< TTBR1 granule size: 4KB/16KB/64KB */
+        } arm64;
+    };
 
     page_mode_t page_mode;  /**< paging mode in use */
 
-    uint64_t size;          /**< total size of target's memory */
+    arch_interface_t arch_interface; /**< architecture specific functions */
+
+    uint64_t allocated_ram_size; /**< total size of target's allocated memory */
+
+    addr_t max_physical_address; /**< maximum valid physical memory address + 1 */
+
+    vm_type_t vm_type;      /**< VM type */
+
+    os_t os_type;           /**< type of os: VMI_OS_LINUX, etc */
+
+    // os_interface_t os_interface; /**< Guest OS specific functions */
+
+    void* os_data; /**< Guest OS specific data */
+
+    // GHashTable *pid_cache;  /**< hash table to hold the PID cache data */
+
+    // GHashTable *sym_cache;  /**< hash table to hold the sym cache data */
+
+    // GHashTable *rva_cache;  /**< hash table to hold the rva cache data */
 
 
-    union {
-        struct linux_instance {
-
-            int tasks_offset;    /**< task_struct->tasks */
-
-            int mm_offset;       /**< task_struct->mm */
-
-            int pid_offset;      /**< task_struct->pid */
-
-            int pgd_offset;      /**< mm_struct->pgd */
-
-            int name_offset;     /**< task_struct->comm */
-        } linux_instance;
-        struct windows_instance {
-
-            addr_t ntoskrnl;          /**< base phys address for ntoskrnl image */
-
-            addr_t ntoskrnl_va;       /**< base virt address for ntoskrnl image */
-
-            addr_t kdversion_block;   /**< kernel virtual address for start of KdVersionBlock structure */
-
-            addr_t sysproc;      /**< physical address for the system process */
-
-            int tasks_offset;    /**< EPROCESS->ActiveProcessLinks */
-
-            int pdbase_offset;   /**< EPROCESS->Pcb.DirectoryTableBase */
-
-            int pid_offset;      /**< EPROCESS->UniqueProcessId */
-
-            int pname_offset;    /**< EPROCESS->ImageFileName */
-
-            win_ver_t version;   /**< version of Windows */
-        } windows_instance;
-    } os;
-
-    //GHashTable *pid_cache;  /**< hash table to hold the PID cache data */
-
-    //GHashTable *sym_cache;  /**< hash table to hold the sym cache data */
-
-    //GHashTable *rva_cache;  /**< hash table to hold the rva cache data */
-
-    v2p_cache_t v2p_cache;  /**< v2p cache data */
+    // GHashTable *v2p_cache;  /**< hash table to hold the v2p cache data */
+    v2p_cache_t v2p_cache;  /**< v2p cache data */ //lele
 	int v2p_cache_count;
 
-    void *driver;           /**< driver-specific information */
+#if ENABLE_SHM_SNAPSHOT == 1
+    GHashTable *v2m_cache;  /**< hash table to hold the v2m cache data */
+#endif
 
-	mem_cache_t memory_cache;  /**<memory cache */
+#if ENABLE_PAGE_CACHE == 1
+    // GHashTable *memory_cache;  /**< hash table for memory cache */
 
-	tiny_list_t memory_cache_lru;  /**< list holding the most recently used pages */
+	mem_cache_t memory_cache;  /**LELE: <memory cache */
+
+	tiny_list_t memory_cache_lru;  /**LELE: < list holding the most recently used pages */
+
+    // GQueue *memory_cache_lru;  /**< queue holding the most recently used pages */
 
     uint32_t memory_cache_age; /**< max age of memory cache entry */
 
-    uint32_t memory_cache_size;/**< current size of memory cache */
+    uint32_t memory_cache_size;/**LELE: < current size of memory cache */
 
     uint32_t memory_cache_size_max;/**< max size of memory cache */
+#else
+    void *last_used_page;   /**< the last used page */
+
+    addr_t last_used_page_key; /**< the key (addr) of the last used page */
+#endif
 
     unsigned int num_vcpus; /**< number of VCPUs used by this instance */
 
- //   GHashTable *memory_events; /**< mem event to functions mapping (key: physical address) */
+    // vmi_event_t *guest_requested_event; /**< Handler of guest-requested events */
 
- //   GHashTable *reg_events; /**< reg event to functions mapping (key: reg) */
+    // vmi_event_t *cpuid_event; /**< Handler of CPUID events */
 
- //   GHashTable *ss_events; /**< single step event to functions mapping (key: vcpu_id) */
+    // vmi_event_t *debug_event; /**< Handler of debug exception events */
 
-    //bool shutting_down; /**< flag indicating that libvmi is shutting down */
+    // vmi_event_t *privcall_event; /**< Handler of privileged call events */
+
+    // vmi_event_t *descriptor_access_event; /**< Handler of discriptor access events */
+
+    // GHashTable *interrupt_events; /**< interrupt event to function mapping (key: interrupt) */
+
+    // GHashTable *mem_events_on_gfn; /**< mem event to functions mapping (key: physical address) */
+
+    // GHashTable *mem_events_generic; /**< mem event to functions mapping (key: access type) */
+
+    // GHashTable *reg_events; /**< reg event to functions mapping (key: reg) */
+
+    // GHashTable *msr_events; /**< reg event to functions mapping (key: msr index) */
+
+    // GHashTable *ss_events; /**< single step event to functions mapping (key: vcpu_id) */
+
+    // GSList *step_events; /**< events to be re-registered after single-stepping them */
+
+    // uint32_t step_vcpus[MAX_SINGLESTEP_VCPUS]; /**< counter of events on vcpus for which we have internal singlestep enabled */
+
+    gboolean event_callback; /**< flag indicating that libvmi is currently issuing an event callback */
+
+    // GHashTable *clear_events; /**< table to save vmi_clear_event requests when event_callback is set */
+
+    gboolean shutting_down; /**< flag indicating that libvmi is shutting down */
+
+    // GSList *swap_events; /**< list to save vmi_swap_events requests when event_callback is set */
+
+    void *(*get_data_callback) (vmi_instance_t, addr_t, uint32_t); /**< memory_cache function */
+
+    void (*release_data_callback) (void *, size_t); /**< memory_cache function */
 };
+
+
+
+/*----------------------------------------------
+ * Misc functions
+ */
+static inline
+addr_t canonical_addr(addr_t va) {
+    return VMI_GET_BIT(va, 47) ? (va | 0xffff000000000000) : va;
+}
+
+
+/*----------------------------------------------
+ * convenience.c
+ */
+#ifndef VMI_DEBUG
+#define dbprint(category, format, args...) ((void)0)
+#else
+    void dbprint(
+    vmi_debug_flag_t category,
+    char *format,
+    ...) __attribute__((format(printf,2,3)));
+#endif
+    void errprint(
+    char *format,
+    ...) __attribute__((format(printf,1,2)));
+    void warnprint(
+    char *format,
+    ...) __attribute__((format(printf,1,2)));
+
+#define safe_malloc(size) safe_malloc_ (size, __FILE__, __LINE__)
+    void *safe_malloc_(
+    size_t size,
+    char const *file,
+    int line);
+    unsigned long get_reg32(
+    reg_t r);
+    addr_t aligned_addr(
+    vmi_instance_t vmi,
+    addr_t addr);
+    int is_addr_aligned(
+    vmi_instance_t vmi,
+    addr_t addr);
+
+#ifdef __GNUC__
+#  define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
+#else
+#  define UNUSED(x) UNUSED_ ## x
+#endif
+
+#ifdef __GNUC__
+#  define UNUSED_FUNCTION(x) __attribute__((__unused__)) UNUSED_ ## x
+#else
+#  define UNUSED_FUNCTION(x) UNUSED_ ## x
+#endif
+
+
+
+
+
+/*-----------------------------------------
+ * memory.c
+ */
+
+    #define PSR_MODE_BIT 0x10 // set on cpsr iff ARM32
+
+status_t find_page_mode_live(
+    vmi_instance_t vmi,
+    unsigned long vcpu,
+    page_mode_t *out_pm);
+
+
 
 /********************************
 * tiny_read.c
 *
 */
 
-size_t
-vmi_read_va(
+status_t vmi_read_va(
     vmi_instance_t vmi,
     addr_t vaddr,
-    int pid,
+    vmi_pid_t pid,
+    size_t count,
     void *buf,
-    size_t count);
+    size_t *bytes_read
+);
 
-size_t
-vmi_read_ksym(
+status_t vmi_read_ksym(
     vmi_instance_t vmi,
-    char *sym,
+    const char *sym,
+    size_t count,
     void *buf,
-    size_t count);
+    size_t *bytes_read
+);
 
 status_t
 vmi_read_X_ksym(
@@ -237,38 +494,38 @@ vmi_read_str_va(
     addr_t vaddr,
     int pid);
 
-status_t
-tiny_get_vcpureg_pv64(
-    vmi_instance_t vmi,
-    reg_t *value,
-    registers_t reg,
-    unsigned long vcpu);
+// status_t
+// tiny_get_vcpureg_pv64(
+//     vmi_instance_t vmi,
+//     reg_t *value,
+//     registers_t reg,
+//     unsigned long vcpu);
 
-status_t
-tiny_get_vcpureg_pv32(
-    vmi_instance_t vmi,
-    reg_t *value,
-    registers_t reg,
-    unsigned long vcpu);
+// status_t
+// tiny_get_vcpureg_pv32(
+//     vmi_instance_t vmi,
+//     reg_t *value,
+//     registers_t reg,
+//     unsigned long vcpu);
 
-status_t tiny_get_vcpureg_hvm(vmi_instance_t vmi, reg_t *value, registers_t reg, unsigned long vcpu);
+// status_t tiny_get_vcpureg_hvm(vmi_instance_t vmi, uint64_t *value, reg_t reg, unsigned long vcpu);
 
-status_t
-tiny_get_vcpureg(
-    vmi_instance_t vmi,
-    reg_t *value,
-    registers_t reg,
-    unsigned long vcpu);
+// status_t
+// tiny_get_vcpureg(
+//     vmi_instance_t vmi,
+//     uint64_t *value,
+//     reg_t reg,
+//     unsigned long vcpu);
 
 //status_t vmi_init_private(vmi_instance_t *vmi, uint32_t flags, unsigned long id, char *name, vmi_config_t *config);
 //status_t tiny_init();
 
-status_t
-xen_get_vcpureg(
-    vmi_instance_t vmi,
-    reg_t *value,
-    registers_t reg,
-    unsigned long vcpu);
+// status_t
+// xen_get_vcpureg(
+//     vmi_instance_t vmi,
+//     reg_t *value,
+//     reg_t reg,
+//     unsigned long vcpu);
 
 
 void tiny_print_hex(int pfn,unsigned char *data, unsigned long length);
@@ -283,10 +540,10 @@ int test_print_physical(vmi_instance_t *vmi,int pfn);
 * tiny_kv2p.c
 *
 */
-addr_t v2p_nopae (vmi_instance_t vmi, addr_t dtb, addr_t vaddr);//TODO: 2014.11.13, lele
-addr_t v2p_ia32e (vmi_instance_t vmi, addr_t dtb, addr_t vaddr);//TODO: 2014.11.13, lele
-addr_t v2p_pae (vmi_instance_t vmi, addr_t dtb, addr_t vaddr);
-uint64_t get_pdpi (vmi_instance_t instance, uint32_t vaddr, uint32_t cr3);
+// addr_t v2p_nopae (vmi_instance_t vmi, addr_t dtb, addr_t vaddr);//TODO: 2014.11.13, lele
+// addr_t v2p_ia32e (vmi_instance_t vmi, addr_t dtb, addr_t vaddr);//TODO: 2014.11.13, lele
+// addr_t v2p_pae (vmi_instance_t vmi, addr_t dtb, addr_t vaddr);
+// uint64_t get_pdpi (vmi_instance_t instance, uint32_t vaddr, uint32_t cr3);
 
 void *vmi_read_page(
     vmi_instance_t vmi,
@@ -304,14 +561,15 @@ void *xen_get_memory_pfn(vmi_instance_t vmi,addr_t pfn,int prot);
 int vmi_get_bit(
     reg_t reg,
     int bit);
-int entry_present (os_t os_type, uint64_t entry);
+
+// int entry_present (os_t os_type, uint64_t entry);
 int page_size_flag (uint64_t entry);
 uint32_t get_large_paddr (vmi_instance_t instance, uint32_t vaddr,
         uint32_t pgd_entry);
 
-uint64_t get_pgd_pae (vmi_instance_t instance, uint32_t vaddr, uint64_t pdpe);
-uint64_t get_pte_pae (vmi_instance_t instance, uint32_t vaddr, uint64_t pgd);
-uint64_t get_paddr_pae (uint32_t vaddr, uint64_t pte);
+// uint64_t get_pgd_pae (vmi_instance_t instance, uint32_t vaddr, uint64_t pdpe);
+// uint64_t get_pte_pae (vmi_instance_t instance, uint32_t vaddr, uint64_t pgd);
+// uint64_t get_paddr_pae (uint32_t vaddr, uint64_t pte);
 
 int test_v2p_pae(vmi_instance_t vmi, addr_t vaddr);
 
@@ -363,26 +621,27 @@ int test_v2p_pae(vmi_instance_t vmi, addr_t vaddr);
     vmi_instance_t vmi);
 */
 
-    void v2p_cache_init(
-    vmi_instance_t vmi);
-    void v2p_cache_destroy(
-    vmi_instance_t vmi);
-    status_t v2p_cache_get(
-    vmi_instance_t vmi,
-    addr_t va,
-    addr_t dtb,
-    addr_t *pa);
-    void v2p_cache_set(
-    vmi_instance_t vmi,
-    addr_t va,
-    addr_t dtb,
-    addr_t pa);
-    status_t v2p_cache_del(
-    vmi_instance_t vmi,
-    addr_t va,
-    addr_t dtb);
-    void v2p_cache_flush(
-    vmi_instance_t vmi);
+    // void v2p_cache_init(
+    // vmi_instance_t vmi);
+    // void v2p_cache_destroy(
+    // vmi_instance_t vmi);
+    // status_t v2p_cache_get(
+    // vmi_instance_t vmi,
+    // addr_t va,
+    // addr_t dtb,
+    // addr_t *pa);
+
+    // void v2p_cache_set(
+    // vmi_instance_t vmi,
+    // addr_t va,
+    // addr_t dtb,
+    // addr_t pa);
+    // status_t v2p_cache_del(
+    // vmi_instance_t vmi,
+    // addr_t va,
+    // addr_t dtb);
+    // void v2p_cache_flush(
+    // vmi_instance_t vmi);
 
 /*-----------------------------------------
  * core.c
@@ -493,3 +752,8 @@ status_t xen_pause_vm(
 
 status_t xen_resume_vm(
     vmi_instance_t vmi);
+
+
+
+
+#endif //TINY_PRIVATE_H

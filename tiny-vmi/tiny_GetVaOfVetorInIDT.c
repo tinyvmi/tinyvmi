@@ -1,4 +1,5 @@
 //#include "tiny_GetVaOfVectorInIDT.h"
+#include "tiny_libvmi.h"
 #include "tiny_private.h"
 
 
@@ -7,8 +8,8 @@ addr_t GetVaOfVectorInIDT(vmi_instance_t vmi,int IndexInIDT)
 	status_t status = VMI_FAILURE;
 	addr_t VirtualAddressOfHandleFunction = 0;
 
-	reg_t idt=0;
-	reg_t gdt=0;
+	uint64_t idt=0;
+	uint64_t gdt=0;
 	addr_t idt_phy, idt_pfn, idt_mem;
 	addr_t gdt_phy, gdt_pfn, gdt_mem;
 
@@ -18,8 +19,8 @@ addr_t GetVaOfVectorInIDT(vmi_instance_t vmi,int IndexInIDT)
 	printf("--LELE: %s, get IDTR_BASE:0x%.16"PRIx64"\n",__FUNCTION__,idt);
 	printf("--LELE: %s, get GDTR_BASE:0x%.16"PRIx64"\n",__FUNCTION__,gdt);
 
- 	idt_phy = vmi_translate_kv2p (vmi, idt);
- 	gdt_phy = vmi_translate_kv2p (vmi, gdt);
+ 	vmi_translate_kv2p (vmi, idt, &idt_phy);
+ 	vmi_translate_kv2p (vmi, gdt, &gdt_phy);
 
 	if( 0 == idt_phy || 0 == gdt_phy)
 	{
@@ -103,7 +104,7 @@ void test_idt_vector(vmi_instance_t vmi,int IndexInIDT){
 		printf("--LELE:%s:GetVaOfVectorInIDT succeed:0x%.16"PRIx64"\n",__FUNCTION__,vector_vaddr);
 	}
 
-	vector_phy = vmi_translate_kv2p (vmi, vector_vaddr);
+	vmi_translate_kv2p (vmi, vector_vaddr, &vector_phy );
 
 	if( 0 == vector_phy)
 	{

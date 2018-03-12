@@ -32,6 +32,7 @@ int main(void) {
 	long int sum=0;
 	long int average=0;
 	int sleep_interval=0;
+	char * name = "u1432hvm";
 
     printf("Hello, world!\n");
     // sleep(2);
@@ -39,9 +40,20 @@ int main(void) {
 	gettimeofday(&tv_begin,NULL);
 	//printf("LELE: time stamp1: %ld\n",tv_begin.tv_usec);
     
-	result = vmi_init(&vmi,0,NULL);
+	//result = vmi_init(&vmi,0,NULL);
+	result = vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
+                          VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL);
+
+	if( VMI_FAILURE == result )
+	{
+		printf("vmi_init failed\n");
+		goto _bail;
+	}else{
+		printf("--LELE:%s:vmi_initial succeed\n",__FUNCTION__);
+	}
+	
 	printf("LELE: time stamp1: %ld\n",tv_begin.tv_usec);
-    //sleep(2);
+	//sleep(2);
 	
 	gettimeofday(&tv_end,NULL);
 	printf("LELE: time stamp2: %ld\n",tv_end.tv_usec);
@@ -51,12 +63,6 @@ int main(void) {
 	printf("LELE: interval: (t2-t1): %dus(%dms)\n",duration,duration/1000);
     //sleep(2);
 
-	if( VMI_FAILURE == result )
-	{
-		printf("vmi_init failed\n");
-	}else{
-		printf("--LELE:%s:vmi_initial succeed\n",__FUNCTION__);
-	}
 	
 	//printf("--LELE: now test_v2p_pae with vaddress 0x%.16"PRIx64"\n",vaddr);
     //sleep(2/100);
@@ -66,8 +72,12 @@ int main(void) {
 	result=test_module_list(vmi,modules_addr);
 	sleep(1);
 
+_bail: 
+
  /* cleanup any memory associated with the libvmi instance */
-  //  vmi_destroy(vmi);
+	if (vmi){
+	   vmi_destroy(vmi);
+	}
 
     return 0;
 
