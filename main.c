@@ -41,8 +41,10 @@ int main(void) {
 	//printf("LELE: time stamp1: %ld\n",tv_begin.tv_usec);
     
 	//result = vmi_init(&vmi,0,NULL);
+	// result = vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
+                        //   VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL);
 	result = vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
-                          VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL);
+                          VMI_CONFIG_STRING, NULL, NULL);
 
 	if( VMI_FAILURE == result )
 	{

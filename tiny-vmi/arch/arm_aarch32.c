@@ -21,7 +21,8 @@
  */
 
 // #include <glib.h>
-#include <tiny_glib.h>
+// #include <tiny_glib.h>
+
 #include <stdlib.h>
 // #include <sys/mman.h>
 

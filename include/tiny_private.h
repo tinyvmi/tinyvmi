@@ -33,8 +33,9 @@
 #include <config.h>
 // #endif /* HAVE_CONFIG_H */
 
-//#include <glib.h>
+// #include <glib.h>
 #include <tiny_glib.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -51,7 +52,7 @@
 // #include "events.h"
 // #include "shm.h"
 // #include "slat.h"
-// #include "rekall.h"
+#include "rekall.h"
 #include "debug.h"
 #include "arch/arch_interface.h"
 #include "os/os_interface.h"
@@ -61,12 +62,15 @@
 
 //Lele: testing with constant values, all need replacement. 
 // default return value of xen_get_domainid_from_name
-#define DOMAIN_ID 1
+#define DOMAIN_ID 6
 // default enable hvm
 // #define HVM 1
 // default 32-bit guest system
 #define WIDTH 4
 #define OS_DISABLED
+// #define OS_DISABLED_Linux
+
+#define SYM_FILE_FROM_STRING
 
 /* * Legacy from LibVMI 0.10.1
 */
@@ -367,14 +371,17 @@ addr_t canonical_addr(addr_t va) {
 /*----------------------------------------------
  * convenience.c
  */
+#define dbprint dbprint_
+
 #ifndef VMI_DEBUG
-#define dbprint(category, format, args...) ((void)0)
+#define dbprint_(category, format, args...) ((void)0)
 #else
-    void dbprint(
+    void dbprint_(
     vmi_debug_flag_t category,
     char *format,
     ...) __attribute__((format(printf,2,3)));
 #endif
+
     void errprint(
     char *format,
     ...) __attribute__((format(printf,1,2)));

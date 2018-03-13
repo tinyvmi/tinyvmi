@@ -16,28 +16,28 @@ addr_t GetVaOfVectorInIDT(vmi_instance_t vmi,int IndexInIDT)
 	status=tiny_get_vcpureg_hvm(vmi, &idt,IDTR_BASE,0);
 	status=tiny_get_vcpureg_hvm(vmi, &gdt,GDTR_BASE,0);
 	
-	printf("--LELE: %s, get IDTR_BASE:0x%.16"PRIx64"\n",__FUNCTION__,idt);
-	printf("--LELE: %s, get GDTR_BASE:0x%.16"PRIx64"\n",__FUNCTION__,gdt);
+	dbprint(VMI_DEBUG_TEST, "--LELE: %s, get IDTR_BASE:0x%.16"PRIx64"\n",__FUNCTION__,idt);
+	dbprint(VMI_DEBUG_TEST, "--LELE: %s, get GDTR_BASE:0x%.16"PRIx64"\n",__FUNCTION__,gdt);
 
  	vmi_translate_kv2p (vmi, idt, &idt_phy);
  	vmi_translate_kv2p (vmi, gdt, &gdt_phy);
 
 	if( 0 == idt_phy || 0 == gdt_phy)
 	{
-		printf("translate kv2p failed!\n");
+		dbprint(VMI_DEBUG_TEST, "translate kv2p failed!\n");
 		return status;
 	}
 	else
 	{
-		printf("virtaul address(idt):0x%.16"PRIx64",physical address:0x%.16"PRIx64"\n",idt,idt_phy);
-		printf("virtaul address(gdt):0x%.16"PRIx64",physical address:0x%.16"PRIx64"\n",gdt,gdt_phy);
+		dbprint(VMI_DEBUG_TEST, "virtaul address(idt):0x%.16"PRIx64",physical address:0x%.16"PRIx64"\n",idt,idt_phy);
+		dbprint(VMI_DEBUG_TEST, "virtaul address(gdt):0x%.16"PRIx64",physical address:0x%.16"PRIx64"\n",gdt,gdt_phy);
 	}
 	
 	idt_pfn=idt_phy >> vmi->page_shift;
 	gdt_pfn=gdt_phy >> vmi->page_shift;
 
-	printf("--LELE: %s: idt_pfn:0x%.16"PRIx64" for domain : %d\n",__FUNCTION__,idt_pfn,vmi->domainid);
-	printf("--LELE: %s: gdt_pfn:0x%.16"PRIx64" for domain : %d\n",__FUNCTION__,gdt_pfn,vmi->domainid);
+	dbprint(VMI_DEBUG_TEST, "--LELE: %s: idt_pfn:0x%.16"PRIx64" for domain : %d\n",__FUNCTION__,idt_pfn,vmi->domainid);
+	dbprint(VMI_DEBUG_TEST, "--LELE: %s: gdt_pfn:0x%.16"PRIx64" for domain : %d\n",__FUNCTION__,gdt_pfn,vmi->domainid);
 
 	sleep(2);
 
@@ -50,21 +50,21 @@ addr_t GetVaOfVectorInIDT(vmi_instance_t vmi,int IndexInIDT)
 
 	PP2C_GDTENTRY gdt_addr=(PP2C_GDTENTRY)gdt_mem;
 
-	printf("--LELE: %s: idt_addr:0x%.16"PRIx64" for domain : %d\n",__FUNCTION__,idt_addr,vmi->domainid);
-	printf("--LELE: %s: gdt_addr:0x%.16"PRIx64" for domain : %d\n",__FUNCTION__,gdt_addr,vmi->domainid);
+	dbprint(VMI_DEBUG_TEST, "--LELE: %s: idt_addr:0x%.16"PRIx64" for domain : %d\n",__FUNCTION__,idt_addr,vmi->domainid);
+	dbprint(VMI_DEBUG_TEST, "--LELE: %s: gdt_addr:0x%.16"PRIx64" for domain : %d\n",__FUNCTION__,gdt_addr,vmi->domainid);
 
 	idt_addr += IndexInIDT;
 
 	DWORD  offset = P2C_MAKELONG(idt_addr->offset_low,idt_addr->offset_high);
 
-	printf("--LELE: %s: P2C_MAKELONG done\n",__FUNCTION__);
+	dbprint(VMI_DEBUG_TEST, "--LELE: %s: P2C_MAKELONG done\n",__FUNCTION__);
 
 	WORD newcs;
 	newcs=idt_addr->selector;
 	newcs=newcs/8;
 
 
-	printf("--LELE: %s: newcs(=idt_addr->selector):0x%.16"PRIx64"\n",__FUNCTION__,newcs);
+	dbprint(VMI_DEBUG_TEST, "--LELE: %s: newcs(=idt_addr->selector):0x%.16"PRIx64"\n",__FUNCTION__,newcs);
 
 	gdt_addr+=newcs;
 
@@ -72,7 +72,7 @@ addr_t GetVaOfVectorInIDT(vmi_instance_t vmi,int IndexInIDT)
 
 	VirtualAddressOfHandleFunction=base+offset;
 
-	printf("Int %d interrupt Function Address=%X\n",IndexInIDT,VirtualAddressOfHandleFunction);
+	dbprint(VMI_DEBUG_TEST, "Int %d interrupt Function Address=%X\n",IndexInIDT,VirtualAddressOfHandleFunction);
 
 	//tiny_print_hex(idt_pfn,idt_mem,XC_PAGE_SIZE);
 
@@ -99,26 +99,26 @@ void test_idt_vector(vmi_instance_t vmi,int IndexInIDT){
 
 	if( VMI_FAILURE == vector_vaddr )
 	{
-		printf("GetVaOfVectorInIDT failed\n");
+		dbprint(VMI_DEBUG_TEST, "GetVaOfVectorInIDT failed\n");
 	}else{
-		printf("--LELE:%s:GetVaOfVectorInIDT succeed:0x%.16"PRIx64"\n",__FUNCTION__,vector_vaddr);
+		dbprint(VMI_DEBUG_TEST, "--LELE:%s:GetVaOfVectorInIDT succeed:0x%.16"PRIx64"\n",__FUNCTION__,vector_vaddr);
 	}
 
 	vmi_translate_kv2p (vmi, vector_vaddr, &vector_phy );
 
 	if( 0 == vector_phy)
 	{
-		printf("translate kv2p failed!\n");
+		dbprint(VMI_DEBUG_TEST, "translate kv2p failed!\n");
 		return ;
 	}
 	else
 	{
-		printf("virtaul address(idt):0x%.16"PRIx64",physical address:0x%.16"PRIx64"\n",vector_vaddr,vector_phy);
+		dbprint(VMI_DEBUG_TEST, "virtaul address(idt):0x%.16"PRIx64",physical address:0x%.16"PRIx64"\n",vector_vaddr,vector_phy);
 	}
 	
 	vector_pfn=vector_phy >> vmi->page_shift;
 
-	printf("--LELE: %s: vector_pfn:0x%.16"PRIx64" for domain : %d\n",__FUNCTION__,vector_pfn,vmi->domainid);
+	dbprint(VMI_DEBUG_TEST, "--LELE: %s: vector_pfn:0x%.16"PRIx64" for domain : %d\n",__FUNCTION__,vector_pfn,vmi->domainid);
 
 	sleep(2);
 

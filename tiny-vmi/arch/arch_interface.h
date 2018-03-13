@@ -21,7 +21,8 @@
 #ifndef ARCH_INTERFACE_H_
 #define ARCH_INTERFACE_H_
 
-#include "tiny_glib.h"
+// #include "tiny_glib.h"
+
 #include "tiny_private.h"
 
 

@@ -37,37 +37,39 @@
 #include "tiny_private.h"
 #include "driver/driver_wrapper.h"
 // #include "driver/memory_cache.h"
-// #include "os/os_interface.h"
-// #include "os/windows/windows.h"
-// #include "os/linux/linux.h"
+#include "tiny_cache.h"
+#include "os/os_interface.h"
+#include "os/windows/windows.h"
+#include "os/linux/linux.h"
 
 #ifndef ENABLE_CONFIGFILE
-// static inline status_t
-// read_config_file(vmi_instance_t UNUSED(vmi),
-//                  FILE* UNUSED(config_file),
-//                  GHashTable** UNUSED(_config))
-// {
-//     return VMI_FAILURE;
-// }
+static inline status_t
+read_config_file(vmi_instance_t UNUSED(vmi),
+                 FILE* UNUSED(config_file),
+                 GHashTable** UNUSED(_config))
+{
+    return VMI_FAILURE;
+}
 
-// static inline status_t
-// read_config_string(vmi_instance_t UNUSED(vmi),
-//                    const char* UNUSED(config)
-//                    GHashTable** UNUSUED(_config))
-// {
-//     return VMI_FAILURE;
-// }
+static inline status_t
+read_config_string(vmi_instance_t UNUSED(vmi),
+        const char * UNUSED(config),
+        GHashTable ** UNUSED(_config),
+        vmi_init_error_t* UNUSED(error))
+{
+    return VMI_FAILURE;
+}
 
-// static inline status_t
-// read_config_file_entry(vmi_instance_t UNUSED(vmi),
-//                        GHashTable** UNUSED(config),
-//                        vmi_init_error_t* UNUSED(error))
-// {
-//     return VMI_FAILURE;
-// }
+static inline status_t
+read_config_file_entry(vmi_instance_t UNUSED(vmi),
+                       GHashTable** UNUSED(config),
+                       vmi_init_error_t* UNUSED(error))
+{
+    return VMI_FAILURE;
+}
 #else
 
-// #include "config/config_parser.h"
+#include "config/config_parser.h"
 
 extern FILE *yyin;
 
@@ -153,135 +155,135 @@ success:
     return f;
 }
 
-// static status_t
-// read_config_file(vmi_instance_t vmi, FILE* config_file,
-//                  GHashTable **config, vmi_init_error_t *error)
-// {
-//     status_t ret = VMI_FAILURE;
+static status_t
+read_config_file(vmi_instance_t vmi, FILE* config_file,
+                 GHashTable **config, vmi_init_error_t *error)
+{
+    status_t ret = VMI_FAILURE;
 
-//     yyin = config_file;
+    yyin = config_file;
 
-//     if (vmi_parse_config(vmi->image_type) != 0) {
-//         if ( error )
-//             *error = VMI_INIT_ERROR_NO_CONFIG;
+    if (vmi_parse_config(vmi->image_type) != 0) {
+        if ( error )
+            *error = VMI_INIT_ERROR_NO_CONFIG;
 
-//         errprint("Failed to read config file.\n");
-//         goto error_exit;
-//     }
+        errprint("Failed to read config file.\n");
+        goto error_exit;
+    }
 
-//     *config = vmi_get_config();
+    *config = vmi_get_config();
 
-//     if (*config == NULL) {
-//         if ( error )
-//             *error = VMI_INIT_ERROR_NO_CONFIG_ENTRY;
+    if (*config == NULL) {
+        if ( error )
+            *error = VMI_INIT_ERROR_NO_CONFIG_ENTRY;
 
-//         errprint("No entry in config file for %s.\n", vmi->image_type);
-//         goto error_exit;
-//     }
+        errprint("No entry in config file for %s.\n", vmi->image_type);
+        goto error_exit;
+    }
 
-//     ret = VMI_SUCCESS;
+    ret = VMI_SUCCESS;
 
-// error_exit:
-//     if (config_file)
-//         fclose(config_file);
+error_exit:
+    if (config_file)
+        fclose(config_file);
 
-//     return ret;
-// }
+    return ret;
+}
 
-// status_t read_config_string(vmi_instance_t vmi,
-//         const char *config,
-//         GHashTable **_config,
-//         vmi_init_error_t *error)
-// {
-//     status_t ret = VMI_SUCCESS;
-//     FILE* config_file = NULL;
+status_t read_config_string(vmi_instance_t vmi,
+        const char *config,
+        GHashTable **_config,
+        vmi_init_error_t *error)
+{
+    status_t ret = VMI_SUCCESS;
+    FILE* config_file = NULL;
 
-//     if (config == NULL) {
-//         if ( error )
-//             *error = VMI_INIT_ERROR_NO_CONFIG;
+    if (config == NULL) {
+        if ( error )
+            *error = VMI_INIT_ERROR_NO_CONFIG;
 
-//         errprint("VMI_ERROR: NULL string passed for VMI_CONFIG_STRING\n");
-//         return VMI_FAILURE;
-//     }
+        errprint("VMI_ERROR: NULL string passed for VMI_CONFIG_STRING\n");
+        return VMI_FAILURE;
+    }
 
-//     int length = snprintf(NULL, 0, "%s %s", vmi->image_type, config) + 1;
-//     char *config_str = g_malloc0(length);
+    int length = snprintf(NULL, 0, "%s %s", vmi->image_type, config) + 1;
+    char *config_str = g_malloc0(length);
 
-//     sprintf(config_str, "%s %s", vmi->image_type, config);
+    sprintf(config_str, "%s %s", vmi->image_type, config);
 
-//     config_file = fmemopen(config_str, length, "r");
-//     ret = read_config_file(vmi, config_file, _config, error);
+    config_file = fmemopen(config_str, length, "r");
+    ret = read_config_file(vmi, config_file, _config, error);
 
-//     free(config_str);
+    free(config_str);
 
-//     return ret;
-// }
+    return ret;
+}
 
-// static status_t
-// read_config_file_entry(vmi_instance_t vmi, GHashTable **config, vmi_init_error_t *error) {
-//     FILE* config_file = open_config_file();
-//     if (NULL == config_file) {
-//         if ( error )
-//             *error = VMI_INIT_ERROR_NO_CONFIG;
+static status_t
+read_config_file_entry(vmi_instance_t vmi, GHashTable **config, vmi_init_error_t *error) {
+    FILE* config_file = open_config_file();
+    if (NULL == config_file) {
+        if ( error )
+            *error = VMI_INIT_ERROR_NO_CONFIG;
 
-//         fprintf(stderr, "ERROR: config file not found.\n");
-//         return VMI_FAILURE;
-//     }
+        fprintf(stderr, "ERROR: config file not found.\n");
+        return VMI_FAILURE;
+    }
 
-//     return read_config_file(vmi, config_file, config, error);
-// }
+    return read_config_file(vmi, config_file, config, error);
+}
 
 #endif
 
-// status_t
-// set_os_type_from_config(
-//     vmi_instance_t vmi,
-//     GHashTable *configtbl)
-// {
-//     status_t ret = VMI_FAILURE;
-//     const char* ostype = NULL;
+status_t
+set_os_type_from_config(
+    vmi_instance_t vmi,
+    GHashTable *configtbl)
+{
+    status_t ret = VMI_FAILURE;
+    const char* ostype = NULL;
 
-//     vmi->os_type = VMI_OS_UNKNOWN;
-//     if (vmi->os_data) {
-//         free(vmi->os_data);
-//         vmi->os_data = NULL;
-//     }
+    vmi->os_type = VMI_OS_UNKNOWN;
+    if (vmi->os_data) {
+        free(vmi->os_data);
+        vmi->os_data = NULL;
+    }
 
-//     ostype = g_hash_table_lookup(configtbl, "ostype");
-//     if (ostype == NULL) {
-//         ostype = g_hash_table_lookup(configtbl, "os_type");
-//     }
+    ostype = g_hash_table_lookup(configtbl, "ostype");
+    if (ostype == NULL) {
+        ostype = g_hash_table_lookup(configtbl, "os_type");
+    }
 
-//     if (ostype == NULL) {
-//         errprint("Undefined OS type!\n");
-//         return VMI_FAILURE;
-//     }
+    if (ostype == NULL) {
+        errprint("Undefined OS type!\n");
+        return VMI_FAILURE;
+    }
 
-//     if (!strcmp(ostype, "Linux")) {
-//         vmi->os_type = VMI_OS_LINUX;
-//         ret = VMI_SUCCESS;
-//     } else if (!strcmp(ostype, "Windows")) {
-//         vmi->os_type = VMI_OS_WINDOWS;
-//         ret = VMI_SUCCESS;
-//     } else {
-//         errprint("VMI_ERROR: Unknown OS type: %s!\n", ostype);
-//         ret = VMI_FAILURE;
-//     }
+    if (!strcmp(ostype, "Linux")) {
+        vmi->os_type = VMI_OS_LINUX;
+        ret = VMI_SUCCESS;
+    } else if (!strcmp(ostype, "Windows")) {
+        vmi->os_type = VMI_OS_WINDOWS;
+        ret = VMI_SUCCESS;
+    } else {
+        errprint("VMI_ERROR: Unknown OS type: %s!\n", ostype);
+        ret = VMI_FAILURE;
+    }
 
-// #ifdef VMI_DEBUG
-//     if (vmi->os_type == VMI_OS_LINUX) {
-//         dbprint(VMI_DEBUG_CORE, "**set os_type to Linux.\n");
-//     }
-//     else if (vmi->os_type == VMI_OS_WINDOWS) {
-//         dbprint(VMI_DEBUG_CORE, "**set os_type to Windows.\n");
-//     }
-//     else {
-//         dbprint(VMI_DEBUG_CORE, "**set os_type to unknown.\n");
-//     }
-// #endif
+#ifdef VMI_DEBUG
+    if (vmi->os_type == VMI_OS_LINUX) {
+        dbprint(VMI_DEBUG_CORE, "**set os_type to Linux.\n");
+    }
+    else if (vmi->os_type == VMI_OS_WINDOWS) {
+        dbprint(VMI_DEBUG_CORE, "**set os_type to Windows.\n");
+    }
+    else {
+        dbprint(VMI_DEBUG_CORE, "**set os_type to unknown.\n");
+    }
+#endif
 
-//     return ret;
-// }
+    return ret;
+}
 
 static inline status_t
 init_page_offset(
@@ -440,7 +442,7 @@ vmi_get_access_mode(
     vmi_mode_t *mode)
 {
 
-    dbprint(VMI_DEBUG_CORE, "now in %s\n", __FUNCTION__ );
+    dbprint(VMI_DEBUG_CORE, "%-% now in %s\n", __FUNCTION__ );
 
     if ( vmi )
     {
@@ -496,7 +498,7 @@ status_t vmi_init(
     void *init_data,
     vmi_init_error_t *error)
 {
-    dbprint(VMI_DEBUG_CORE, "now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_CORE, "%-% now in %s\n", __FUNCTION__);
     
     if ( VMI_FAILURE == driver_sanity_check(mode) )
     {
@@ -609,7 +611,7 @@ page_mode_t vmi_init_paging(
     vmi_instance_t vmi,
     uint64_t flags)
 {
-    dbprint(VMI_DEBUG_CORE, "now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_CORE, "%-% now in %s\n", __FUNCTION__);
     if ( !vmi )
         return VMI_PM_UNKNOWN;
 
@@ -642,111 +644,111 @@ page_mode_t vmi_init_paging(
 
 
 /** no glib available, a shell func, simply return unknown os **/
-os_t vmi_init_os(
-    vmi_instance_t vmi,
-    vmi_config_t config_mode,
-    void *config,
-    vmi_init_error_t *error)
-{
-    return VMI_OS_UNKNOWN;
-}
-
 // os_t vmi_init_os(
 //     vmi_instance_t vmi,
 //     vmi_config_t config_mode,
 //     void *config,
 //     vmi_init_error_t *error)
 // {
-//     vmi->os_type = VMI_OS_UNKNOWN;
-//     GHashTable *_config = NULL;
-
-//     switch(config_mode) {
-//         case VMI_CONFIG_STRING:
-//             /* read and parse the config string */
-//             if(VMI_FAILURE == read_config_string(vmi, (const char*)config, &_config, error)) {
-//                 goto error_exit;
-//             }
-//             break;
-//         case VMI_CONFIG_GLOBAL_FILE_ENTRY:
-//             /* read and parse the config file */
-//             if(VMI_FAILURE == read_config_file_entry(vmi, &_config, error)) {
-//                 goto error_exit;
-//             }
-//             break;
-//         case VMI_CONFIG_GHASHTABLE:
-//             /* read and parse the ghashtable */
-//             if (!config) {
-
-//                 if (error)
-//                     *error = VMI_INIT_ERROR_NO_CONFIG;
-
-//                 goto error_exit;
-//             }
-//             _config = (GHashTable*)config;
-//             break;
-//         default:
-//             goto error_exit;
-//     }
-
-//     if(VMI_FAILURE == set_os_type_from_config(vmi, _config)) {
-//         if ( error )
-//             *error = VMI_INIT_ERROR_NO_CONFIG_ENTRY;
-
-//         dbprint(VMI_DEBUG_CORE, "--failed to determine os type from config\n");
-//         goto error_exit;
-//     }
-
-//     /*
-//      * Initialize paging if it hasn't been done yet. For VMI_FILE mode it
-//      * will be called from the OS init function as it requires OS-specific
-//      * heuristics.
-//      */
-//     if ( VMI_FILE != vmi->mode && VMI_PM_UNKNOWN == vmi->page_mode &&
-//          VMI_PM_UNKNOWN == vmi_init_paging(vmi, 0) )
-//     {
-//         vmi->os_type = VMI_OS_UNKNOWN;
-//         if ( error )
-//             *error = VMI_INIT_ERROR_PAGING;
-
-//         goto error_exit;
-//     }
-
-//     /* setup OS specific stuff */
-//     switch ( vmi->os_type )
-//     {
-// #ifdef ENABLE_LINUX
-//         case VMI_OS_LINUX:
-//             if(VMI_FAILURE == linux_init(vmi, _config)) {
-//                 vmi->os_type = VMI_OS_UNKNOWN;
-//                 if ( error )
-//                     *error = VMI_INIT_ERROR_OS;
-
-//                  goto error_exit;
-//             }
-//             break;
-// #endif
-// #ifdef ENABLE_WINDOWS
-//         case VMI_OS_WINDOWS:
-//             if(VMI_FAILURE == windows_init(vmi, _config)) {
-//                 vmi->os_type = VMI_OS_UNKNOWN;
-//                 if ( error )
-//                     *error = VMI_INIT_ERROR_OS;
-
-//                 goto error_exit;
-//             }
-//             break;
-// #endif
-//         default:
-//             vmi->os_type = VMI_OS_UNKNOWN;
-//             if ( error )
-//                 *error = VMI_INIT_ERROR_OS;
-
-//             goto error_exit;
-//     };
-
-// error_exit:
-//     return vmi->os_type;
+//     return VMI_OS_UNKNOWN;
 // }
+
+os_t vmi_init_os(
+    vmi_instance_t vmi,
+    vmi_config_t config_mode,
+    void *config,
+    vmi_init_error_t *error)
+{
+    vmi->os_type = VMI_OS_UNKNOWN;
+    GHashTable *_config = NULL;
+
+    switch(config_mode) {
+        case VMI_CONFIG_STRING:
+            /* read and parse the config string */
+            if(VMI_FAILURE == read_config_string(vmi, (const char*)config, &_config, error)) {
+                goto error_exit;
+            }
+            break;
+        case VMI_CONFIG_GLOBAL_FILE_ENTRY:
+            /* read and parse the config file */
+            if(VMI_FAILURE == read_config_file_entry(vmi, &_config, error)) {
+                goto error_exit;
+            }
+            break;
+        case VMI_CONFIG_GHASHTABLE:
+            /* read and parse the ghashtable */
+            if (!config) {
+
+                if (error)
+                    *error = VMI_INIT_ERROR_NO_CONFIG;
+
+                goto error_exit;
+            }
+            _config = (GHashTable*)config;
+            break;
+        default:
+            goto error_exit;
+    }
+
+    if(VMI_FAILURE == set_os_type_from_config(vmi, _config)) {
+        if ( error )
+            *error = VMI_INIT_ERROR_NO_CONFIG_ENTRY;
+
+        dbprint(VMI_DEBUG_CORE, "--failed to determine os type from config\n");
+        goto error_exit;
+    }
+
+    /*
+     * Initialize paging if it hasn't been done yet. For VMI_FILE mode it
+     * will be called from the OS init function as it requires OS-specific
+     * heuristics.
+     */
+    if ( VMI_FILE != vmi->mode && VMI_PM_UNKNOWN == vmi->page_mode &&
+         VMI_PM_UNKNOWN == vmi_init_paging(vmi, 0) )
+    {
+        vmi->os_type = VMI_OS_UNKNOWN;
+        if ( error )
+            *error = VMI_INIT_ERROR_PAGING;
+
+        goto error_exit;
+    }
+
+    /* setup OS specific stuff */
+    switch ( vmi->os_type )
+    {
+#ifdef ENABLE_LINUX
+        case VMI_OS_LINUX:
+            if(VMI_FAILURE == linux_init(vmi, _config)) {
+                vmi->os_type = VMI_OS_UNKNOWN;
+                if ( error )
+                    *error = VMI_INIT_ERROR_OS;
+
+                 goto error_exit;
+            }
+            break;
+#endif
+#ifdef ENABLE_WINDOWS
+        case VMI_OS_WINDOWS:
+            if(VMI_FAILURE == windows_init(vmi, _config)) {
+                vmi->os_type = VMI_OS_UNKNOWN;
+                if ( error )
+                    *error = VMI_INIT_ERROR_OS;
+
+                goto error_exit;
+            }
+            break;
+#endif
+        default:
+            vmi->os_type = VMI_OS_UNKNOWN;
+            if ( error )
+                *error = VMI_INIT_ERROR_OS;
+
+            goto error_exit;
+    };
+
+error_exit:
+    return vmi->os_type;
+}
 
 status_t
 vmi_init_complete(
@@ -761,7 +763,7 @@ vmi_init_complete(
     vmi_instance_t _vmi = NULL;
     vmi_mode_t mode;
 
-    dbprint(VMI_DEBUG_CORE, "now in %s\n", __FUNCTION__ );
+    dbprint(VMI_DEBUG_CORE, "%-% now in %s\n", __FUNCTION__ );
 
     if ( VMI_FAILURE == vmi_get_access_mode(_vmi, domain, init_flags, init_data, &mode) )
     {

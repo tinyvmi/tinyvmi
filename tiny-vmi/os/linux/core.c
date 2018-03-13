@@ -309,16 +309,20 @@ status_t init_kaslr(vmi_instance_t vmi) {
 
 status_t linux_init(vmi_instance_t vmi, GHashTable *config) {
 
-#ifdef OS_DISABLED
+#ifdef OS_DISABLED_Linux
 return VMI_FAILURE;
 #else
     status_t rc;
     os_interface_t os_interface = NULL;
 
-    if (!config) {
-        errprint("No config table found\n");
-        return VMI_FAILURE;
-    }
+    dbprint(VMI_DEBUG_CORE, "%-% now in %s\n ", __FUNCTION__);
+    
+    dbprint(VMI_DEBUG_CORE, "** TODO: now lack full OS support for Linux ****\n ");
+    
+    // if (!config) {
+    //     errprint("No config table found\n");
+    //     return VMI_FAILURE;
+    // }
 
     if (vmi->os_data != NULL) {
         errprint("os data already initialized, reinitializing\n");

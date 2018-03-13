@@ -26,7 +26,8 @@
  */
 
 #include "tiny_private.h"
-#include "libvmi/peparse.h"
+// #include "libvmi/peparse.h"
+#include "peparse.h"
 #include "os/windows/windows.h"
 #include "driver/driver_wrapper.h"
 #include "config/config_parser.h"

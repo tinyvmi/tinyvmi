@@ -25,7 +25,8 @@
  */
 
 // #include <glib.h>
-#include <tiny_glib.h>
+// #include <tiny_glib.h>
+
 #include <stdlib.h>
 // #include <sys/mman.h>
 
@@ -54,7 +55,7 @@ status_t get_pdpi (vmi_instance_t instance,
     addr_t *pdpi_entry,
     uint64_t *pdpi_value)
 {
-    dbprint(VMI_DEBUG_MEMCACHE, "now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_MEMCACHE, "%-% now in %s\n", __FUNCTION__);
 
     *pdpi_entry = get_pdptb(dtb) + pdpi_index(vaddr);
     
@@ -564,7 +565,7 @@ status_t intel_init(vmi_instance_t vmi) {
 
     status_t ret = VMI_SUCCESS;
 
-    dbprint(VMI_DEBUG_MISC, "now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_MISC, "%-% now in %s\n", __FUNCTION__);
     
     if(!vmi->arch_interface) {
         vmi->arch_interface = g_malloc0(sizeof(struct arch_interface));

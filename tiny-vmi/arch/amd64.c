@@ -26,10 +26,12 @@
 
 // #include <glib.h>
 #include <tiny_glib.h>
+
 #include <stdlib.h>
 // #include <sys/mman.h>
 
 #include "tiny_private.h"
+
 #include "x86.h"
 #include "driver/driver_wrapper.h"
 #include "arch/amd64.h"

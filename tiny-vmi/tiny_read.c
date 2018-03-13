@@ -18,163 +18,163 @@
 
 /**implementation**/
 
-status_t
-vmi_read_va(
-    vmi_instance_t vmi,
-    addr_t vaddr,
-    vmi_pid_t pid,
-    size_t count,
-    void *buf,
-    size_t *bytes_read)
-{
-    unsigned char *memory = NULL;
-    addr_t paddr = 0;
-    addr_t pfn = 0;
-    addr_t offset = 0;
-    size_t buf_offset = 0;
+// status_t
+// vmi_read_va(
+//     vmi_instance_t vmi,
+//     addr_t vaddr,
+//     vmi_pid_t pid,
+//     size_t count,
+//     void *buf,
+//     size_t *bytes_read)
+// {
+//     unsigned char *memory = NULL;
+//     addr_t paddr = 0;
+//     addr_t pfn = 0;
+//     addr_t offset = 0;
+//     size_t buf_offset = 0;
 
-    if (NULL == buf) {
-        printf("--%s: buf passed as NULL, returning without read\n",
-                __FUNCTION__);
-        return VMI_FAILURE;
-    }
+//     if (NULL == buf) {
+//         dbprint(VMI_DEBUG_TEST, "--%s: buf passed as NULL, returning without read\n",
+//                 __FUNCTION__);
+//         return VMI_FAILURE;
+//     }
 
-    while (count > 0) {
-        size_t read_len = 0;
+//     while (count > 0) {
+//         size_t read_len = 0;
 
-        if (pid) {
-            //paddr = vmi_translate_uv2p(vmi, vaddr + buf_offset, pid);
-            printf("--%s: vmi_translate_uv2p not implemented\n",__FUNCTION__);
-			return VMI_FAILURE;
-        }
-        else {
-             vmi_translate_kv2p(vmi, vaddr + buf_offset, &paddr);
-        }
+//         if (pid) {
+//             //paddr = vmi_translate_uv2p(vmi, vaddr + buf_offset, pid);
+//             dbprint(VMI_DEBUG_TEST, "--%s: vmi_translate_uv2p not implemented\n",__FUNCTION__);
+// 			return VMI_FAILURE;
+//         }
+//         else {
+//              vmi_translate_kv2p(vmi, vaddr + buf_offset, &paddr);
+//         }
 
-        if (!paddr) {
-            return VMI_FAILURE;
-        }
+//         if (!paddr) {
+//             return VMI_FAILURE;
+//         }
 
-        /* access the memory */
-        pfn = paddr >> vmi->page_shift;
-        offset = (vmi->page_size - 1) & paddr;
-        memory = vmi_read_page(vmi, pfn);
-        if (NULL == memory) {
-            return VMI_FAILURE;
-        }
+//         /* access the memory */
+//         pfn = paddr >> vmi->page_shift;
+//         offset = (vmi->page_size - 1) & paddr;
+//         memory = vmi_read_page(vmi, pfn);
+//         if (NULL == memory) {
+//             return VMI_FAILURE;
+//         }
 
-        /* determine how much we can read */
-        if ((offset + count) > vmi->page_size) {
-            read_len = vmi->page_size - offset;
-        }
-        else {
-            read_len = count;
-        }
+//         /* determine how much we can read */
+//         if ((offset + count) > vmi->page_size) {
+//             read_len = vmi->page_size - offset;
+//         }
+//         else {
+//             read_len = count;
+//         }
 
-        /* do the read */
-        memcpy(((char *) buf) + (addr_t) buf_offset,
-               memory + (addr_t) offset, read_len);
+//         /* do the read */
+//         memcpy(((char *) buf) + (addr_t) buf_offset,
+//                memory + (addr_t) offset, read_len);
 
-        /* set variables for next loop */
-        count -= read_len;
-        buf_offset += read_len;
-    }
-    *bytes_read = buf_offset;
+//         /* set variables for next loop */
+//         count -= read_len;
+//         buf_offset += read_len;
+//     }
+//     *bytes_read = buf_offset;
 
-    return VMI_SUCCESS;
-}
+//     return VMI_SUCCESS;
+// }
 
 
 
-status_t
-vmi_read_ksym(
-    vmi_instance_t vmi,
-    const char *sym,
-    size_t count,
-    void *buf,
-    size_t *bytes_read)
-{
+// status_t
+// vmi_read_ksym(
+//     vmi_instance_t vmi,
+//     const char *sym,
+//     size_t count,
+//     void *buf,
+//     size_t *bytes_read)
+// {
 
-    size_t read_bytes = 0;
-    addr_t vaddr = 0;
+//     size_t read_bytes = 0;
+//     addr_t vaddr = 0;
 
-    status_t ret = vmi_translate_ksym2v(vmi, sym, &vaddr);
+//     status_t ret = vmi_translate_ksym2v(vmi, sym, &vaddr);
 
-    if (ret == VMI_FAILURE) {
-        printf("--%s: vmi_translate_ksym2v failed for '%s'\n",
-                __FUNCTION__, sym);
-        return VMI_FAILURE;
-    }
-    vmi_read_va(vmi, vaddr, 0, count, buf, &read_bytes);
+//     if (ret == VMI_FAILURE) {
+//         dbprint(VMI_DEBUG_TEST, "--%s: vmi_translate_ksym2v failed for '%s'\n",
+//                 __FUNCTION__, sym);
+//         return VMI_FAILURE;
+//     }
+//     vmi_read_va(vmi, vaddr, 0, count, buf, &read_bytes);
     
-    return VMI_SUCCESS;
-}
+//     return VMI_SUCCESS;
+// }
 
 ///////////////////////////////////////////////////////////
 // Easy access to memory using kernel symbols
-status_t
-vmi_read_X_ksym(
-    vmi_instance_t vmi,
-    char *sym,
-    void *value,
-    int size)
-{
-    return vmi_read_ksym(vmi, sym, size, value, NULL);
-}
+// status_t
+// vmi_read_X_ksym(
+//     vmi_instance_t vmi,
+//     char *sym,
+//     void *value,
+//     int size)
+// {
+//     return vmi_read_ksym(vmi, sym, size, value, NULL);
+// }
 
-status_t
-vmi_read_8_ksym(
-    vmi_instance_t vmi,
-    char *sym,
-    uint8_t * value)
-{
-    return vmi_read_X_ksym(vmi, sym, value, 1);
-}
+// status_t
+// vmi_read_8_ksym(
+//     vmi_instance_t vmi,
+//     char *sym,
+//     uint8_t * value)
+// {
+//     return vmi_read_X_ksym(vmi, sym, value, 1);
+// }
 
-status_t
-vmi_read_16_ksym(
-    vmi_instance_t vmi,
-    char *sym,
-    uint16_t * value)
-{
-    return vmi_read_X_ksym(vmi, sym, value, 2);
-}
+// status_t
+// vmi_read_16_ksym(
+//     vmi_instance_t vmi,
+//     char *sym,
+//     uint16_t * value)
+// {
+//     return vmi_read_X_ksym(vmi, sym, value, 2);
+// }
 
-status_t
-vmi_read_32_ksym(
-    vmi_instance_t vmi,
-    char *sym,
-    uint32_t * value)
-{
-    return vmi_read_X_ksym(vmi, sym, value, 4);
-}
+// status_t
+// vmi_read_32_ksym(
+//     vmi_instance_t vmi,
+//     char *sym,
+//     uint32_t * value)
+// {
+//     return vmi_read_X_ksym(vmi, sym, value, 4);
+// }
 
-status_t
-vmi_read_64_ksym(
-    vmi_instance_t vmi,
-    char *sym,
-    uint64_t * value)
-{
-    return vmi_read_X_ksym(vmi, sym, value, 8);
-}
+// status_t
+// vmi_read_64_ksym(
+//     vmi_instance_t vmi,
+//     char *sym,
+//     uint64_t * value)
+// {
+//     return vmi_read_X_ksym(vmi, sym, value, 8);
+// }
 
-status_t
-vmi_read_addr_ksym(
-    vmi_instance_t vmi,
-    char *sym,
-    addr_t *value)
-{
-    if (vmi->page_mode == VMI_PM_IA32E) {
-        return vmi_read_64_ksym(vmi, sym, value);
-    }
-    else {
-        uint32_t tmp = 0;
-        status_t ret = vmi_read_32_ksym(vmi, sym, &tmp);
+// status_t
+// vmi_read_addr_ksym(
+//     vmi_instance_t vmi,
+//     char *sym,
+//     addr_t *value)
+// {
+//     if (vmi->page_mode == VMI_PM_IA32E) {
+//         return vmi_read_64_ksym(vmi, sym, value);
+//     }
+//     else {
+//         uint32_t tmp = 0;
+//         status_t ret = vmi_read_32_ksym(vmi, sym, &tmp);
 
-        *value = (uint64_t) tmp;
-        return ret;
-    }
-}
+//         *value = (uint64_t) tmp;
+//         return ret;
+//     }
+// }
 
 /*char *
 vmi_read_str_ksym(
@@ -189,270 +189,270 @@ vmi_read_str_ksym(
 
 ///////////////////////////////////////////////////////////
 // Easy access to virtual memory
-static status_t
-vmi_read_X_va(
-    vmi_instance_t vmi,
-    addr_t vaddr,
-    vmi_pid_t pid,
-    void *value,
-    size_t size)
-{
-    return vmi_read_va(vmi, vaddr, pid, size, value, NULL);
+// static status_t
+// vmi_read_X_va(
+//     vmi_instance_t vmi,
+//     addr_t vaddr,
+//     vmi_pid_t pid,
+//     void *value,
+//     size_t size)
+// {
+//     return vmi_read_va(vmi, vaddr, pid, size, value, NULL);
 
-}
+// }
 
-status_t
-vmi_read_8_va(
-    vmi_instance_t vmi,
-    addr_t vaddr,
-    int pid,
-    uint8_t * value)
-{
-    return vmi_read_X_va(vmi, vaddr, pid, value, 1);
-}
+// status_t
+// vmi_read_8_va(
+//     vmi_instance_t vmi,
+//     addr_t vaddr,
+//     int pid,
+//     uint8_t * value)
+// {
+//     return vmi_read_X_va(vmi, vaddr, pid, value, 1);
+// }
 
-status_t
-vmi_read_16_va(
-    vmi_instance_t vmi,
-    addr_t vaddr,
-    int pid,
-    uint16_t * value)
-{
-    return vmi_read_X_va(vmi, vaddr, pid, value, 2);
-}
+// status_t
+// vmi_read_16_va(
+//     vmi_instance_t vmi,
+//     addr_t vaddr,
+//     int pid,
+//     uint16_t * value)
+// {
+//     return vmi_read_X_va(vmi, vaddr, pid, value, 2);
+// }
 
-status_t
-vmi_read_32_va(
-    vmi_instance_t vmi,
-    addr_t vaddr,
-    int pid,
-    uint32_t * value)
-{
-    return vmi_read_X_va(vmi, vaddr, pid, value, 4);
-}
+// status_t
+// vmi_read_32_va(
+//     vmi_instance_t vmi,
+//     addr_t vaddr,
+//     int pid,
+//     uint32_t * value)
+// {
+//     return vmi_read_X_va(vmi, vaddr, pid, value, 4);
+// }
 
-status_t
-vmi_read_64_va(
-    vmi_instance_t vmi,
-    addr_t vaddr,
-    int pid,
-    uint64_t * value)
-{
-    return vmi_read_X_va(vmi, vaddr, pid, value, 8);
-}
+// status_t
+// vmi_read_64_va(
+//     vmi_instance_t vmi,
+//     addr_t vaddr,
+//     int pid,
+//     uint64_t * value)
+// {
+//     return vmi_read_X_va(vmi, vaddr, pid, value, 8);
+// }
 
-status_t
-vmi_read_addr_va(
-    vmi_instance_t vmi,
-    addr_t vaddr,
-    int pid,
-    addr_t *value)
-{
-    if (vmi->page_mode == VMI_PM_IA32E) {
-        return vmi_read_64_va(vmi, vaddr, pid, value);
-    }
-    else {
-        uint32_t tmp = 0;
-        status_t ret = vmi_read_32_va(vmi, vaddr, pid, &tmp);
+// status_t
+// vmi_read_addr_va(
+//     vmi_instance_t vmi,
+//     addr_t vaddr,
+//     int pid,
+//     addr_t *value)
+// {
+//     if (vmi->page_mode == VMI_PM_IA32E) {
+//         return vmi_read_64_va(vmi, vaddr, pid, value);
+//     }
+//     else {
+//         uint32_t tmp = 0;
+//         status_t ret = vmi_read_32_va(vmi, vaddr, pid, &tmp);
 
-        *value = (uint64_t) tmp;
-        return ret;
-    }
-}
+//         *value = (uint64_t) tmp;
+//         return ret;
+//     }
+// }
 
-char *
-vmi_read_str_va(
-    vmi_instance_t vmi,
-    addr_t vaddr,
-    int pid)
-{
-    unsigned char *memory = NULL;
-    char *rtnval = NULL;
-    addr_t paddr = 0;
-    addr_t pfn = 0;
-    addr_t offset = 0;
-    int len = 0;
-    size_t read_len = 0;
-    int read_more = 1;
+// char *
+// vmi_read_str_va(
+//     vmi_instance_t vmi,
+//     addr_t vaddr,
+//     int pid)
+// {
+//     unsigned char *memory = NULL;
+//     char *rtnval = NULL;
+//     addr_t paddr = 0;
+//     addr_t pfn = 0;
+//     addr_t offset = 0;
+//     int len = 0;
+//     size_t read_len = 0;
+//     int read_more = 1;
  
-    rtnval = NULL;
+//     rtnval = NULL;
 
-    status_t ret;
-    ret = VMI_FAILURE;
+//     status_t ret;
+//     ret = VMI_FAILURE;
 
-    while (read_more) {
-        if (pid) {
-            //paddr = vmi_translate_uv2p(vmi, vaddr + len, pid);
-             printf("--%s: vmi_translate_uv2p not implemented\n",__FUNCTION__);
-			return 0;
-        }
-        else {
-            ret = vmi_translate_kv2p(vmi, vaddr + len, &paddr);
-        }
+//     while (read_more) {
+//         if (pid) {
+//             //paddr = vmi_translate_uv2p(vmi, vaddr + len, pid);
+//              dbprint(VMI_DEBUG_TEST, "--%s: vmi_translate_uv2p not implemented\n",__FUNCTION__);
+// 			return 0;
+//         }
+//         else {
+//             ret = vmi_translate_kv2p(vmi, vaddr + len, &paddr);
+//         }
 
-        if (ret == VMI_FAILURE) {
-            return rtnval;
-        }
+//         if (ret == VMI_FAILURE) {
+//             return rtnval;
+//         }
 
-        /* access the memory */
-        pfn = paddr >> vmi->page_shift;
-        offset = (vmi->page_size - 1) & paddr;
-        memory = vmi_read_page(vmi, pfn);
-        if (NULL == memory) {
-            return rtnval;
-        }
+//         /* access the memory */
+//         pfn = paddr >> vmi->page_shift;
+//         offset = (vmi->page_size - 1) & paddr;
+//         memory = vmi_read_page(vmi, pfn);
+//         if (NULL == memory) {
+//             return rtnval;
+//         }
 
-        /* Count new non-null characters */
-        read_len = 0;
-        while (offset + read_len < vmi->page_size) {
-            if (memory[offset + read_len] == '\0') {
-                read_more = 0;
-                break;
-            }
+//         /* Count new non-null characters */
+//         read_len = 0;
+//         while (offset + read_len < vmi->page_size) {
+//             if (memory[offset + read_len] == '\0') {
+//                 read_more = 0;
+//                 break;
+//             }
 
-            read_len++;
-        }
+//             read_len++;
+//         }
 
-        /* Otherwise, realloc, tack on the '\0' in case of errors and
-         * get ready to read the next page.
-         */
-        rtnval = realloc(rtnval, len + 1 + read_len);
-        memcpy(&rtnval[len], &memory[offset], read_len);
-        len += read_len;
-        rtnval[len] = '\0';
-    }
+//         /* Otherwise, realloc, tack on the '\0' in case of errors and
+//          * get ready to read the next page.
+//          */
+//         rtnval = realloc(rtnval, len + 1 + read_len);
+//         memcpy(&rtnval[len], &memory[offset], read_len);
+//         len += read_len;
+//         rtnval[len] = '\0';
+//     }
 
-    return rtnval;
-}
+//     return rtnval;
+// }
 
 
-#if defined(I386) || defined(X86_64)
+// #if defined(I386) || defined(X86_64)
 
-static status_t
-tiny_get_vcpureg_pv64(
-    vmi_instance_t vmi,
-    uint64_t *value,
-    reg_t reg,
-    unsigned long vcpu)
-{
-    vcpu_guest_context_x86_64_t* vcpu_ctx = NULL;
-    vcpu_guest_context_any_t ctx;
-    xen_instance_t *xen = xen_get_instance(vmi);
+// static status_t
+// tiny_get_vcpureg_pv64(
+//     vmi_instance_t vmi,
+//     uint64_t *value,
+//     reg_t reg,
+//     unsigned long vcpu)
+// {
+//     vcpu_guest_context_x86_64_t* vcpu_ctx = NULL;
+//     vcpu_guest_context_any_t ctx;
+//     xen_instance_t *xen = xen_get_instance(vmi);
 
-    if ( !vcpu_ctx ) {
-        if (xen->libxcw.xc_vcpu_getcontext(xen->xchandle, xen->domainid, vcpu, &ctx))
-        {
-            errprint("Failed to get context information (PV domain).\n");
-            return VMI_FAILURE;
-        }
+//     if ( !vcpu_ctx ) {
+//         if (xen->libxcw.xc_vcpu_getcontext(xen->xchandle, xen->domainid, vcpu, &ctx))
+//         {
+//             errprint("Failed to get context information (PV domain).\n");
+//             return VMI_FAILURE;
+//         }
 
-        vcpu_ctx = &ctx.x64;
-    }
+//         vcpu_ctx = &ctx.x64;
+//     }
 
-    switch (reg) {
-    case RAX:
-        *value = (reg_t) vcpu_ctx->user_regs.rax;
-        break;
-    case RBX:
-        *value = (reg_t) vcpu_ctx->user_regs.rbx;
-        break;
-    case RCX:
-        *value = (reg_t) vcpu_ctx->user_regs.rcx;
-        break;
-    case RDX:
-        *value = (reg_t) vcpu_ctx->user_regs.rdx;
-        break;
-    case RBP:
-        *value = (reg_t) vcpu_ctx->user_regs.rbp;
-        break;
-    case RSI:
-        *value = (reg_t) vcpu_ctx->user_regs.rsi;
-        break;
-    case RDI:
-        *value = (reg_t) vcpu_ctx->user_regs.rdi;
-        break;
-    case RSP:
-        *value = (reg_t) vcpu_ctx->user_regs.rsp;
-        break;
-    case R8:
-        *value = (reg_t) vcpu_ctx->user_regs.r8;
-        break;
-    case R9:
-        *value = (reg_t) vcpu_ctx->user_regs.r9;
-        break;
-    case R10:
-        *value = (reg_t) vcpu_ctx->user_regs.r10;
-        break;
-    case R11:
-        *value = (reg_t) vcpu_ctx->user_regs.r11;
-        break;
-    case R12:
-        *value = (reg_t) vcpu_ctx->user_regs.r12;
-        break;
-    case R13:
-        *value = (reg_t) vcpu_ctx->user_regs.r13;
-        break;
-    case R14:
-        *value = (reg_t) vcpu_ctx->user_regs.r14;
-        break;
-    case R15:
-        *value = (reg_t) vcpu_ctx->user_regs.r15;
-        break;
+//     switch (reg) {
+//     case RAX:
+//         *value = (reg_t) vcpu_ctx->user_regs.rax;
+//         break;
+//     case RBX:
+//         *value = (reg_t) vcpu_ctx->user_regs.rbx;
+//         break;
+//     case RCX:
+//         *value = (reg_t) vcpu_ctx->user_regs.rcx;
+//         break;
+//     case RDX:
+//         *value = (reg_t) vcpu_ctx->user_regs.rdx;
+//         break;
+//     case RBP:
+//         *value = (reg_t) vcpu_ctx->user_regs.rbp;
+//         break;
+//     case RSI:
+//         *value = (reg_t) vcpu_ctx->user_regs.rsi;
+//         break;
+//     case RDI:
+//         *value = (reg_t) vcpu_ctx->user_regs.rdi;
+//         break;
+//     case RSP:
+//         *value = (reg_t) vcpu_ctx->user_regs.rsp;
+//         break;
+//     case R8:
+//         *value = (reg_t) vcpu_ctx->user_regs.r8;
+//         break;
+//     case R9:
+//         *value = (reg_t) vcpu_ctx->user_regs.r9;
+//         break;
+//     case R10:
+//         *value = (reg_t) vcpu_ctx->user_regs.r10;
+//         break;
+//     case R11:
+//         *value = (reg_t) vcpu_ctx->user_regs.r11;
+//         break;
+//     case R12:
+//         *value = (reg_t) vcpu_ctx->user_regs.r12;
+//         break;
+//     case R13:
+//         *value = (reg_t) vcpu_ctx->user_regs.r13;
+//         break;
+//     case R14:
+//         *value = (reg_t) vcpu_ctx->user_regs.r14;
+//         break;
+//     case R15:
+//         *value = (reg_t) vcpu_ctx->user_regs.r15;
+//         break;
 
-    case RIP:
-        *value = (reg_t) vcpu_ctx->user_regs.rip;
-        break;
-    case RFLAGS:
-        *value = (reg_t) vcpu_ctx->user_regs.rflags;
-        break;
+//     case RIP:
+//         *value = (reg_t) vcpu_ctx->user_regs.rip;
+//         break;
+//     case RFLAGS:
+//         *value = (reg_t) vcpu_ctx->user_regs.rflags;
+//         break;
 
-    case CR0:
-        *value = (reg_t) vcpu_ctx->ctrlreg[0];
-        break;
-    case CR2:
-        *value = (reg_t) vcpu_ctx->ctrlreg[2];
-        break;
-    case CR3:
-        *value = (reg_t) vcpu_ctx->ctrlreg[3];
-        *value = (reg_t) (xen_cr3_to_pfn_x86_64(*value) << XC_PAGE_SHIFT);
-        break;
-    case CR4:
-        *value = (reg_t) vcpu_ctx->ctrlreg[4];
-        break;
+//     case CR0:
+//         *value = (reg_t) vcpu_ctx->ctrlreg[0];
+//         break;
+//     case CR2:
+//         *value = (reg_t) vcpu_ctx->ctrlreg[2];
+//         break;
+//     case CR3:
+//         *value = (reg_t) vcpu_ctx->ctrlreg[3];
+//         *value = (reg_t) (xen_cr3_to_pfn_x86_64(*value) << XC_PAGE_SHIFT);
+//         break;
+//     case CR4:
+//         *value = (reg_t) vcpu_ctx->ctrlreg[4];
+//         break;
 
-    case DR0:
-        *value = (reg_t) vcpu_ctx->debugreg[0];
-        break;
-    case DR1:
-        *value = (reg_t) vcpu_ctx->debugreg[1];
-        break;
-    case DR2:
-        *value = (reg_t) vcpu_ctx->debugreg[2];
-        break;
-    case DR3:
-        *value = (reg_t) vcpu_ctx->debugreg[3];
-        break;
-    case DR6:
-        *value = (reg_t) vcpu_ctx->debugreg[6];
-        break;
-    case DR7:
-        *value = (reg_t) vcpu_ctx->debugreg[7];
-        break;
-    case FS_BASE:
-        *value = (reg_t) vcpu_ctx->fs_base;
-        break;
-    case GS_BASE:  // TODO: distinguish between kernel & user
-        *value = (reg_t) vcpu_ctx->gs_base_kernel;
-        break;
-    case LDTR_BASE:
-        *value = (reg_t) vcpu_ctx->ldt_base;
-        break;
-    default:
-        return VMI_FAILURE;
-    }
+//     case DR0:
+//         *value = (reg_t) vcpu_ctx->debugreg[0];
+//         break;
+//     case DR1:
+//         *value = (reg_t) vcpu_ctx->debugreg[1];
+//         break;
+//     case DR2:
+//         *value = (reg_t) vcpu_ctx->debugreg[2];
+//         break;
+//     case DR3:
+//         *value = (reg_t) vcpu_ctx->debugreg[3];
+//         break;
+//     case DR6:
+//         *value = (reg_t) vcpu_ctx->debugreg[6];
+//         break;
+//     case DR7:
+//         *value = (reg_t) vcpu_ctx->debugreg[7];
+//         break;
+//     case FS_BASE:
+//         *value = (reg_t) vcpu_ctx->fs_base;
+//         break;
+//     case GS_BASE:  // TODO: distinguish between kernel & user
+//         *value = (reg_t) vcpu_ctx->gs_base_kernel;
+//         break;
+//     case LDTR_BASE:
+//         *value = (reg_t) vcpu_ctx->ldt_base;
+//         break;
+//     default:
+//         return VMI_FAILURE;
+//     }
 
-    return VMI_SUCCESS;
-}
+//     return VMI_SUCCESS;
+// }
 
 
 // static status_t
@@ -551,7 +551,7 @@ tiny_get_vcpureg_pv64(
 // }
 
 
-#endif
+// #endif
 
 // status_t
 // // tiny_get_vcpureg(
@@ -585,7 +585,7 @@ tiny_test(
     struct vmi_instance _vmi = {0};
     vmi_instance_t vmi = &_vmi;
 
-    dbprint(VMI_DEBUG_XEN, "now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "%-% now in %s\n", __FUNCTION__);
   
     if (domainid == VMI_INVALID_DOMID && name == NULL) {
         errprint("VMI_ERROR: xen_test: domid or name must be specified\n");
@@ -625,48 +625,48 @@ void tiny_print_hex(int pfn,unsigned char *data, unsigned long length)
     for (i = 0; i < numrows; ++i) {
         /* print the byte count */
 	address = base+(i*16);
-        printf("%.8llx|  ", address);
+        dbprint(VMI_DEBUG_TEST, "%.8llx|  ", address);
 
         /* print the first 8 hex values */
         for (j = 0; j < 8; ++j) {
             index = i * 16 + j;
             if (index < length) {
-                printf("%.2x ", data[index]);
+                dbprint(VMI_DEBUG_TEST, "%.2x ", data[index]);
             }
             else {
-                printf("   ");
+                dbprint(VMI_DEBUG_TEST, "   ");
             }
         }
-        printf(" ");
+        dbprint(VMI_DEBUG_TEST, " ");
 
         /* print the second 8 hex values */
         for (; j < 16; ++j) {
             index = i * 16 + j;
             if (index < length) {
-                printf("%.2x ", data[index]);
+                dbprint(VMI_DEBUG_TEST, "%.2x ", data[index]);
             }
             else {
-                printf("   ");
+                dbprint(VMI_DEBUG_TEST, "   ");
             }
         }
-        printf("  ");
+        dbprint(VMI_DEBUG_TEST, "  ");
 
         /* print the ascii values */
         for (j = 0; j < 16; ++j) {
             index = i * 16 + j;
             if (index < length) {
                 if (isprint((int) data[index])) {
-                    printf("%c", data[index]);
+                    dbprint(VMI_DEBUG_TEST, "%c", data[index]);
                 }
                 else {
-                    printf(".");
+                    dbprint(VMI_DEBUG_TEST, ".");
                 }
             }
         }
-        printf("\n");
+        dbprint(VMI_DEBUG_TEST, "\n");
     }
 
-    	printf("--LELE: end of function %s",__FUNCTION__);
+    	dbprint(VMI_DEBUG_TEST, "--LELE: end of function %s",__FUNCTION__);
 }
 
 
@@ -713,25 +713,25 @@ void * tiny_get_memory_pfn(vmi_instance_t *vmi, addr_t pfn)
 //	    xchandle = xc_interface_open(NULL, NULL, 0);
 //	}
 //	if (NULL == xchandle) {
-//	    printf("Failed to open libxc interface.\n");
+//	    dbprint(VMI_DEBUG_TEST, "Failed to open libxc interface.\n");
 //	}
   	if (NULL == xen->xchandle) {
 	    xen->xchandle = xc_interface_open(NULL, NULL, 0);
 	}
 	if (NULL == xen->xchandle) {
-	    printf("Failed to open libxc interface.\n");
+	    dbprint(VMI_DEBUG_TEST, "Failed to open libxc interface.\n");
         return NULL;
 	}
 
-	printf("--test xchandle:%llx\n",(unsigned long long)xen->xchandle);
-	printf("--test domainid:%d\n",(*vmi)->domainid);
+	dbprint(VMI_DEBUG_TEST, "--test xchandle:%llx\n",(unsigned long long)xen->xchandle);
+	dbprint(VMI_DEBUG_TEST, "--test domainid:%d\n",(*vmi)->domainid);
 	memory = xc_map_foreign_range(xen->xchandle,(*vmi)->domainid,XC_PAGE_SIZE,PROT_READ,(unsigned long)pfn);
 	if (MAP_FAILED == memory || NULL == memory) {
-		printf("--tiny_get_memory_pfn failed on pfn=0x%"PRIx64"\n", pfn);
+		dbprint(VMI_DEBUG_TEST, "--tiny_get_memory_pfn failed on pfn=0x%"PRIx64"\n", pfn);
 		return NULL;
 	    }
 	else{
-		printf("--tiny_get_memory_pfn succeed!!!!!pfn=0x%"PRIx64"\n", pfn);	
+		dbprint(VMI_DEBUG_TEST, "--tiny_get_memory_pfn succeed!!!!!pfn=0x%"PRIx64"\n", pfn);	
 	}
 
 //#ifdef VMI_DEBUG
@@ -762,7 +762,7 @@ void * tiny_get_memory_pfn(vmi_instance_t *vmi, addr_t pfn)
 //                                         (unsigned long) pfn);
 
 //     if (NULL == memory) {
-//         printf("--xen_get_memory_pfn failed on pfn=0x%"PRIx64"\n", pfn);
+//         dbprint(VMI_DEBUG_TEST, "--xen_get_memory_pfn failed on pfn=0x%"PRIx64"\n", pfn);
 //         return NULL;
 //     }
 
@@ -864,7 +864,7 @@ status_t vmi_read_pa(
     addr_t offset = 0;
     size_t buf_offset = 0;
 
-    dbprint(VMI_DEBUG_MEMCACHE, "now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_MEMCACHE, "%-% now in %s\n", __FUNCTION__);
     
     while (count > 0) {
         size_t read_len = 0;
@@ -932,9 +932,9 @@ status_t vmi_read_pa(
 // 	int vcpu=0;
 // 	void *memory;
 	
-// 	printf("--LELE: now in %s\n",__FUNCTION__);
+// 	dbprint(VMI_DEBUG_TEST, "--LELE: now in %s\n",__FUNCTION__);
 
-// 	printf("--LELE: test pfn:0x%.16"PRIx64" for domain : %d\n",pfn,(*vmi)->domainid);
+// 	dbprint(VMI_DEBUG_TEST, "--LELE: test pfn:0x%.16"PRIx64" for domain : %d\n",pfn,(*vmi)->domainid);
 
 // 	sleep(2);
 
@@ -943,10 +943,10 @@ status_t vmi_read_pa(
 // 	tiny_print_hex(pfn,memory,XC_PAGE_SIZE>>4);
 	
 // 	if(tiny_get_vcpureg_hvm((*vmi), &cr3,CR3, vcpu)==0){
-// 	   printf("--LELE: read cr3 0x%x, in domain %d, vcpu: %d\n", cr3, (*vmi)->domainid, vcpu);
+// 	   dbprint(VMI_DEBUG_TEST, "--LELE: read cr3 0x%x, in domain %d, vcpu: %d\n", cr3, (*vmi)->domainid, vcpu);
 // 	}
 // 	else{
-// 	   printf("--LELE: ERROR calling tiny_get_vcpureg_hvm\n");
+// 	   dbprint(VMI_DEBUG_TEST, "--LELE: ERROR calling tiny_get_vcpureg_hvm\n");
 // 	}
 // 	return 0;
 // }

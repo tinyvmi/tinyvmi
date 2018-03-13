@@ -2,14 +2,23 @@ XEN_ROOT = $(CURDIR)/../..
 
 include $(XEN_ROOT)/Config.mk
 
+SRC_CODE += ./include/tiny_private.h
+
 OBJS=main.o ./tiny-vmi/tiny_test.o
+# SRC_CODE += main.c ./tiny-vmi/tiny_test.c
 # OBJS += ./tiny-vmi/driver/xen/tiny_xen.o 
 OBJS += ./tiny-vmi/tiny_cache.o ./tiny-vmi/mem_cache.o
 
 OBJS += ./tiny-vmi/accessors.o  
+
 OBJS += ./tiny-vmi/tiny_kv2p.o  
 
-OBJS += ./tiny-vmi/tiny_vmi_init.o ./tiny-vmi/tiny_read.o ./tiny-vmi/tiny_GetVaOfVetorInIDT.o
+OBJS += ./tiny-vmi/tiny_vmi_init.o 
+
+OBJS += ./tiny-vmi/tiny_read.o 
+OBJS += ./tiny-vmi/read.o 
+
+OBJS += ./tiny-vmi/tiny_GetVaOfVetorInIDT.o
 
 OB_drivers = ./tiny-vmi/driver/driver_interface.o 
 
@@ -26,9 +35,10 @@ OB_arch += ./tiny-vmi/arch/arm_aarch32.o
 OB_arch += ./tiny-vmi/arch/arm_aarch64.o
 OB_arch += ./tiny-vmi/arch/intel.o
 
-# OB_arch += ./tiny-vmi/os/linux/core.o
-# OB_arch += ./tiny-vmi/os/linux/memory.o
-# OB_arch += ./tiny-vmi/os/linux/symbols.o
+
+OB_arch += ./tiny-vmi/os/linux/core.o
+OB_arch += ./tiny-vmi/os/linux/memory.o
+OB_arch += ./tiny-vmi/os/linux/symbols.o
 
 
 # OB_arch += ./tiny-vmi/os/windows/core.o
@@ -39,18 +49,24 @@ OB_arch += ./tiny-vmi/arch/intel.o
 # OB_arch += ./tiny-vmi/os/windows/symbols.o
 # OB_arch += ./tiny-vmi/os/windows/unicode.o
 
+OB_config += ./tiny-vmi/config/grammar.o
 
-OBJS += $(OB_xc) $(OB_xs) $(OB_xen) $(OB_arch)
+
+OBJS += $(OB_xc) $(OB_xs) $(OB_xen) $(OB_arch) $(OB_config)
 
 OBJS += ./tiny-vmi/driver/file/file.o
 
 OBJS += ./tiny-vmi/memory.o
-
 OBJS += ./tiny-vmi/tiny_core.o
-
 OBJS += ./tiny-vmi/convenience.o
 
-OBJS += ./tiny-vmi/tiny_glib.o
+OB_glib += ./tiny-vmi/tiny_glib/hash.o
+OB_glib += ./tiny-vmi/tiny_glib/list.o
+OB_glib += ./tiny-vmi/tiny_glib/slist.o
+OB_glib += ./tiny-vmi/tiny_glib/hashtable.o
+# OB_glib += ./tiny-vmi/tiny_glib.o
+
+OBJS += $(OB_glib)
 
 OBJS += ./tiny-vmi/tiny_test.o
 
@@ -85,9 +101,13 @@ CFLAGS += -I$(CURDIR)/tiny-vmi
 
 all: main.a 
 
+$(OB_config): $(OB_glib)
+
 $(OB_xen): $(OB_xc) $(OB_xs)
 
 tiny_read.o: $(OB_xen)
+
+$(OBJS): $(SRC_CODE)
 
 #main.a: main.o ./tiny-vmi/tiny_test.o ./tiny-vmi/driver/xen/tiny_xen.o ./tiny-vmi/tiny_cache.o ./tiny-vmi/mem_cache.o ./tiny-vmi/tiny_kv2p.o  ./tiny-vmi/tiny_vmi_init.o ./tiny-vmi/tiny_read.o ./tiny-vmi/tiny_GetVaOfVetorInIDT.o
 main.a: $(OBJS)

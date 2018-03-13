@@ -62,7 +62,7 @@ status_t tiny_cache_insert(v2p_cache_t v2p_c, key_128_t key,v2p_cache_entry_t en
 		v2p_c->cache_lines[v2p_c->count]->entry=entry;
 		
 		v2p_c->count++;
-		printf("--V2P cache set 0x%.16"PRIx64" -- 0x%.16"PRIx64" (0x%.16"PRIx64"/0x%.16"PRIx64"),in %s\n", key->high,
+		dbprint(VMI_DEBUG_MEMCACHE, "--V2P cache set 0x%.16"PRIx64" -- 0x%.16"PRIx64" (0x%.16"PRIx64"/0x%.16"PRIx64"),in %s\n", key->high,
             entry->pa, key->high, key->low,__FUNCTION__);
 		return VMI_SUCCESS;
 	}else{
@@ -191,10 +191,10 @@ void v2p_cache_set(
     key_128_t key = key_128_build(vmi, (uint64_t)va, (uint64_t)dtb);
     v2p_cache_entry_t entry = v2p_cache_entry_create(vmi, pa);
   	if(VMI_SUCCESS==tiny_cache_insert(vmi->v2p_cache, key, entry)){
-		printf("--V2P cache set 0x%.16"PRIx64" -- 0x%.16"PRIx64" (0x%.16"PRIx64"/0x%.16"PRIx64"),in %s\n", va,
+		dbprint(VMI_DEBUG_MEMCACHE, "--V2P cache set 0x%.16"PRIx64" -- 0x%.16"PRIx64" (0x%.16"PRIx64"/0x%.16"PRIx64"),in %s\n", va,
             pa, key->high, key->low,__FUNCTION__);
 	}else{
-		printf("%s:cache set FAILURE\n",__FUNCTION__);
+		dbprint(VMI_DEBUG_MEMCACHE, "%s:cache set FAILURE\n",__FUNCTION__);
 	}
 	
 }
@@ -207,7 +207,7 @@ status_t v2p_cache_del(
     struct key_128 local_key;
     key_128_t key = &local_key;
     key_128_init(vmi, key, (uint64_t)va, (uint64_t)dtb);
-    printf("--V2P cache del 0x%.16"PRIx64" (0x%.16"PRIx64"/0x%.16"PRIx64")\n", va,
+    dbprint(VMI_DEBUG_MEMCACHE, "--V2P cache del 0x%.16"PRIx64" (0x%.16"PRIx64"/0x%.16"PRIx64")\n", va,
             key->high, key->low);
 
     // key collision doesn't really matter here because worst case

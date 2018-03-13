@@ -2,7 +2,10 @@
 #ifndef TINY_CACHE_H
 #define TINY_CACHE_H
 //#include "tiny_private.h"
-#include <tiny_glib.h>
+// #include <tiny_glib.h>
+#include <tiny_glib/hash.h>
+#include <tiny_glib/hashtable.h>
+#include <tiny_glib/slist.h>
 
 /**for cache, lele 2014.11.14 */
 

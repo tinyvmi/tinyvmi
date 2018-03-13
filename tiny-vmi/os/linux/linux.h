@@ -22,9 +22,19 @@
 
 #include "tiny_private.h"
 
-struct linux_instance {
-    char *sysmap; /**< system map file for domain's running kernel */
+#ifdef SYM_FILE_FROM_STRING
+struct linux_sys_map{
 
+};
+#endif
+
+struct linux_instance {
+
+#ifndef SYM_FILE_FROM_STRING
+    char *sysmap; /**< system map file for domain's running kernel */
+#else //SYM_FILE_FROM_STRING
+    
+#endif // SYM_FILE_FROM_STRING
     char *rekall_profile; /**< Rekall profile for domain's running kernel */
 
     addr_t tasks_offset; /**< task_struct->tasks */

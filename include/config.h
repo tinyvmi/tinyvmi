@@ -14,10 +14,11 @@
 #define ENABLE_V2P_CACHE 1
 
 /* Enable libvmi.conf */
-#define ENABLE_CONFIGFILE 1
+//#define ENABLE_CONFIGFILE 1   //TODO: add configure file support, (parse from string?)
 
 /* Define to 1 to enable file support. */
-#define ENABLE_FILE 1
+#define ENABLE_FILE 0 // No file support in minios.
+// #define ENABLE_FILE 1
 
 /* Define to 1 to enable KVM support. */
 /* #undef ENABLE_KVM */
@@ -36,8 +37,8 @@
 #define ENABLE_VMIFS 0
 
 /* Define to 1 to Windows support. */
-// #define ENABLE_WINDOWS 1
-#define ENABLE_WINDOWS 0
+// #define ENABLE_WINDOWS 1 //TODO: add windows support
+// #define ENABLE_WINDOWS 0
 
 /* Define to 1 to enable Xen support. */
 #define ENABLE_XEN 1
@@ -143,7 +144,7 @@
 
 /* Defined to 1 when working JSON-C library was found to parse Rekall
    profiles. */
-#define REKALL_PROFILES 1
+//#define REKALL_PROFILES 1
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
