@@ -161,6 +161,8 @@ read_config_file(vmi_instance_t vmi, FILE* config_file,
 {
     status_t ret = VMI_FAILURE;
 
+    dbprint(VMI_DEBUG_CORE, "->-> now in %s\n", __FUNCTION__);
+
     yyin = config_file;
 
     if (vmi_parse_config(vmi->image_type) != 0) {
@@ -186,6 +188,8 @@ read_config_file(vmi_instance_t vmi, FILE* config_file,
 error_exit:
     if (config_file)
         fclose(config_file);
+
+    dbprint(VMI_DEBUG_CORE, "%s: done.\n\n", __FUNCTION__);
 
     return ret;
 }

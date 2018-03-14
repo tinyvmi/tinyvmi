@@ -14,7 +14,7 @@
 #define ENABLE_V2P_CACHE 1
 
 /* Enable libvmi.conf */
-//#define ENABLE_CONFIGFILE 1   //TODO: add configure file support, (parse from string?)
+#define ENABLE_CONFIGFILE 1   //TODO: add configure file support, (parse from string?)
 
 /* Define to 1 to enable file support. */
 #define ENABLE_FILE 0 // No file support in minios.
