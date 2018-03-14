@@ -29,12 +29,24 @@
 
 #define CONFIG_STR_LENGTH 1024
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdarg.h>
+#include <errno.h>
+
 // #include <tiny_glib.h>
 
 #include <tiny_glib/hash.h>
 #include <tiny_glib/hashtable.h>
 
 #include <tiny_libvmi.h>
+
+
+extern FILE *yyin;
+
+extern int yylex (void);
+extern int yyparse (void);
 
 int vmi_parse_config(const char *target_name);
 GHashTable* vmi_get_config();

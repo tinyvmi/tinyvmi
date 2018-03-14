@@ -71,7 +71,9 @@ read_config_file_entry(vmi_instance_t UNUSED(vmi),
 
 #include "config/config_parser.h"
 
-extern FILE *yyin;
+// extern FILE *yyin;
+
+FILE *yyin;
 
 static FILE *
 open_config_file(
@@ -201,6 +203,10 @@ status_t read_config_string(vmi_instance_t vmi,
 {
     status_t ret = VMI_SUCCESS;
     FILE* config_file = NULL;
+
+    dbprint(VMI_DEBUG_CORE, "->-> now in %s\n", __FUNCTION__);
+
+    dbprint(VMI_DEBUG_CORE, "%s: config string: %s\n", __FUNCTION__, config);
 
     if (config == NULL) {
         if ( error )
