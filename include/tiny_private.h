@@ -62,7 +62,7 @@
 
 //Lele: testing with constant values, all need replacement. 
 // default return value of xen_get_domainid_from_name
-#define DOMAIN_ID 6
+#define DOMAIN_ID 2
 // default enable hvm
 // #define HVM 1
 // default 32-bit guest system

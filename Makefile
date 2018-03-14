@@ -60,6 +60,7 @@ OBJS += ./tiny-vmi/memory.o
 OBJS += ./tiny-vmi/tiny_core.o
 OBJS += ./tiny-vmi/convenience.o
 
+OB_glib += ./tiny-vmi/tiny_glib/types.o
 OB_glib += ./tiny-vmi/tiny_glib/hash.o
 OB_glib += ./tiny-vmi/tiny_glib/list.o
 OB_glib += ./tiny-vmi/tiny_glib/slist.o

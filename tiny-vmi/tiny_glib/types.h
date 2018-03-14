@@ -10,8 +10,8 @@ typedef struct hashtable  GHashTable;
 #define TRUE 1
 #define FALSE 0
 
-#define g_malloc0 malloc
 #define g_malloc malloc
+
 #define g_free free 
 
 typedef unsigned int    gsize;
@@ -111,5 +111,17 @@ return;\
 if(!expr){\
 return value;\
 }
+
+// #define g_malloc0(size) \
+// ({gpointer mem; \
+// mem=g_malloc(size);\
+// if(mem) memset(mem,0,size);\
+// return mem;})
+
+#define g_malloc0(size) tiny_malloc0(size)
+
+gpointer tiny_malloc0 (gsize n_bytes);
+
+
 
 #endif //TINY_GLIB_TYPES_H

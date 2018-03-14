@@ -659,7 +659,7 @@ xen_get_domainname(
                                    0,
                                    "/local/domain/%"PRIu64"/name",
                                    xen->domainid)
-                          +1);
+                                   +1);
     sprintf(tmp, "/local/domain/%"PRIu64"/name", xen->domainid);
     *name = xen->libxsw.xs_read(xen->xshandle, xth, tmp, NULL);
     free(tmp);
