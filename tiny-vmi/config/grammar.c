@@ -108,7 +108,9 @@ int debug = 0;
 
 // extern int yylex (void);
 // extern int yyparse (void);
-int yylex (void);
+int yylex (void){
+    fprintf(stderr,"error: yylex not implemented in MiniOS\n");
+}
 
 GHashTable *entry = NULL;
 GHashTable *tmp_entry = NULL;
