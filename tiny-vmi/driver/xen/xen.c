@@ -51,7 +51,7 @@ xen_get_memory_pfn(
     int prot)
 {
     
-    dbprint(VMI_DEBUG_XEN, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
 
     xen_instance_t *xen = xen_get_instance(vmi);
     
@@ -83,7 +83,7 @@ xen_get_memory_pfn(
     memcpy(buf, memory, XC_PAGE_SIZE);
 #endif // VMI_DEBUG
 
-    dbprint(VMI_DEBUG_XEN, "%s: Done\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "%s: done\n\n", __FUNCTION__);
     return memory;
 }
 
@@ -94,7 +94,7 @@ xen_get_memory(
     uint32_t UNUSED(length))
 {
     //TODO assuming length == page size is safe for now, but isn't the most clean approach
-    dbprint(VMI_DEBUG_XEN, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
 
     addr_t pfn = paddr >> vmi->page_shift;
 
@@ -262,7 +262,7 @@ _bail:
 
         xen->libxsw.xs_close(xsh);
         if (xen->xshandle){
-            xen->xshandle = 0;
+            xen->xshandle = 0; // Lele: keep consistency
             dbprint(VMI_DEBUG_XEN, "%s: reset xen->xshandle to NULL(0)\n",__FUNCTION__);
         }
     }
@@ -322,8 +322,16 @@ status_t xen_get_name_from_domainid(
     }
 
 _bail:
-    if (xsh)
+    // if (xsh)
+    //     xen->libxsw.xs_close(xsh);
+    if (xsh) {
+        dbprint(VMI_DEBUG_XEN, "%s: close xsh\n",__FUNCTION__);
         xen->libxsw.xs_close(xsh);
+        if (xen->xshandle){
+            xen->xshandle = 0; // Lele: keep consistency
+            dbprint(VMI_DEBUG_XEN, "%s: reset xen->xshandle to NULL(0)\n",__FUNCTION__);
+        }
+    }
     return ret;
 }
 #endif
@@ -354,7 +362,7 @@ xen_check_domainid(
     int rc;
     xen_instance_t *xen = NULL;
 
-    dbprint(VMI_DEBUG_XEN, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
     if ( domainid > max_domid ) {
         dbprint(VMI_DEBUG_XEN,"Domain ID is invalid, larger then the max supported on Xen!\n");
         return ret;
@@ -375,7 +383,7 @@ xen_check_domainid(
         xen_destroy(vmi);
     }
 
-    dbprint(VMI_DEBUG_XEN, "done in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "done in %s\n\n", __FUNCTION__);
     return ret;
 }
 
@@ -451,7 +459,7 @@ xen_init(
     void *UNUSED(init_data))
 {
 
-    dbprint(VMI_DEBUG_XEN, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
 
     if ( xen_get_instance(vmi) )
         return VMI_SUCCESS;
@@ -475,6 +483,7 @@ xen_init(
     {
         dbprint(VMI_DEBUG_XEN, "Failed to find a suitable xenstore.so!\n");
         xen->libxcw.xc_interface_close(xen->xchandle);
+        xen->xchandle=0;
         g_free(xen);
     
         return VMI_FAILURE;
@@ -486,16 +495,21 @@ xen_init(
     if (!xen->xshandle) {
         errprint("xs_domain_open failed\n");
         xen->libxcw.xc_interface_close(xen->xchandle);
+        xen->xchandle=0;
         g_free(xen);
         return VMI_FAILURE;
     }else{
         xen->libxsw.xs_close(xen->xshandle);
+        if (xen->xshandle){
+            xen->xshandle = 0; // Lele: keep consistency
+            dbprint(VMI_DEBUG_XEN, "%s: reset xen->xshandle to NULL(0)\n",__FUNCTION__);
+        }
     }
 #endif
 
     vmi->driver.driver_data = (void *)xen;
 
-    dbprint(VMI_DEBUG_XEN, "done in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "done in %s\n\n", __FUNCTION__);
   
     return VMI_SUCCESS;
 }
@@ -583,13 +597,17 @@ void
 xen_destroy(
     vmi_instance_t vmi)
 {
-    dbprint(VMI_DEBUG_XEN, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
     xen_instance_t *xen = xen_get_instance(vmi);
 
     if(!xen) {
-        dbprint(VMI_DEBUG_XEN, "done in %s\n", __FUNCTION__);
+        dbprint(VMI_DEBUG_XEN, "done in %s\n\n", __FUNCTION__);
         return;
     }
+
+    dbprint(VMI_DEBUG_XEN, "%s:\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "\t vm_type : %d\n", vmi->vm_type);
+    dbprint(VMI_DEBUG_XEN, "\t init_flags(%x)\n", vmi->init_flags);
 
     if(vmi->vm_type == HVM && (vmi->init_flags & VMI_INIT_EVENTS)){
         dbprint (VMI_DEBUG_XEN, "** TODO: destroy xen events\n");
@@ -600,35 +618,49 @@ xen_destroy(
     // xc_interface *xchandle = xen->xchandle;
 
     if ( xen->xchandle ){
-        xen->libxcw.xc_interface_close(xen->xchandle);
-        xen->xchandle = 0;// Lele: keep consistency
+
+        if (!xen->libxcw.xc_interface_close){
+            dbprint(VMI_DEBUG_XEN, "%s: xc_interface_close not defined\n", __FUNCTION__);
+            return;
+        }else{
+            dbprint(VMI_DEBUG_XEN, "%s: close xchandle\n", __FUNCTION__);
+            xen->libxcw.xc_interface_close(xen->xchandle);
+            xen->xchandle = 0;// Lele: keep consistency
+            dbprint(VMI_DEBUG_XEN, "%s: xchandle closed\n", __FUNCTION__);
+        }
     }
 
     //dlclose(xen->libxcw.handle);
 
 #ifdef HAVE_LIBXENSTORE
     if(xen->xshandle) {
+        dbprint(VMI_DEBUG_XEN, "%s: close xshandle\n", __FUNCTION__);
         // dbprint(VMI_DEBUG_XEN, "%s: destory xshandle\n", __FUNCTION__);
         xen->libxsw.xs_close(xen->xshandle);
-        xen->xshandle = 0; // Lele: keep consistency
+        if (xen->xshandle){
+            xen->xshandle = 0; // Lele: keep consistency
+            dbprint(VMI_DEBUG_XEN, "%s: reset xen->xshandle to NULL(0)\n",__FUNCTION__);
+        }
     }
 
     //dlclose(xen->libxsw.handle);
 #endif
 
 
-    if(*(xen->name) != NULL){
-        dbprint(VMI_DEBUG_XEN, "** TODO: BUG: %s: free xen name, addr 0x%lx\n", __FUNCTION__, xen->name);
+    dbprint(VMI_DEBUG_XEN, "%s: try to free xen->name \n", __FUNCTION__);
+
+    if(xen->name && *(xen->name) != NULL){
+        dbprint(VMI_DEBUG_XEN, "** TODO: BUG: %s: free xen name, addr 0x%lx, %s\n", __FUNCTION__, xen->name, xen->name);
         // g_free(xen->name);
     }
 
-    // dbprint(VMI_DEBUG_XEN, "%s: free xen, addr 0x%lx\n", __FUNCTION__, xen);
+    dbprint(VMI_DEBUG_XEN, "%s: free xen, addr 0x%lx\n", __FUNCTION__, xen);
     g_free(xen);
 
-    // dbprint(VMI_DEBUG_XEN, "%s: set null to vmi->driver.driver_data, addr 0x%lx\n", __FUNCTION__, vmi->driver.driver_data);
+    dbprint(VMI_DEBUG_XEN, "%s: set null to vmi->driver.driver_data, addr 0x%lx\n", __FUNCTION__, vmi->driver.driver_data);
     vmi->driver.driver_data = NULL;
     
-    dbprint(VMI_DEBUG_XEN, "done in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "done in %s\n\n", __FUNCTION__);
 }
 
 /*
@@ -717,7 +749,7 @@ xen_get_vcpureg_hvm(
     unsigned long vcpu)
 {
     
-    dbprint(VMI_DEBUG_XEN, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
     status_t ret = VMI_SUCCESS;
     struct hvm_hw_cpu* hvm_cpu = NULL;
     xen_instance_t *xen = xen_get_instance(vmi);
@@ -2278,7 +2310,7 @@ xen_get_vcpureg(
     reg_t reg,
     unsigned long vcpu)
 {
-    dbprint(VMI_DEBUG_XEN, "%-% now in %s \n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "->-> now in %s \n", __FUNCTION__);
 #if defined(ARM32) || defined(ARM64)
     return xen_get_vcpureg_arm(vmi, value, reg, vcpu);
 #elif defined(I386) || defined (X86_64)

@@ -80,7 +80,7 @@ status_t vmi_translate_kv2p(
 // 			v2p_cache_set(vmi, vaddr, dtb, paddr);
 // 		}
         
-// 		dbprint(VMI_DEBUG_CORE, "%s: Done\n",__FUNCTION__);
+// 		dbprint(VMI_DEBUG_CORE, "%s: done\n\n",__FUNCTION__);
 		
 // 		return VMI_SUCCESS;
 

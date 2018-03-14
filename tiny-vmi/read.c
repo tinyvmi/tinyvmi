@@ -50,7 +50,7 @@ vmi_read(
     addr_t dtb = 0;
     size_t buf_offset = 0;
 
-    dbprint(VMI_DEBUG_READ, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_READ, "->-> now in %s\n", __FUNCTION__);
 
     if (NULL == ctx) {
         dbprint(VMI_DEBUG_READ, "--%s: ctx passed as NULL, returning without read\n", __FUNCTION__);
@@ -75,8 +75,18 @@ vmi_read(
                 goto done;
             break;
         case VMI_TM_PROCESS_PID:
-            if (!vmi->arch_interface || !vmi->os_interface)
+
+            dbprint(VMI_DEBUG_READ, "%s: VMI_TM_PROCESS_PID\n", __FUNCTION__);
+          
+            if (!vmi->arch_interface){
+                dbprint(VMI_DEBUG_READ, "%s: ** TODO: add support for arch_interface\n", __FUNCTION__);
                 goto done;
+            }
+
+            if (!vmi->os_interface){
+                dbprint(VMI_DEBUG_READ, "%s: ** TODO: add support for  os_interface\n", __FUNCTION__);
+                // goto done;
+            }
 
             if ( !ctx->pid ){
             
@@ -152,6 +162,7 @@ done:
     if ( bytes_read )
         *bytes_read = buf_offset;
 
+    dbprint(VMI_DEBUG_READ, "%s: Done\n\n", __FUNCTION__);
     return ret;
 }
 

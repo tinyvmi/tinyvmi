@@ -315,7 +315,7 @@ return VMI_FAILURE;
     status_t rc;
     os_interface_t os_interface = NULL;
 
-    dbprint(VMI_DEBUG_CORE, "%-% now in %s\n ", __FUNCTION__);
+    dbprint(VMI_DEBUG_CORE, "->-> now in %s\n ", __FUNCTION__);
     
     dbprint(VMI_DEBUG_CORE, "** TODO: now lack full OS support for Linux ****\n ");
     

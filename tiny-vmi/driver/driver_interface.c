@@ -91,7 +91,7 @@ status_t driver_init(vmi_instance_t vmi,
                      void *init_data)
 {
     status_t rc = VMI_FAILURE;
-    dbprint(VMI_DEBUG_DRIVER, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_DRIVER, "->-> now in %s\n", __FUNCTION__);
 
     if (vmi->driver.initialized)
     {
@@ -125,7 +125,7 @@ status_t driver_init(vmi_instance_t vmi,
     if (rc == VMI_SUCCESS && vmi->driver.init_ptr)
         rc = vmi->driver.init_ptr(vmi, init_flags, init_data);
 
-    dbprint(VMI_DEBUG_DRIVER, "%s: Done\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_DRIVER, "%s: done\n\n", __FUNCTION__);
 
     return rc;
 }

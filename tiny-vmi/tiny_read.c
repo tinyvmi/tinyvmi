@@ -585,7 +585,7 @@ tiny_test(
     struct vmi_instance _vmi = {0};
     vmi_instance_t vmi = &_vmi;
 
-    dbprint(VMI_DEBUG_XEN, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
   
     if (domainid == VMI_INVALID_DOMID && name == NULL) {
         errprint("VMI_ERROR: xen_test: domid or name must be specified\n");
@@ -719,7 +719,7 @@ void * tiny_get_memory_pfn(vmi_instance_t *vmi, addr_t pfn)
 	    xen->xchandle = xc_interface_open(NULL, NULL, 0);
 	}
 	if (NULL == xen->xchandle) {
-	    dbprint(VMI_DEBUG_TEST, "Failed to open libxc interface.\n");
+	    dbprint(VMI_DEBUG_TEST, "%s: Failed to open libxc interface.\n", __FUNCTION__);
         return NULL;
 	}
 
@@ -864,7 +864,7 @@ status_t vmi_read_pa(
     addr_t offset = 0;
     size_t buf_offset = 0;
 
-    dbprint(VMI_DEBUG_MEMCACHE, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_MEMCACHE, "->-> now in %s\n", __FUNCTION__);
     
     while (count > 0) {
         size_t read_len = 0;
@@ -896,7 +896,7 @@ status_t vmi_read_pa(
     }
     *bytes_read = buf_offset;
 
-    dbprint(VMI_DEBUG_MEMCACHE, "%s: DONE.\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_MEMCACHE, "%s: done\n\n", __FUNCTION__);
 
     return VMI_SUCCESS;
 }

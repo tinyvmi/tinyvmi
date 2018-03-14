@@ -169,7 +169,7 @@ driver_get_vcpureg(
     unsigned long vcpu)
 {
 
-    dbprint(VMI_DEBUG_DRIVER, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_DRIVER, "->-> now in %s\n", __FUNCTION__);
     if (vmi->driver.initialized && vmi->driver.get_vcpureg_ptr) {
         return vmi->driver.get_vcpureg_ptr(vmi, value, reg, vcpu);
     }

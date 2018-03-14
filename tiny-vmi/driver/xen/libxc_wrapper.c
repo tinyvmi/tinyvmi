@@ -26,6 +26,17 @@
 // #include <xenevtchn.h>
 
 #include "xen_private.h"
+#include "libxc_wrapper.h"
+
+void xc_interface_close_wrapper(struct xc_handle *xch){
+
+    dbprint(VMI_DEBUG_XEN, "%s: xc_interface_close, func addr: 0x%lx\n", 
+        __FUNCTION__, (uint64_t)&xc_interface_close);
+        
+    xc_interface_close(xch);
+    
+}
+
 
 static status_t sanity_check(xen_instance_t *xen)
 {
@@ -65,7 +76,7 @@ static status_t sanity_check(xen_instance_t *xen)
     }
 
     if ( !xen->xchandle ) {
-        errprint("Failed to open libxc interface.\n");
+        errprint("%s: Failed to open libxc interface.\n", __FUNCTION__);
         return ret;
     }
 
@@ -193,7 +204,7 @@ status_t create_libxc_wrapper(xen_instance_t *xen)
     // wrapper->xc_version = dlsym(wrapper->handle, "xc_version");
 
     wrapper->xc_interface_open = &xc_interface_open;
-    wrapper->xc_interface_close = &xc_interface_close;
+    wrapper->xc_interface_close = &xc_interface_close_wrapper;
     wrapper->xc_version = &xc_version;
     wrapper->xc_map_foreign_range = &xc_map_foreign_range;
     wrapper->xc_vcpu_getcontext = &xc_vcpu_getcontext;

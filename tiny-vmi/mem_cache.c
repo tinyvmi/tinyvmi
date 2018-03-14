@@ -265,7 +265,7 @@ clean_cache(
     printf("--MEMORY cache cleanup round complete (cache size = %u)\n",
             mem_cache_size(vmi->memory_cache));*/
 
-    dbprint(VMI_DEBUG_MEMCACHE,"%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_MEMCACHE,"->-> now in %s\n", __FUNCTION__);
 
     if (vmi->memory_cache_lru){
 
@@ -343,7 +343,7 @@ mem_cache_entry_t create_new_entry (vmi_instance_t vmi, addr_t paddr,
    //             vmi->size);
    //     return 0;
    // }
-    dbprint(VMI_DEBUG_MEMCACHE, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_MEMCACHE, "->-> now in %s\n", __FUNCTION__);
 
     mem_cache_entry_t entry =
         (mem_cache_entry_t)
@@ -359,7 +359,7 @@ mem_cache_entry_t create_new_entry (vmi_instance_t vmi, addr_t paddr,
         clean_cache(vmi);
     }
 
-    dbprint(VMI_DEBUG_MEMCACHE, "%s: Done\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_MEMCACHE, "%s: done\n\n", __FUNCTION__);
     
     return entry;
 }
@@ -432,7 +432,7 @@ memory_cache_insert(
         printf("Memory cache request for non-aligned page\n");
         return NULL;
     }
-	//printf("%-% now in %s\n",__FUNCTION__);
+	//printf("->-> now in %s\n",__FUNCTION__);
     mem_key_t key = &paddr;
     if ((entry = mem_cache_lookup(vmi->memory_cache, key)) != NULL) {
         dbprint(VMI_DEBUG_MEMCACHE, "--MEMORY cache hit 0x%"PRIx64"\n", paddr);
@@ -491,7 +491,7 @@ void
 memory_cache_destroy(
     vmi_instance_t vmi)
 {
-    dbprint(VMI_DEBUG_MEMCACHE, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_MEMCACHE, "->-> now in %s\n", __FUNCTION__);
 
     uint32_t tmp = vmi->memory_cache_size_max;
 

@@ -442,7 +442,7 @@ vmi_get_access_mode(
     vmi_mode_t *mode)
 {
 
-    dbprint(VMI_DEBUG_CORE, "%-% now in %s\n", __FUNCTION__ );
+    dbprint(VMI_DEBUG_CORE, "->-> now in %s\n", __FUNCTION__ );
 
     if ( vmi )
     {
@@ -498,7 +498,7 @@ status_t vmi_init(
     void *init_data,
     vmi_init_error_t *error)
 {
-    dbprint(VMI_DEBUG_CORE, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_CORE, "->-> now in %s\n", __FUNCTION__);
     
     if ( VMI_FAILURE == driver_sanity_check(mode) )
     {
@@ -602,7 +602,7 @@ error_exit:
     } else
         *vmi = _vmi;
     
-    dbprint(VMI_DEBUG_CORE, "%s: done.\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_CORE, "%s: done\n\n", __FUNCTION__);
 
     return status;
 }
@@ -611,7 +611,7 @@ page_mode_t vmi_init_paging(
     vmi_instance_t vmi,
     uint64_t flags)
 {
-    dbprint(VMI_DEBUG_CORE, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_CORE, "->-> now in %s\n", __FUNCTION__);
     if ( !vmi )
         return VMI_PM_UNKNOWN;
 
@@ -638,7 +638,7 @@ page_mode_t vmi_init_paging(
         };
     }
 
-    dbprint(VMI_DEBUG_CORE, "%s: done\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_CORE, "%s: done\n\n", __FUNCTION__);
     return vmi->page_mode;
 }
 
@@ -662,6 +662,8 @@ os_t vmi_init_os(
     vmi->os_type = VMI_OS_UNKNOWN;
     GHashTable *_config = NULL;
 
+    dbprint(VMI_DEBUG_CORE, "->-> now in %s\n", __FUNCTION__ );
+    
     switch(config_mode) {
         case VMI_CONFIG_STRING:
             /* read and parse the config string */
@@ -763,7 +765,7 @@ vmi_init_complete(
     vmi_instance_t _vmi = NULL;
     vmi_mode_t mode;
 
-    dbprint(VMI_DEBUG_CORE, "%-% now in %s\n", __FUNCTION__ );
+    dbprint(VMI_DEBUG_CORE, "->-> now in %s\n", __FUNCTION__ );
 
     if ( VMI_FAILURE == vmi_get_access_mode(_vmi, domain, init_flags, init_data, &mode) )
     {
@@ -796,13 +798,18 @@ vmi_init_complete(
         dbprint(VMI_DEBUG_CORE, "%s: vmi_init_paging success\n", __FUNCTION__);
     }
 
-    dbprint(VMI_DEBUG_CORE, "** TODO: vmi_init_os need port\n", __FUNCTION__);
-    // if ( VMI_OS_UNKNOWN == vmi_init_os(_vmi, config_mode, config, error) )
-    //     return VMI_FAILURE;
-    // else{
-    //     dbprint(VMI_DEBUG_CORE, "%s: vmi_init_os success\n", __FUNCTION__);
-    // }
+    // dbprint(VMI_DEBUG_CORE, "** TODO: vmi_init_os need port\n", __FUNCTION__);
+    if ( VMI_OS_UNKNOWN == vmi_init_os(_vmi, config_mode, config, error) ){
+
+        dbprint(VMI_DEBUG_CORE, "%s: vmi_init_os failed\n", __FUNCTION__);
+        return VMI_FAILURE;
+    }
+    else{
+        dbprint(VMI_DEBUG_CORE, "%s: vmi_init_os success\n", __FUNCTION__);
+    }
     *vmi = _vmi;
+
+    dbprint(VMI_DEBUG_CORE, "%s: done.\n\n", __FUNCTION__);
     return VMI_SUCCESS;
 }
 

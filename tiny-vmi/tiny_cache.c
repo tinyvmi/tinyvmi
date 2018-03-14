@@ -165,7 +165,7 @@ status_t v2p_cache_get(
         return VMI_SUCCESS;
     }
 
-	dbprint(VMI_DEBUG_MEMCACHE, "%s: DONE.\n",__FUNCTION__);
+	dbprint(VMI_DEBUG_MEMCACHE, "%s: done\n\n",__FUNCTION__);
    
     return VMI_FAILURE;
 }

@@ -20,6 +20,9 @@
  * along with LibVMI.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef LIBXC_WRAPPER_H
+#define LIBXC_WRAPPER_H
+
 #include <config.h>
 #include <xenctrl.h>
 // #include <dlfcn.h>
@@ -252,3 +255,4 @@ typedef struct {
 status_t create_libxc_wrapper(struct xen_instance *xen);
 
 
+#endif //LIBXC_WRAPPER_H

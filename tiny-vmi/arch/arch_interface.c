@@ -31,7 +31,7 @@ status_t vmi_arch_init(vmi_instance_t vmi) {
 
     status_t ret = VMI_FAILURE;
 
-    dbprint(VMI_DEBUG_CORE, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_CORE, "->-> now in %s\n", __FUNCTION__);
 
     if (vmi->arch_interface != NULL) {
         dbprint(VMI_DEBUG_CORE, "-- Clearing and setting new architecture interface\n");

@@ -85,7 +85,7 @@ xen_instance_t *xen_get_instance(
     vmi_instance_t vmi)
 {
     
-    dbprint(VMI_DEBUG_XEN, "%-% now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
 
     return ((xen_instance_t *) vmi->driver.driver_data);
 }

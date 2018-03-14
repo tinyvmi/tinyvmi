@@ -113,7 +113,7 @@ status_t xen_set_access_required(
 static inline status_t
 driver_xen_setup(vmi_instance_t vmi)
 {
-    dbprint(VMI_DEBUG_XEN, "%-% now in driver_xen_setup, from %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_XEN, "->-> now in driver_xen_setup, from %s\n", __FUNCTION__);
     driver_interface_t driver = { 0 };
     driver.initialized = true;
     driver.init_ptr = &xen_init;
