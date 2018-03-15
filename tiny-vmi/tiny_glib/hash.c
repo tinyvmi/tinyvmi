@@ -178,12 +178,16 @@ g_hash_table_foreach (GHashTable *hash_table,
       // guint node_hash = hash_table->hashes[i];
       // gpointer node_key = hash_table->keys[i];
       // gpointer node_value = hash_table->values[i];
-      guint node_hash = e->h;
-      gpointer node_key = e->k;
-      gpointer node_value = e->v;
+      while (NULL != e){
+        guint node_hash = e->h;
+        gpointer node_key = e->k;
+        gpointer node_value = e->v;
 
-      if (HASH_IS_REAL (node_hash))
-        (* func) (node_key, node_value, user_data);
+        if (HASH_IS_REAL (node_hash))
+          (* func) (node_key, node_value, user_data);
+        
+        e = e->next;
+      }
 
 // #ifndef G_DISABLE_ASSERT
 //       g_return_if_fail (version == hash_table->version);
