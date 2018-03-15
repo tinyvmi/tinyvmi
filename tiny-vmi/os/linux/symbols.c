@@ -31,6 +31,9 @@
 #include <string.h>
 #include "os/linux/linux.h"
 
+// add declaration of linux_system_map_string and linux_system_map_string_len
+#include "config/libvmi_conf_file.h"
+
 #define MAX_ROW_LENGTH 500
 
 static int
@@ -87,7 +90,6 @@ error_exit:
     return ret;
 }
 
-#ifndef SYM_FILE_FROM_STRING
 static status_t
 linux_system_map_symbol_to_address(
     vmi_instance_t vmi,
@@ -114,6 +116,27 @@ linux_system_map_symbol_to_address(
     if ( !row )
         goto done;
 
+#ifdef SYM_FILE_FROM_STRING
+
+    // char *sysmap_str = g_malloc0(linux_system_map_string_len);
+    char *sysmap_str;
+
+    //sprintf(sysmap_str, "%s", linux_system_map_string_len);
+    sysmap_str = &linux_system_map_string;
+
+    f = fmemopen(sysmap_str, linux_system_map_string_len + 1, "r");
+
+    if (f == NULL) {
+        fprintf(stderr,
+                "ERROR: could not covert linux_system_map_string to a file using fmemopen:\n");
+        fprintf(stderr, "\t%s\n", linux_system_map_string_SRC_FILE);
+        fprintf(stderr,
+                "To fix this problem, add the correct sysmap entry to /tiny-vmi/config/libvmi_conf_file_sysmap_*.c. This file \n can be generated automatically by run xxd -i libvmi.conf and \n paste the output variable in that *.c file.\n");
+        address = 0;
+        goto done;
+    }
+
+#else
     if ((f = fopen(linux_instance->sysmap, "r")) == NULL) {
         fprintf(stderr,
                 "ERROR: could not find System.map file after checking:\n");
@@ -123,6 +146,8 @@ linux_system_map_symbol_to_address(
         address = 0;
         goto done;
     }
+#endif
+
     if (get_symbol_row(f, row, symbol, 2) == VMI_FAILURE) {
         address = 0;
         goto done;
@@ -139,63 +164,6 @@ done:
         fclose(f);
     return ret;
 }
-
-#else //SYM_FILE_FROM_STRING
-
-static status_t
-linux_system_map_symbol_to_address(
-    vmi_instance_t vmi,
-    const char *symbol,
-    addr_t *address)
-{
-    dbprint(VMI_DEBUG_TEST, "** TODO: %s not implemented (read sym from string)");
-    return VMI_FAILURE;
-//     FILE *f = NULL;
-//     char *row = NULL;
-//     status_t ret = VMI_FAILURE;
-
-//     linux_instance_t linux_instance = vmi->os_data;
-
-//     if (linux_instance == NULL) {
-//         errprint("VMI_ERROR: OS instance not initialized\n");
-//         goto done;
-//     }
-
-//     if ((NULL == linux_instance->sysmap) || (strlen(linux_instance->sysmap) == 0)) {
-//         errprint("VMI_WARNING: No linux sysmap configured\n");
-//         goto done;
-//     }
-
-//     row = g_malloc0(MAX_ROW_LENGTH);
-//     if ( !row )
-//         goto done;
-
-//     if ((f = fopen(linux_instance->sysmap, "r")) == NULL) {
-//         fprintf(stderr,
-//                 "ERROR: could not find System.map file after checking:\n");
-//         fprintf(stderr, "\t%s\n", linux_instance->sysmap);
-//         fprintf(stderr,
-//                 "To fix this problem, add the correct sysmap entry to /etc/libvmi.conf\n");
-//         address = 0;
-//         goto done;
-//     }
-//     if (get_symbol_row(f, row, symbol, 2) == VMI_FAILURE) {
-//         address = 0;
-//         goto done;
-//     }
-
-//     (*address) = (addr_t) strtoull(row, NULL, 16);
-
-//     ret = VMI_SUCCESS;
-
-// done:
-//     if (row)
-//         free(row);
-//     if (f)
-//         fclose(f);
-//     return ret;
-}
-#endif //SYM_FILE_FROM_STRING
 
 char* linux_system_map_address_to_symbol(
     vmi_instance_t vmi,

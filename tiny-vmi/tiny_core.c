@@ -200,7 +200,7 @@ read_config_file(vmi_instance_t vmi, FILE* config_file,
         dbprint(VMI_DEBUG_CORE, "%s: config hash table as following (key = value)\n", __FUNCTION__);
 
         g_hash_table_foreach(*config, (GHFunc)printConfigHT, vmi);
-        exit(0);
+        // exit(0);
     }
 
     ret = VMI_SUCCESS;
