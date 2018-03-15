@@ -157,6 +157,16 @@ success:
     return f;
 }
 
+
+void printConfigHT(char * key, void * value, void * data){
+    if (strcmp(key, "sysmap") == 0 || (strcmp(key, "ostype") == 0)){
+        dbprint(VMI_DEBUG_CORE, "%s: %s = %s \n", __FUNCTION__, key, value);
+    }
+    else{
+        dbprint(VMI_DEBUG_CORE, "%s: %s = 0x%x \n", __FUNCTION__, key, *(unsigned int *)value);
+    }
+}
+
 static status_t
 read_config_file(vmi_instance_t vmi, FILE* config_file,
                  GHashTable **config, vmi_init_error_t *error)
@@ -183,6 +193,14 @@ read_config_file(vmi_instance_t vmi, FILE* config_file,
 
         errprint("No entry in config file for %s.\n", vmi->image_type);
         goto error_exit;
+    }else{
+
+        dbprint(VMI_DEBUG_CORE, "%s: Now get config from file\n", __FUNCTION__);
+
+        dbprint(VMI_DEBUG_CORE, "%s: config hash table as following (key = value)\n", __FUNCTION__);
+
+        g_hash_table_foreach(*config, (GHFunc)printConfigHT, vmi);
+        exit(0);
     }
 
     ret = VMI_SUCCESS;
