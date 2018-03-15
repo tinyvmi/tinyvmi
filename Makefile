@@ -4,8 +4,16 @@ include $(XEN_ROOT)/Config.mk
 
 SRC_CODE += ./include/tiny_private.h
 
-OBJS=main.o ./tiny-vmi/tiny_test.o
-# SRC_CODE += main.c ./tiny-vmi/tiny_test.c
+OBJS=main.o 
+# SRC_CODE += main.c
+
+OB_tests += ./tests/tiny_test.o
+# OB_tests += ./tests/tiny_test.o
+# SRC_CODE += ./tests/tiny_test.c
+
+OBJS += $(OB_tests)
+
+# SRC_CODE += ./tiny-vmi/tiny_test.c
 # OBJS += ./tiny-vmi/driver/xen/tiny_xen.o 
 OBJS += ./tiny-vmi/tiny_cache.o ./tiny-vmi/mem_cache.o
 
@@ -71,8 +79,6 @@ OB_glib += ./tiny-vmi/tiny_glib/hashtable.o
 # OB_glib += ./tiny-vmi/tiny_glib.o
 
 OBJS += $(OB_glib)
-
-OBJS += ./tiny-vmi/tiny_test.o
 
 # CFLAGS += -I /usr/include	# for <fnmatch.h>
 

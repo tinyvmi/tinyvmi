@@ -317,7 +317,6 @@ return VMI_FAILURE;
 
     dbprint(VMI_DEBUG_CORE, "->-> now in %s\n ", __FUNCTION__);
     
-    dbprint(VMI_DEBUG_CORE, "** TODO: now lack full OS support for Linux ****\n ");
     
     if (!config) {
         errprint("No config table found\n");

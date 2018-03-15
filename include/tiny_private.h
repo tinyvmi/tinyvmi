@@ -766,16 +766,6 @@ addr_t GetVaOfVectorInIDT(vmi_instance_t vmi,int IndexInIDT);
 void test_idt_vector(vmi_instance_t vmi,int IndexInIDT);
 
 
-/*******
- * tiny_test.c 2014.12.01, lele
- *
-*/
-
-status_t test_map_addr(vmi_instance_t vmi, addr_t vaddr);
-status_t test_module_list(vmi_instance_t vmi, addr_t vaddr);
-
-
-
 /*----------------------------------------------
  * os/windows/core.c
  */

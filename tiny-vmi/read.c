@@ -85,7 +85,7 @@ vmi_read(
 
             if (!vmi->os_interface){
                 dbprint(VMI_DEBUG_READ, "%s: ** TODO: add support for  os_interface\n", __FUNCTION__);
-                // goto done;
+                goto done;
             }
 
             if ( !ctx->pid ){

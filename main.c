@@ -2,8 +2,7 @@
 #include <unistd.h>
 #include <time.h>
 #include "tiny_private.h"
-
-
+#include "tests/tiny_test.h"
 
 #include "config/libvmi_conf_file.h"
 
