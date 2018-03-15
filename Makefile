@@ -49,7 +49,9 @@ OB_arch += ./tiny-vmi/os/linux/symbols.o
 # OB_arch += ./tiny-vmi/os/windows/symbols.o
 # OB_arch += ./tiny-vmi/os/windows/unicode.o
 
+OB_config += ./tiny-vmi/config/lexicon.o
 OB_config += ./tiny-vmi/config/grammar.o
+OB_config += ./tiny-vmi/config/libvmi_conf_file.o
 
 
 OBJS += $(OB_xc) $(OB_xs) $(OB_xen) $(OB_arch) $(OB_config)

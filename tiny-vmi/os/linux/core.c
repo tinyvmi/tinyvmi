@@ -319,10 +319,10 @@ return VMI_FAILURE;
     
     dbprint(VMI_DEBUG_CORE, "** TODO: now lack full OS support for Linux ****\n ");
     
-    // if (!config) {
-    //     errprint("No config table found\n");
-    //     return VMI_FAILURE;
-    // }
+    if (!config) {
+        errprint("No config table found\n");
+        return VMI_FAILURE;
+    }
 
     if (vmi->os_data != NULL) {
         errprint("os data already initialized, reinitializing\n");

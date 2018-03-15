@@ -106,11 +106,11 @@
 int debug = 0;
 #endif /* VMI_DEBUG */
 
-// extern int yylex (void);
+extern int yylex (void);
 // extern int yyparse (void);
-int yylex (void){
-    fprintf(stderr,"error: yylex not implemented in MiniOS\n");
-}
+// int yylex (void){
+//     fprintf(stderr,"error: ** TODO: yylex not implemented in MiniOS\n");
+// }
 
 GHashTable *entry = NULL;
 GHashTable *tmp_entry = NULL;
@@ -119,7 +119,7 @@ char tmp_str[CONFIG_STR_LENGTH];
 char tmp_domain_name[CONFIG_STR_LENGTH];
 
 #ifdef VMI_DEBUG
-// extern FILE *yyin;
+extern FILE *yyin;
 static int eof = 0;
 static int nRow = 0;
 static int nBuffer = 0;
