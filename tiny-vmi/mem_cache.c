@@ -386,6 +386,17 @@ memory_cache_init(
 	///////////////////////////
 	// the old tinyvmi with libvmi-0.10.1
 	printf("\nin %s\n",__FUNCTION__);
+
+    if(!vmi){
+        errprint("%s: Error: no vmi instance\n", __FUNCTION__);
+        return ;
+    }
+    
+    if (vmi->memory_cache){
+        dbprint(VMI_DEBUG_MEMCACHE, "%s: WARNING: memory_cache exists before init\n", __FUNCTION__);
+        free(vmi->memory_cache);
+    }
+
     vmi->memory_cache = (mem_cache_t) malloc(sizeof(struct mem_cache_array));
 	
 	mem_cache_line_t mem_cache_lines=(mem_cache_line_t *)malloc(MAX_MEM_CACHE*sizeof(mem_cache_line_t));

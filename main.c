@@ -3,39 +3,40 @@
 #include <time.h>
 #include "tiny_private.h"
 #include "tests/tiny_test.h"
+#include "tests/examples/examples.h"
 
 #include "config/libvmi_conf_file.h"
 
 int main(void) {
 
     /* The following values need to be set before run this:
-    * domainid -- the id of target domain being monitored
-    * pfn -- the physical frame number to be tested.
-    * vaddr -- the virtual machine address to be tested.
-    * for testing, pfn and vaddr can be borrowed from libvmi's introspection logs. 
-    * 
+    * domain_name , the virtual machine name in string
+	* vaddr, the virtual address to be tested, used by example_map_addr
     */
     
-	int pfn= 
-		0x1c19000;
+	char * name = "u1432hvm";
 
 	addr_t vaddr=0xc1c3a000;
+
+
+	// int pfn= 
+	// 	0x1c19000;
+	// int IndexInIDT=1;//83;//22;
+
 		//0xffffffffc0475008;
-	addr_t modules_addr=
-		//0xffffffff81c5db90;// modules addr from system.map
-		0xc1aa1978;
+	// addr_t modules_addr=
+	// 	//0xffffffff81c5db90;// modules addr from system.map
+	// 	0xc1aa1978;
 
 	vmi_instance_t vmi=0;
 
 	status_t result;
-	int IndexInIDT=1;//83;//22;
 
 	struct timeval tv_begin,tv_end;
 	int duration,count=0,noise_ct=0;
 	long int sum=0;
 	long int average=0;
 	int sleep_interval=0;
-	char * name = "u1432hvm";
 
     printf("Hello, world!\n");
     // sleep(2);
@@ -46,35 +47,36 @@ int main(void) {
 	//result = vmi_init(&vmi,0,NULL);
 	// result = vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
                         //   VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL);
-	result = vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
-                          VMI_CONFIG_STRING, get_config_from_file_string(name), NULL);
+	// result = vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
+    //                       VMI_CONFIG_STRING, get_config_from_file_string(name), NULL);
 
-	if( VMI_FAILURE == result )
-	{
-		printf("vmi_init failed\n");
-		goto _bail;
-	}else{
-		printf("--LELE:%s:vmi_initial succeed\n",__FUNCTION__);
-	}
+	// if( VMI_FAILURE == result )
+	// {
+	// 	printf("vmi_init failed\n");
+	// 	goto _bail;
+	// }else{
+	// 	printf("--LELE:%s:vmi_initial succeed\n",__FUNCTION__);
+	// }
 	
-	printf("LELE: time stamp1: %ld\n",tv_begin.tv_usec);
+	// printf("LELE: time stamp1: %ld\n",tv_begin.tv_usec);
 	//sleep(2);
 	
 	gettimeofday(&tv_end,NULL);
-	printf("LELE: time stamp2: %ld\n",tv_end.tv_usec);
+	printf("LELE: time stamp: %ld\n",tv_end.tv_usec);
     //sleep(2);
 
-	duration=(tv_end.tv_sec-tv_begin.tv_sec)*1000000+(tv_end.tv_usec-tv_begin.tv_usec);
-	printf("LELE: interval: (t2-t1): %dus(%dms)\n",duration,duration/1000);
-    //sleep(2);
+	// duration=(tv_end.tv_sec-tv_begin.tv_sec)*1000000+(tv_end.tv_usec-tv_begin.tv_usec);
+	// printf("LELE: interval: (t2-t1): %dus(%dms)\n",duration,duration/1000);
+    // //sleep(2);
 
 	
 	//printf("--LELE: now test_v2p_pae with vaddress 0x%.16"PRIx64"\n",vaddr);
     //sleep(2/100);
-	result=test_map_addr(vmi,vaddr);
+	// result=test_map_addr(vmi,vaddr);
+	// result=example_map_addr(name,vaddr);
 	
 	sleep(2);
-	//result=test_module_list(vmi,modules_addr);
+	result=example_module_list(name);
 	sleep(1);
 
 _bail: 

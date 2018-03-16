@@ -8,13 +8,14 @@ OBJS=main.o
 # SRC_CODE += main.c
 
 OB_tests += ./tests/tiny_test.o
-# OB_tests += ./tests/tiny_test.o
 # SRC_CODE += ./tests/tiny_test.c
+OB_tests += ./tests/examples/module-list.o
+# SRC_CODE += ./tests/examples/module-list.c
+OB_tests += ./tests/examples/map-addr.o
+# SRC_CODE += ./tests/examples/map-addr.c
 
 OBJS += $(OB_tests)
 
-# SRC_CODE += ./tiny-vmi/tiny_test.c
-# OBJS += ./tiny-vmi/driver/xen/tiny_xen.o 
 OBJS += ./tiny-vmi/tiny_cache.o ./tiny-vmi/mem_cache.o
 
 OBJS += ./tiny-vmi/accessors.o  
@@ -23,10 +24,13 @@ OBJS += ./tiny-vmi/tiny_kv2p.o
 
 OBJS += ./tiny-vmi/tiny_vmi_init.o 
 
-OBJS += ./tiny-vmi/tiny_read.o 
+# OBJS += ./tiny-vmi/tiny_read.o 
 OBJS += ./tiny-vmi/read.o 
 
 OBJS += ./tiny-vmi/tiny_GetVaOfVetorInIDT.o
+
+OBJS += ./tiny-vmi/pretty_print.o
+# SRC_CODE += ./tiny-vmi/pretty_print.c
 
 OB_drivers = ./tiny-vmi/driver/driver_interface.o 
 

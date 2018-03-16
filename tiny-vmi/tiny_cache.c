@@ -106,6 +106,8 @@ void tiny_cache_destroy(v2p_cache_t v2p_c){
 	}
 	free(v2p_c->cache_lines);
 	free(v2p_c);
+    
+    dbprint(VMI_DEBUG_MEMCACHE, "%s: v2p cache destroyed\n", __FUNCTION__);
 	return;
 }
 

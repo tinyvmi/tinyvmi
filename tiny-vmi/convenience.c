@@ -122,6 +122,15 @@ is_addr_aligned(
     return (addr == aligned_addr(vmi, addr));
 }
 
+status_t
+vmi_convert_str_encoding(
+    const unicode_string_t *in,
+    unicode_string_t *out,
+    const char *outencoding)
+{
+    errprint("%s not supported in MiniOS\n", __FUNCTION__);
+    return VMI_FAILURE;
+}
 // status_t
 // vmi_convert_str_encoding(
 //     const unicode_string_t *in,

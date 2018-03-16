@@ -854,13 +854,13 @@ vmi_destroy(
     // if (vmi->os_interface) {
     //     os_destroy(vmi);
     // }
-    // if (vmi->os_data) {
-    //     free(vmi->os_data);
-    // }
-    // if (vmi->arch_interface) {
-    //     free(vmi->arch_interface);
-    // }
-    // vmi->os_data = NULL;
+    if (vmi->os_data) {
+        free(vmi->os_data);
+    }
+    if (vmi->arch_interface) {
+        free(vmi->arch_interface);
+    }
+    vmi->os_data = NULL;
     // pid_cache_destroy(vmi);
     // sym_cache_destroy(vmi);
     // rva_cache_destroy(vmi);
