@@ -28,12 +28,13 @@ OBJS += ./tiny-vmi/accessors.o
 
 OBJS += ./tiny-vmi/tiny_kv2p.o  
 
-OBJS += ./tiny-vmi/tiny_vmi_init.o 
+# OBJS += ./tiny-vmi/tiny_vmi_init.o 
 
 # OBJS += ./tiny-vmi/tiny_read.o 
+
 OBJS += ./tiny-vmi/read.o 
 
-OBJS += ./tiny-vmi/tiny_GetVaOfVetorInIDT.o
+# OBJS += ./tiny-vmi/tiny_GetVaOfVetorInIDT.o
 
 OBJS += ./tiny-vmi/pretty_print.o
 SRC_CODE += ./tiny-vmi/pretty_print.c
@@ -53,6 +54,8 @@ OB_xen_events = ./tiny-vmi/driver/xen/xen_events_legacy.o
 OB_xen_events += ./tiny-vmi/driver/xen/xen_events_46.o
 OB_xen_events += ./tiny-vmi/driver/xen/xen_events_48.o
 OB_xen_events += ./tiny-vmi/driver/xen/xen_events.o
+
+OB_xen_altp2m = ./tiny-vmi/driver/xen/altp2m.o
 
 OB_xen = ./tiny-vmi/driver/xen/xen.o
 
@@ -82,7 +85,7 @@ OB_config += ./tiny-vmi/config/libvmi_conf_file.o
 OB_config += ./tiny-vmi/config/libvmi_conf_file_sysmap_4_4_0_32.o
 
 
-OBJS += $(OB_xc) $(OB_xs) $(OB_xen_events) $(OB_xen) $(OB_arch) $(OB_config)
+OBJS += $(OB_xc) $(OB_xs) $(OB_xen_events) $(OB_xen_altp2m) $(OB_xen) $(OB_arch) $(OB_config)
 
 OBJS += ./tiny-vmi/driver/file/file.o
 

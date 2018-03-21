@@ -788,6 +788,8 @@ status_t vmi_register_event(vmi_instance_t vmi, vmi_event_t* event)
 {
     status_t rc = VMI_FAILURE;
 
+    dbprint(VMI_DEBUG_TEST, "->-> now in %s\n", __FUNCTION__);
+
     if (!(vmi->init_flags & VMI_INIT_EVENTS))
     {
         dbprint(VMI_DEBUG_EVENTS, "LibVMI wasn't initialized with events(init_flag: 0x%x, VMI_INIT_EVENTS: %d)!\n", __FUNCTION__, vmi->init_flags, VMI_INIT_EVENTS);
@@ -820,6 +822,8 @@ status_t vmi_register_event(vmi_instance_t vmi, vmi_event_t* event)
         return VMI_FAILURE;
     }
 
+    dbprint(VMI_DEBUG_TEST, "%s: event type: %d\n", __FUNCTION__, event->type);
+    
     switch (event->type)
     {
 

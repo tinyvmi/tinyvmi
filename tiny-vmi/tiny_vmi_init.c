@@ -127,23 +127,23 @@
 //     vmi_instance_t vmi,
 //     char *symbol){
 
-status_t vmi_translate_ksym2v(
-    vmi_instance_t vmi,
-    const char *symbol,
-    addr_t *symbol_vaddr){
+// status_t vmi_translate_ksym2v(
+//     vmi_instance_t vmi,
+//     const char *symbol,
+//     addr_t *symbol_vaddr){
 
-    if (strncmp("modules", symbol, MAX_ROW_LENGTH) == 0) {
-        *symbol_vaddr = KSYM_MODULES;
-        return VMI_SUCCESS;
-	}else if(strncmp("modules", symbol, MAX_ROW_LENGTH) == 0) {
-        *symbol_vaddr = KSYM_IDT_TBL;
-        return VMI_SUCCESS;
-	}else{
-		*symbol_vaddr=NULL;
-		printf("--%s:unknown symbol: %s",__FUNCTION__,symbol);
-        return VMI_FAILURE;
-	}
+//     if (strncmp("modules", symbol, MAX_ROW_LENGTH) == 0) {
+//         *symbol_vaddr = KSYM_MODULES;
+//         return VMI_SUCCESS;
+// 	}else if(strncmp("modules", symbol, MAX_ROW_LENGTH) == 0) {
+//         *symbol_vaddr = KSYM_IDT_TBL;
+//         return VMI_SUCCESS;
+// 	}else{
+// 		*symbol_vaddr=NULL;
+// 		printf("--%s:unknown symbol: %s",__FUNCTION__,symbol);
+//         return VMI_FAILURE;
+// 	}
 
-}
+// }
 
 

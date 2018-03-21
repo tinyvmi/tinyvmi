@@ -37,6 +37,13 @@ void xc_interface_close_wrapper(struct xc_handle *xch){
     
 }
 
+void* xc_monitor_enable_wrapper(xc_interface *xch, domid_t domain_id, uint32_t *port){
+
+    dbprint(VMI_DEBUG_TEST,"--> now in %s\n", __FUNCTION__);
+
+    return xc_monitor_enable(xch, domain_id, port);
+}
+
 
 static status_t sanity_check(xen_instance_t *xen)
 {
@@ -244,7 +251,7 @@ status_t create_libxc_wrapper(xen_instance_t *xen)
     // wrapper->xc_mem_access_enable2 = &xc_mem_access_enable;
     // wrapper->xc_mem_access_disable = &xc_mem_access_disable;
     // wrapper->xc_mem_access_resume = &xc_mem_access_resume;
-    wrapper->xc_monitor_enable = &xc_monitor_enable;
+    wrapper->xc_monitor_enable = &xc_monitor_enable_wrapper;
     wrapper->xc_monitor_disable = &xc_monitor_disable;
     wrapper->xc_monitor_resume = &xc_monitor_resume;
     wrapper->xc_monitor_get_capabilities = &xc_monitor_get_capabilities;

@@ -30,12 +30,12 @@
 
 #include "driver/xen/xen.h"
 #include "driver/xen/xen_private.h"
-// #include "driver/xen/xen_events.h"
+#include "driver/xen/xen_events.h"
 #include "driver/driver_interface.h"
 // #include "driver/memory_cache.h"
 // #include "driver/memory_cache.h"
 
-// #include "driver/xen/altp2m_private.h"
+#include "driver/xen/altp2m_private.h"
 
 //----------------------------------------------------------------------------
 // Helper functions
@@ -587,8 +587,8 @@ xen_init_vmi(
             goto _bail;
     }
 
-    dbprint(VMI_DEBUG_XEN, "%s: ** TODO: altp2m init.\n", __FUNCTION__);
-    // xen_init_altp2m(vmi);
+    // dbprint(VMI_DEBUG_XEN, "%s: ** TODO: altp2m init.\n", __FUNCTION__);
+    xen_init_altp2m(vmi);
 
 _bail:
     return ret;

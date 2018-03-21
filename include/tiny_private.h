@@ -67,8 +67,8 @@
 // default enable hvm
 // #define HVM 1
 // default 32-bit guest system
-#define WIDTH 4
-#define OS_DISABLED
+//#define WIDTH 4
+//#define OS_DISABLED
 // #define OS_DISABLED_Linux
 
 #define SYM_FILE_FROM_STRING
