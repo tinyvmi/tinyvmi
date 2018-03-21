@@ -5,14 +5,20 @@ include $(XEN_ROOT)/Config.mk
 SRC_CODE += ./include/tiny_private.h
 
 OBJS=main.o 
-# SRC_CODE += main.c
+SRC_CODE += main.c
 
 OB_tests += ./tests/tiny_test.o
-# SRC_CODE += ./tests/tiny_test.c
-OB_tests += ./tests/examples/module-list.o
-# SRC_CODE += ./tests/examples/module-list.c
-OB_tests += ./tests/examples/map-addr.o
-# SRC_CODE += ./tests/examples/map-addr.c
+SRC_CODE += ./tests/tiny_test.c
+OB_test_module_list += ./tests/examples/module-list.o
+SRC_CODE += ./tests/examples/module-list.c
+
+OB_test_map_addr += ./tests/examples/map-addr.o
+SRC_CODE += ./tests/examples/map-addr.c
+
+OB_test_event += ./tests/examples/event-example.o
+SRC_CODE += ./tests/examples/event-example.c
+
+OB_tests += $(OB_test_map_addr) $(OB_test_module_list) $(OB_test_event)
 
 OBJS += $(OB_tests)
 
@@ -30,11 +36,14 @@ OBJS += ./tiny-vmi/read.o
 OBJS += ./tiny-vmi/tiny_GetVaOfVetorInIDT.o
 
 OBJS += ./tiny-vmi/pretty_print.o
-# SRC_CODE += ./tiny-vmi/pretty_print.c
+SRC_CODE += ./tiny-vmi/pretty_print.c
+
+OB_events += ./tiny-vmi/events.o
+SRC_CODE += ./tiny-vmi/events.c ./tiny-vmi/events.h
 
 OB_drivers = ./tiny-vmi/driver/driver_interface.o 
 
-OBJS += $(OB_drivers)
+OBJS += $(OB_events) $(OB_drivers) 
 
 
 OB_xc = ./tiny-vmi/driver/xen/libxc_wrapper.o
@@ -118,6 +127,8 @@ all: main.a
 $(OB_config): $(OB_glib)
 
 $(OB_xen): $(OB_xc) $(OB_xs)
+
+$(OB_test_event): $(OB_events)
 
 tiny_read.o: $(OB_xen)
 

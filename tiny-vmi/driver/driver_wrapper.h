@@ -359,188 +359,190 @@ driver_get_dgvma(
     return 0;
 }
 
-// static inline status_t
-// driver_events_listen(
-//     vmi_instance_t vmi,
-//     uint32_t timeout)
-// {
-//     if (vmi->driver.initialized && vmi->driver.events_listen_ptr){
-//         return vmi->driver.events_listen_ptr(vmi, timeout);
-//     }
-//     else{
-//         dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_events_listen function not implemented.\n");
-//         return VMI_FAILURE;
-//     }
-// }
+#if ENABLE_XEN_EVENTS == 1 //tiny-VMI: events enabled
+static inline status_t
+driver_events_listen(
+    vmi_instance_t vmi,
+    uint32_t timeout)
+{
+    if (vmi->driver.initialized && vmi->driver.events_listen_ptr){
+        return vmi->driver.events_listen_ptr(vmi, timeout);
+    }
+    else{
+        dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_events_listen function not implemented.\n");
+        return VMI_FAILURE;
+    }
+}
 
-// static inline int
-// driver_are_events_pending(
-//     vmi_instance_t vmi)
-// {
-//     if (vmi->driver.initialized && vmi->driver.are_events_pending_ptr){
-//         return vmi->driver.are_events_pending_ptr(vmi);
-//     }
-//     else{
-//         dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_are_events_pending function not implemented.\n");
-//         return VMI_FAILURE;
-//     }
-// }
+static inline int
+driver_are_events_pending(
+    vmi_instance_t vmi)
+{
+    if (vmi->driver.initialized && vmi->driver.are_events_pending_ptr){
+        return vmi->driver.are_events_pending_ptr(vmi);
+    }
+    else{
+        dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_are_events_pending function not implemented.\n");
+        return VMI_FAILURE;
+    }
+}
 
-// static inline status_t
-// driver_set_reg_access(
-//     vmi_instance_t vmi,
-//     reg_event_t *event)
-// {
-//     if (vmi->driver.initialized && vmi->driver.set_reg_access_ptr){
-//         return vmi->driver.set_reg_access_ptr(vmi, event);
-//     }
-//     else{
-//         dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_reg_w_access function not implemented.\n");
-//         return VMI_FAILURE;
-//     }
-// }
+static inline status_t
+driver_set_reg_access(
+    vmi_instance_t vmi,
+    reg_event_t *event)
+{
+    if (vmi->driver.initialized && vmi->driver.set_reg_access_ptr){
+        return vmi->driver.set_reg_access_ptr(vmi, event);
+    }
+    else{
+        dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_reg_w_access function not implemented.\n");
+        return VMI_FAILURE;
+    }
+}
 
-// static inline status_t
-// driver_set_intr_access(
-//     vmi_instance_t vmi,
-//     interrupt_event_t *event,
-//     uint8_t enabled)
-// {
-//     if (vmi->driver.initialized && vmi->driver.set_intr_access_ptr){
-//         return vmi->driver.set_intr_access_ptr(vmi, event, enabled);
-//     }
-//     else{
-//         dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_intr_access function not implemented.\n");
-//         return VMI_FAILURE;
-//     }
-// }
+static inline status_t
+driver_set_intr_access(
+    vmi_instance_t vmi,
+    interrupt_event_t *event,
+    uint8_t enabled)
+{
+    if (vmi->driver.initialized && vmi->driver.set_intr_access_ptr){
+        return vmi->driver.set_intr_access_ptr(vmi, event, enabled);
+    }
+    else{
+        dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_intr_access function not implemented.\n");
+        return VMI_FAILURE;
+    }
+}
 
-// static inline status_t
-// driver_set_mem_access(
-//     vmi_instance_t vmi,
-//     addr_t gpfn,
-//     vmi_mem_access_t page_access_flag,
-//     uint16_t vmm_pagetable_id)
-// {
-//     if (vmi->driver.initialized && vmi->driver.set_mem_access_ptr){
-//         return vmi->driver.set_mem_access_ptr(vmi, gpfn, page_access_flag, vmm_pagetable_id);
-//     }
-//     else{
-//         dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_mem_access function not implemented.\n");
-//         return VMI_FAILURE;
-//     }
-// }
+static inline status_t
+driver_set_mem_access(
+    vmi_instance_t vmi,
+    addr_t gpfn,
+    vmi_mem_access_t page_access_flag,
+    uint16_t vmm_pagetable_id)
+{
+    if (vmi->driver.initialized && vmi->driver.set_mem_access_ptr){
+        return vmi->driver.set_mem_access_ptr(vmi, gpfn, page_access_flag, vmm_pagetable_id);
+    }
+    else{
+        dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_mem_access function not implemented.\n");
+        return VMI_FAILURE;
+    }
+}
 
-// static inline status_t
-// driver_start_single_step(
-//     vmi_instance_t vmi,
-//     single_step_event_t *event)
-// {
-//     if (vmi->driver.initialized && vmi->driver.start_single_step_ptr) {
-//         return vmi->driver.start_single_step_ptr(vmi, event);
-//     }
-//     else{
-//         dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_start_single_step function not implemented.\n");
-//         return VMI_FAILURE;
-//     }
-// }
+static inline status_t
+driver_start_single_step(
+    vmi_instance_t vmi,
+    single_step_event_t *event)
+{
+    if (vmi->driver.initialized && vmi->driver.start_single_step_ptr) {
+        return vmi->driver.start_single_step_ptr(vmi, event);
+    }
+    else{
+        dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_start_single_step function not implemented.\n");
+        return VMI_FAILURE;
+    }
+}
 
-// static inline status_t
-// driver_stop_single_step(
-//     vmi_instance_t vmi,
-//     unsigned long vcpu)
-// {
-//     if (vmi->driver.initialized && vmi->driver.stop_single_step_ptr){
-//         return vmi->driver.stop_single_step_ptr(vmi, vcpu);
-//     }
-//     else{
-//         dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_stop_single_step function not implemented.\n");
-//         return VMI_FAILURE;
-//     }
-// }
+static inline status_t
+driver_stop_single_step(
+    vmi_instance_t vmi,
+    unsigned long vcpu)
+{
+    if (vmi->driver.initialized && vmi->driver.stop_single_step_ptr){
+        return vmi->driver.stop_single_step_ptr(vmi, vcpu);
+    }
+    else{
+        dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_stop_single_step function not implemented.\n");
+        return VMI_FAILURE;
+    }
+}
 
-// static inline status_t
-// driver_shutdown_single_step(
-//     vmi_instance_t vmi)
-// {
-//     if (vmi->driver.initialized && vmi->driver.shutdown_single_step_ptr){
-//         return vmi->driver.shutdown_single_step_ptr(vmi);
-//     }
-//     else{
-//         dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_shutdown_single_step function not implemented.\n");
-//         return VMI_FAILURE;
-//     }
-// }
+static inline status_t
+driver_shutdown_single_step(
+    vmi_instance_t vmi)
+{
+    if (vmi->driver.initialized && vmi->driver.shutdown_single_step_ptr){
+        return vmi->driver.shutdown_single_step_ptr(vmi);
+    }
+    else{
+        dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_shutdown_single_step function not implemented.\n");
+        return VMI_FAILURE;
+    }
+}
 
-// static inline status_t
-// driver_set_guest_requested_event(
-//     vmi_instance_t vmi,
-//     bool enabled)
-// {
-//     if (vmi->driver.initialized && vmi->driver.set_guest_requested_ptr)
-//         return vmi->driver.set_guest_requested_ptr(vmi, enabled);
-//     else
-//     {
-//         dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_guest_requested function not implemented.\n");
-//         return VMI_FAILURE;
-//     }
-// }
+static inline status_t
+driver_set_guest_requested_event(
+    vmi_instance_t vmi,
+    bool enabled)
+{
+    if (vmi->driver.initialized && vmi->driver.set_guest_requested_ptr)
+        return vmi->driver.set_guest_requested_ptr(vmi, enabled);
+    else
+    {
+        dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_guest_requested function not implemented.\n");
+        return VMI_FAILURE;
+    }
+}
 
-// static inline status_t
-// driver_set_cpuid_event(
-//     vmi_instance_t vmi,
-//     bool enabled)
-// {
-//     if (vmi->driver.initialized && vmi->driver.set_cpuid_event_ptr)
-//         return vmi->driver.set_cpuid_event_ptr(vmi, enabled);
-//     else
-//     {
-//         dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_cpuid_event function not implemented.\n");
-//         return VMI_FAILURE;
-//     }
-// }
+static inline status_t
+driver_set_cpuid_event(
+    vmi_instance_t vmi,
+    bool enabled)
+{
+    if (vmi->driver.initialized && vmi->driver.set_cpuid_event_ptr)
+        return vmi->driver.set_cpuid_event_ptr(vmi, enabled);
+    else
+    {
+        dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_cpuid_event function not implemented.\n");
+        return VMI_FAILURE;
+    }
+}
 
-// static inline status_t
-// driver_set_debug_event(
-//     vmi_instance_t vmi,
-//     bool enabled)
-// {
-//     if (vmi->driver.initialized && vmi->driver.set_debug_event_ptr)
-//         return vmi->driver.set_debug_event_ptr(vmi, enabled);
-//     else
-//     {
-//         dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_debug_event function not implemented.\n");
-//         return VMI_FAILURE;
-//     }
-// }
+static inline status_t
+driver_set_debug_event(
+    vmi_instance_t vmi,
+    bool enabled)
+{
+    if (vmi->driver.initialized && vmi->driver.set_debug_event_ptr)
+        return vmi->driver.set_debug_event_ptr(vmi, enabled);
+    else
+    {
+        dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_debug_event function not implemented.\n");
+        return VMI_FAILURE;
+    }
+}
 
-// static inline status_t
-// driver_set_privcall_event(
-//     vmi_instance_t vmi,
-//     bool enabled)
-// {
-//     if (vmi->driver.initialized && vmi->driver.set_privcall_event_ptr)
-//         return vmi->driver.set_debug_event_ptr(vmi, enabled);
-//     else
-//     {
-//         dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_privcall_event function not implemented.\n");
-//         return VMI_FAILURE;
-//     }
-// }
+static inline status_t
+driver_set_privcall_event(
+    vmi_instance_t vmi,
+    bool enabled)
+{
+    if (vmi->driver.initialized && vmi->driver.set_privcall_event_ptr)
+        return vmi->driver.set_debug_event_ptr(vmi, enabled);
+    else
+    {
+        dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_privcall_event function not implemented.\n");
+        return VMI_FAILURE;
+    }
+}
 
-// static inline status_t
-// driver_set_desc_access_event(
-//     vmi_instance_t vmi,
-//     bool enabled)
-// {
-//     if (vmi->driver.initialized && vmi->driver.set_desc_access_event_ptr)
-//         return vmi->driver.set_desc_access_event_ptr(vmi, enabled);
-//     else
-//     {
-//         dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_desc_access_event function not implemented.\n");
-//         return VMI_FAILURE;
-//     }
-// }
+static inline status_t
+driver_set_desc_access_event(
+    vmi_instance_t vmi,
+    bool enabled)
+{
+    if (vmi->driver.initialized && vmi->driver.set_desc_access_event_ptr)
+        return vmi->driver.set_desc_access_event_ptr(vmi, enabled);
+    else
+    {
+        dbprint(VMI_DEBUG_DRIVER, "WARNING: driver_set_desc_access_event function not implemented.\n");
+        return VMI_FAILURE;
+    }
+}
+#endif // ENABLE_XEN_EVENTS == 1 
 
 static inline status_t
 driver_slat_get_domain_state (

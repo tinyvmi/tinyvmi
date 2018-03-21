@@ -111,12 +111,14 @@ struct hashtable {
     unsigned int size;
     struct entry **table;
     unsigned int entrycount;
+    unsigned int noccupied;
     unsigned int loadlimit;
     unsigned int primeindex;
     unsigned int (*hashfn) (void *k);
     int (*eqfn) (void *k1, void *k2);
     void (*key_destroy_func) (void *k);    //lele
     void (*value_destroy_func) (void *v);  //lele
+    int version; //lele
 };
 
 /*****************************************************************************/
@@ -245,6 +247,19 @@ valuetype * fnname (struct hashtable *h, keytype *k) \
 }
 
 /*****************************************************************************
+ * hashtable_search_entry
+   
+ * @name        hashtable_search
+ * @param   h   the hashtable to search
+ * @param   k   the key to search for  - does not claim ownership
+ * @return      the value associated with the key, or NULL if none found
+ */
+
+struct entry *
+hashtable_search_entry(struct hashtable *h, void *k);
+
+
+/*****************************************************************************
  * hashtable_remove
    
  * @name        hashtable_remove
@@ -284,6 +299,31 @@ hashtable_count(struct hashtable *h);
 
 void
 hashtable_destroy(struct hashtable *h, int free_values);
+
+
+
+/*****************************************************************************
+ * hashtable__set_optimal_size
+   
+ * @name        hashtable__set_optimal_size
+ * @param   h   the hashtable
+ * 
+ */
+
+int hashtable_set_optimal_size(struct hashtable *h);
+
+/*****************************************************************************
+ * hashtable_resize
+   
+ * @name        hashtable_resize
+ * @param   h   the hashtable
+ * 
+ */
+
+int
+hashtable_resize(struct hashtable *h);
+
+
 
 #endif /* __HASHTABLE_CWC22_H__ */
 

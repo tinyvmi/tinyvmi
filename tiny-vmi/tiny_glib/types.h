@@ -4,7 +4,6 @@
 
 #include <stdbool.h> 
 
-typedef struct hashtable  GHashTable;
 
 #define NULL 0
 #define TRUE 1
@@ -35,6 +34,12 @@ typedef double  gdouble;
 typedef void* gpointer;
 typedef const void *gconstpointer;
 
+// gint32, guint32, gint64, guint64, etc.: 
+// https://developer.gnome.org/glib/stable/glib-Basic-Types.html#gint64
+typedef signed int gint32;
+typedef unsigned int guint32;
+typedef signed long gint64;  
+typedef unsigned long guint64;
 
 typedef gint            (*GCompareFunc)         (gconstpointer  a,
                                                  gconstpointer  b);
@@ -100,6 +105,9 @@ typedef const gchar *   (*GTranslateFunc)       (const gchar   *str,
 #define G_MAXUINT64	G_GUINT64_CONSTANT(0xffffffffffffffff)
 
 
+
+// #undef	MAX
+// #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
 
 
 #define g_return_if_fail(expr) \

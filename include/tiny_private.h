@@ -30,7 +30,7 @@
 #define _GNU_SOURCE
 
 // #ifdef HAVE_CONFIG_H
-#include <config.h>
+#include <tiny_config.h>
 // #endif /* HAVE_CONFIG_H */
 
 // #include <glib.h>
@@ -49,7 +49,7 @@
 #include "tiny_libvmi.h"
 #include "tiny_cache.h"
 
-// #include "events.h"
+#include <events.h>
 // #include "shm.h"
 // #include "slat.h"
 #include "rekall.h"
@@ -318,39 +318,43 @@ struct vmi_instance {
 
     unsigned int num_vcpus; /**< number of VCPUs used by this instance */
 
-    // vmi_event_t *guest_requested_event; /**< Handler of guest-requested events */
+#if ENABLE_XEN_EVENTS == 1 //tiny-VMI: events enabled
 
-    // vmi_event_t *cpuid_event; /**< Handler of CPUID events */
+    vmi_event_t *guest_requested_event; /**< Handler of guest-requested events */
 
-    // vmi_event_t *debug_event; /**< Handler of debug exception events */
+    vmi_event_t *cpuid_event; /**< Handler of CPUID events */
 
-    // vmi_event_t *privcall_event; /**< Handler of privileged call events */
+    vmi_event_t *debug_event; /**< Handler of debug exception events */
 
-    // vmi_event_t *descriptor_access_event; /**< Handler of discriptor access events */
+    vmi_event_t *privcall_event; /**< Handler of privileged call events */
 
-    // GHashTable *interrupt_events; /**< interrupt event to function mapping (key: interrupt) */
+    vmi_event_t *descriptor_access_event; /**< Handler of discriptor access events */
 
-    // GHashTable *mem_events_on_gfn; /**< mem event to functions mapping (key: physical address) */
+    GHashTable *interrupt_events; /**< interrupt event to function mapping (key: interrupt) */
 
-    // GHashTable *mem_events_generic; /**< mem event to functions mapping (key: access type) */
+    GHashTable *mem_events_on_gfn; /**< mem event to functions mapping (key: physical address) */
 
-    // GHashTable *reg_events; /**< reg event to functions mapping (key: reg) */
+    GHashTable *mem_events_generic; /**< mem event to functions mapping (key: access type) */
 
-    // GHashTable *msr_events; /**< reg event to functions mapping (key: msr index) */
+    GHashTable *reg_events; /**< reg event to functions mapping (key: reg) */
 
-    // GHashTable *ss_events; /**< single step event to functions mapping (key: vcpu_id) */
+    GHashTable *msr_events; /**< reg event to functions mapping (key: msr index) */
 
-    // GSList *step_events; /**< events to be re-registered after single-stepping them */
+    GHashTable *ss_events; /**< single step event to functions mapping (key: vcpu_id) */
 
-    // uint32_t step_vcpus[MAX_SINGLESTEP_VCPUS]; /**< counter of events on vcpus for which we have internal singlestep enabled */
+    GSList *step_events; /**< events to be re-registered after single-stepping them */
+
+    uint32_t step_vcpus[MAX_SINGLESTEP_VCPUS]; /**< counter of events on vcpus for which we have internal singlestep enabled */
 
     gboolean event_callback; /**< flag indicating that libvmi is currently issuing an event callback */
 
-    // GHashTable *clear_events; /**< table to save vmi_clear_event requests when event_callback is set */
+    GHashTable *clear_events; /**< table to save vmi_clear_event requests when event_callback is set */
+
+    GSList *swap_events; /**< list to save vmi_swap_events requests when event_callback is set */
+
+#endif //  ENABLE_XEN_EVENTS == 1 
 
     gboolean shutting_down; /**< flag indicating that libvmi is shutting down */
-
-    // GSList *swap_events; /**< list to save vmi_swap_events requests when event_callback is set */
 
     void *(*get_data_callback) (vmi_instance_t, addr_t, uint32_t); /**< memory_cache function */
 
@@ -358,6 +362,41 @@ struct vmi_instance {
 };
 
 
+#if ENABLE_XEN_EVENTS == 1 //tiny-VMI: events enabled
+
+/** Event singlestep reregister wrapper */
+typedef struct step_and_reg_event_wrapper {
+    vmi_event_t *event;
+    uint32_t vcpu_id;
+    uint64_t steps;
+    event_callback_t cb;
+} step_and_reg_event_wrapper_t;
+
+/** Event swap wrapper */
+typedef struct swap_wrapper {
+    vmi_event_t *swap_from;
+    vmi_event_t *swap_to;
+    vmi_event_free_t free_routine;
+} swap_wrapper_t;
+
+#endif // ENABLE_XEN_EVENTS == 1 
+
+/** Windows' UNICODE_STRING structure (x86) */
+typedef struct _windows_unicode_string32 {
+    uint16_t length;
+    uint16_t maximum_length;
+    uint32_t pBuffer;   // pointer to string contents
+} __attribute__ ((packed))
+    win32_unicode_string_t;
+
+/** Windows' UNICODE_STRING structure (x64) */
+typedef struct _windows_unicode_string64 {
+    uint16_t length;
+    uint16_t maximum_length;
+    uint32_t padding;   // align pBuffer
+    uint64_t pBuffer;   // pointer to string contents
+} __attribute__ ((packed))
+    win64_unicode_string_t;
 
 /*----------------------------------------------
  * Misc functions
@@ -765,6 +804,36 @@ typedef struct P2C_IDTR_ {
 addr_t GetVaOfVectorInIDT(vmi_instance_t vmi,int IndexInIDT);
 void test_idt_vector(vmi_instance_t vmi,int IndexInIDT);
 
+
+// L331 libvmi/private.h
+/*----------------------------------------------
+ * events.c
+ */
+    status_t events_init(
+        vmi_instance_t vmi);
+    void events_destroy(
+        vmi_instance_t vmi);
+    gboolean event_entry_free (
+        gpointer key,
+        gpointer value,
+        gpointer data);
+    status_t swap_events(
+        vmi_instance_t vmi,
+        vmi_event_t *swap_from,
+        vmi_event_t *swap_to,
+        vmi_event_free_t free_routine);
+    gboolean clear_events(
+        gpointer key,
+        gpointer value,
+        gpointer data);
+    gboolean clear_events_full(
+        gpointer key,
+        gpointer value,
+        gpointer data);
+
+    #define ghashtable_foreach(table, iter, key, val) \
+        g_hash_table_iter_init(&iter, table); \
+        while(g_hash_table_iter_next(&iter,(void**)key,(void**)val))
 
 /*----------------------------------------------
  * os/windows/core.c

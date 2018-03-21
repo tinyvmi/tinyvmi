@@ -45,7 +45,7 @@ int main (int argc, char **argv)
 
     /* this is the VM or file that we are looking at */
     if (argc != 2) {
-        printf("Usage: %s <vmname>\n", argv[0]);
+        dbprint(VMI_DEBUG_TEST, "Usage: %s <vmname>\n", argv[0]);
         return 1;
     } // if
 
@@ -56,7 +56,7 @@ int main (int argc, char **argv)
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
                           VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
     {
-        printf("Failed to init LibVMI library.\n");
+        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
         return 1;
     }
 
@@ -80,7 +80,7 @@ int main (int argc, char **argv)
 
     /* pause the vm for consistent memory access */
     if (vmi_pause_vm(vmi) != VMI_SUCCESS) {
-        printf("Failed to pause VM\n");
+        dbprint(VMI_DEBUG_TEST, "Failed to pause VM\n");
         goto error_exit;
     } // if
 
@@ -94,10 +94,10 @@ int main (int argc, char **argv)
     if ( VMI_FILE != mode ) {
         uint64_t id = vmi_get_vmid(vmi);
 
-        printf("Process listing for VM %s (id=%"PRIu64")\n", name2, id);
+        dbprint(VMI_DEBUG_TEST, "Process listing for VM %s (id=%"PRIu64")\n", name2, id);
     }
     else {
-        printf("Process listing for file %s\n", name2);
+        dbprint(VMI_DEBUG_TEST, "Process listing for file %s\n", name2);
     }
     free(name2);
 
@@ -118,14 +118,14 @@ int main (int argc, char **argv)
 
         // find PEPROCESS PsInitialSystemProcess
         if(VMI_FAILURE == vmi_read_addr_ksym(vmi, "PsActiveProcessHead", &list_head)) {
-            printf("Failed to find PsActiveProcessHead\n");
+            dbprint(VMI_DEBUG_TEST, "Failed to find PsActiveProcessHead\n");
             goto error_exit;
         }
     }
 
     cur_list_entry = list_head;
     if (VMI_FAILURE == vmi_read_addr_va(vmi, cur_list_entry, 0, &next_list_entry)) {
-        printf("Failed to read next pointer in loop at %"PRIx64"\n", cur_list_entry);
+        dbprint(VMI_DEBUG_TEST, "Failed to read next pointer in loop at %"PRIx64"\n", cur_list_entry);
         goto error_exit;
     }
 
@@ -150,12 +150,12 @@ int main (int argc, char **argv)
         procname = vmi_read_str_va(vmi, current_process + name_offset, 0);
 
         if (!procname) {
-            printf("Failed to find procname\n");
+            dbprint(VMI_DEBUG_TEST, "Failed to find procname\n");
             goto error_exit;
         }
 
         /* print out the process name */
-        printf("[%5d] %s (struct addr:%"PRIx64")\n", pid, procname, current_process);
+        dbprint(VMI_DEBUG_TEST, "[%5d] %s (struct addr:%"PRIx64")\n", pid, procname, current_process);
         if (procname) {
             free(procname);
             procname = NULL;
@@ -165,7 +165,7 @@ int main (int argc, char **argv)
         cur_list_entry = next_list_entry;
         status = vmi_read_addr_va(vmi, cur_list_entry, 0, &next_list_entry);
         if (status == VMI_FAILURE) {
-            printf("Failed to read next pointer in loop at %"PRIx64"\n", cur_list_entry);
+            dbprint(VMI_DEBUG_TEST, "Failed to read next pointer in loop at %"PRIx64"\n", cur_list_entry);
             goto error_exit;
         }
         /* In Windows, the next pointer points to the head of list, this pointer is actually the

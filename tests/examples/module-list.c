@@ -46,7 +46,7 @@ status_t example_module_list( char *name)
            VMI_CONFIG_STRING, get_config_from_file_string(name), NULL)
        )
     {
-        printf("Failed to init LibVMI library.\n");
+        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
         return 1;
     }
 
@@ -65,10 +65,10 @@ status_t example_module_list( char *name)
         goto error_exit;
     }
 
-    printf("%s: get module address: 0x%lx\n", __FUNCTION__, next_module);
+    dbprint(VMI_DEBUG_TEST, "%s: get module address: 0x%lx\n", __FUNCTION__, next_module);
 
     list_head = next_module;
-
+    int count = 0;
     /* walk the module list */
     while (1) {
 
@@ -81,6 +81,8 @@ status_t example_module_list( char *name)
         if (list_head == tmp_next) {
             break;
         }
+
+        count ++;
 
         /* print out the module name */
 
@@ -97,7 +99,8 @@ status_t example_module_list( char *name)
             else {
                 modname = vmi_read_str_va(vmi, next_module + 8, 0);
             }
-            printf("\n ---- mode name: %s -----\n", modname);
+            // dbprint(VMI_DEBUG_TEST, "\n ---- mode name: %s -----\n", modname);
+            dbprint(VMI_DEBUG_TEST, "\n ----module (no. %d): %s -----\n",count, modname);
             free(modname);
         }
         else if (VMI_OS_WINDOWS == vmi_get_ostype(vmi)) {
@@ -121,7 +124,7 @@ status_t example_module_list( char *name)
             if (us &&
                 VMI_SUCCESS == vmi_convert_str_encoding(us, &out,
                                                         "UTF-8")) {
-                printf("%s\n", out.contents);
+                dbprint(VMI_DEBUG_TEST, "%s\n", out.contents);
                 //            if (us && 
                 //                VMI_SUCCESS == vmi_convert_string_encoding (us, &out, "WCHAR_T")) {
                 //                printf ("%ls\n", out.contents);
@@ -131,6 +134,7 @@ status_t example_module_list( char *name)
                 vmi_free_unicode_str(us);
         }
         next_module = tmp_next;
+        sleep(1);
     }
 
 error_exit:
@@ -140,5 +144,8 @@ error_exit:
     /* cleanup any memory associated with the libvmi instance */
     vmi_destroy(vmi);
 
+    sleep(1);
+    dbprint(VMI_DEBUG_TEST, "\n\n -- Total %d modules -- \n\n", count);
+    sleep(1);
     return 0;
 }

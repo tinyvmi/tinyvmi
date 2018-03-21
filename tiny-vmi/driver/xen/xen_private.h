@@ -41,7 +41,10 @@
 #include "tiny_private.h"
 #include "libxc_wrapper.h"
 #include "libxs_wrapper.h"
-// #include "driver/xen/xen_events_private.h"
+
+#if ENABLE_XEN_EVENTS == 1 //tiny-VMI: events enabled
+#include "driver/xen/xen_events_private.h"
+#endif //ENABLE_XEN_EVENTS == 1 
 
 typedef struct xen_instance {
 
@@ -65,7 +68,9 @@ typedef struct xen_instance {
 
     xc_dominfo_t info;      /**< libxc info: domid, ssidref, stats, etc */
 
-    // xen_events_t *events; /**< handle to events data */
+#if ENABLE_XEN_EVENTS == 1 //tiny-VMI: events enabled
+    xen_events_t *events; /**< handle to events data */
+#endif // ENABLE_XEN_EVENTS == 1
 
     uint64_t max_gpfn;    /**< result of xc_domain_maximum_gpfn/2() */
 
@@ -97,11 +102,14 @@ xc_interface* xen_get_xchandle(
     return xen_get_instance(vmi)->xchandle;
 }
 
-// static inline xen_events_t*
-// xen_get_events(vmi_instance_t vmi)
-// {
-//     return xen_get_instance(vmi)->events;
-// }
+#if ENABLE_XEN_EVENTS == 1 //tiny-VMI: events enabled
+static inline xen_events_t*
+xen_get_events(vmi_instance_t vmi)
+{
+    return xen_get_instance(vmi)->events;
+}
+#endif // ENABLE_XEN_EVENTS == 1 
+
 #endif /* XEN_PRIVATE_H */
 
 

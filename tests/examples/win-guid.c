@@ -60,7 +60,7 @@ status_t check_sections(vmi_instance_t vmi, addr_t image_base_p, uint8_t *pe) {
         if ( VMI_FAILURE == vmi_read_pa(vmi, section_addr, sizeof(struct section_header), (uint8_t *)&section, NULL) )
             return VMI_FAILURE;
 
-        //printf("S: %s\n", section.short_name);
+        //dbprint(VMI_DEBUG_TEST, "S: %s\n", section.short_name);
 
         // The character array is not null terminated, so only print the first 8 characters!
         if ( !strncmp(section.short_name, "INITKDBG", 8) )
@@ -118,56 +118,56 @@ void print_os_version(uint8_t* pe) {
 
     peparse_assign_headers(pe, NULL, NULL, &optional_header_type, NULL, &oh32, &oh32plus);
 
-    printf("\tVersion: ");
+    dbprint(VMI_DEBUG_TEST, "\tVersion: ");
 
     if(optional_header_type == IMAGE_PE32_MAGIC) {
 
         major_os_version=oh32->major_os_version;
         minor_os_version=oh32->minor_os_version;
 
-        printf("32-bit");
+        dbprint(VMI_DEBUG_TEST, "32-bit");
     } else
     if(optional_header_type == IMAGE_PE32_PLUS_MAGIC) {
 
         major_os_version=oh32plus->major_os_version;
         minor_os_version=oh32plus->minor_os_version;
 
-        printf("64-bit");
+        dbprint(VMI_DEBUG_TEST, "64-bit");
     }
 
     if(major_os_version == 3) {
         if (minor_os_version == 1)
-                printf(" Windows NT 3.1");
+                dbprint(VMI_DEBUG_TEST, " Windows NT 3.1");
         if (minor_os_version == 5)
-                printf(" Windows NT 3.5");
+                dbprint(VMI_DEBUG_TEST, " Windows NT 3.5");
     } else
     if(major_os_version == 4) {
-            printf(" Windows NT 4.0");
+            dbprint(VMI_DEBUG_TEST, " Windows NT 4.0");
     } else
     if(major_os_version == 5) {
         if (minor_os_version == 0)
-                printf(" Windows 2000");
+                dbprint(VMI_DEBUG_TEST, " Windows 2000");
         if (minor_os_version == 1)
-                printf(" Windows XP");
+                dbprint(VMI_DEBUG_TEST, " Windows XP");
         if (minor_os_version == 2)
-                printf(" Windows Server_2003");
+                dbprint(VMI_DEBUG_TEST, " Windows Server_2003");
     } else
     if(major_os_version == 6) {
         if (minor_os_version == 0)
-                printf(" Windows Vista or Server 2008");
+                dbprint(VMI_DEBUG_TEST, " Windows Vista or Server 2008");
         if (minor_os_version == 1)
-                printf(" Windows 7");
+                dbprint(VMI_DEBUG_TEST, " Windows 7");
         if (minor_os_version == 2)
-                printf(" Windows 8");
+                dbprint(VMI_DEBUG_TEST, " Windows 8");
     } else
     if(major_os_version == 10) {
         if (minor_os_version == 0)
-                printf(" Windows 10");
+                dbprint(VMI_DEBUG_TEST, " Windows 10");
     } else {
-            printf(" OS version unknown or not Windows\n");
+            dbprint(VMI_DEBUG_TEST, " OS version unknown or not Windows\n");
     }
 
-    printf("\n");
+    dbprint(VMI_DEBUG_TEST, "\n");
 
 }
 
@@ -228,7 +228,7 @@ void print_guid(vmi_instance_t vmi, addr_t kernel_base_p, uint8_t* pe) {
     if ( VMI_FAILURE == vmi_read_pa(vmi, kernel_base_p + debug_offset, sizeof(struct image_debug_directory), (uint8_t *)&debug_directory, NULL) )
         return;
 
-    printf("\tPE GUID: %.8x%.5x\n",pe_header->time_date_stamp,size_of_image);
+    dbprint(VMI_DEBUG_TEST, "\tPE GUID: %.8x%.5x\n",pe_header->time_date_stamp,size_of_image);
 
     switch(debug_directory.type)
     {
@@ -237,17 +237,17 @@ void print_guid(vmi_instance_t vmi, addr_t kernel_base_p, uint8_t* pe) {
         debug_directory_valid = 1;
         break;
     case IMAGE_DEBUG_TYPE_MISC:
-        printf("This operating system uses .dbg instead of .pdb\n");
+        dbprint(VMI_DEBUG_TEST, "This operating system uses .dbg instead of .pdb\n");
         return;
     default:
-        //printf("The debug directory header is not in CodeView format, will do a brute-force search!\n");
+        //dbprint(VMI_DEBUG_TEST, "The debug directory header is not in CodeView format, will do a brute-force search!\n");
         break;
     }
 
     if (debug_directory_valid) {
         if(debug_directory.size_of_data > VMI_PS_4KB/4) {
             // Normal size of the debug directory on Windows 7 for example is 0x25 bytes.
-            printf("The size of the debug directory is huge, something might be wrong.\n");
+            dbprint(VMI_DEBUG_TEST, "The size of the debug directory is huge, something might be wrong.\n");
             goto done;
         }
 
@@ -257,7 +257,7 @@ void print_guid(vmi_instance_t vmi, addr_t kernel_base_p, uint8_t* pe) {
         // The PDB header has to be PDB 7.0
         // http://www.debuginfo.com/articles/debuginfomatch.html
         if(RSDS != pdb_header->cv_signature) {
-            printf("The CodeView debug information has to be in PDB 7.0 for the kernel!\n");
+            dbprint(VMI_DEBUG_TEST, "The CodeView debug information has to be in PDB 7.0 for the kernel!\n");
             goto done;
         }
 
@@ -266,29 +266,29 @@ void print_guid(vmi_instance_t vmi, addr_t kernel_base_p, uint8_t* pe) {
             goto done;
     }
 
-     printf("\tPDB GUID: ");
-     printf("%.8x", pdb_header->signature.data1);
-     printf("%.4x", pdb_header->signature.data2);
-     printf("%.4x", pdb_header->signature.data3);
+     dbprint(VMI_DEBUG_TEST, "\tPDB GUID: ");
+     dbprint(VMI_DEBUG_TEST, "%.8x", pdb_header->signature.data1);
+     dbprint(VMI_DEBUG_TEST, "%.4x", pdb_header->signature.data2);
+     dbprint(VMI_DEBUG_TEST, "%.4x", pdb_header->signature.data3);
 
      int c;
-     for(c=0;c<8;c++) printf("%.2x", pdb_header->signature.data4[c]);
+     for(c=0;c<8;c++) dbprint(VMI_DEBUG_TEST, "%.2x", pdb_header->signature.data4[c]);
 
-     printf("%.1x", pdb_header->age & 0xf);
-     printf("\n");
-     printf("\tKernel filename: %s\n", (char*)pdb_header->pdb_file_name);
+     dbprint(VMI_DEBUG_TEST, "%.1x", pdb_header->age & 0xf);
+     dbprint(VMI_DEBUG_TEST, "\n");
+     dbprint(VMI_DEBUG_TEST, "\tKernel filename: %s\n", (char*)pdb_header->pdb_file_name);
 
      if(!strcmp("ntoskrnl.pdb", (char*)pdb_header->pdb_file_name)) {
-        printf("\tSingle-processor without PAE\n");
+        dbprint(VMI_DEBUG_TEST, "\tSingle-processor without PAE\n");
      } else
      if(!strcmp("ntkrnlmp.pdb", (char*)pdb_header->pdb_file_name)) {
-        printf("\tMulti-processor without PAE\n");
+        dbprint(VMI_DEBUG_TEST, "\tMulti-processor without PAE\n");
      } else
      if(!strcmp("ntkrnlpa.pdb", (char*)pdb_header->pdb_file_name)) {
-        printf("\tSingle-processor with PAE (version 5.0 and higher)\n");
+        dbprint(VMI_DEBUG_TEST, "\tSingle-processor with PAE (version 5.0 and higher)\n");
      } else
      if(!strcmp("ntkrpamp.pdb", (char*)pdb_header->pdb_file_name)) {
-        printf("\tMulti-processor with PAE (version 5.0 and higher)\n");
+        dbprint(VMI_DEBUG_TEST, "\tMulti-processor with PAE (version 5.0 and higher)\n");
      }
 
 done:
@@ -302,14 +302,14 @@ void print_pe_header(vmi_instance_t vmi, addr_t image_base_p, uint8_t *pe) {
     uint16_t optional_header_type = 0;
     peparse_assign_headers(pe, &dos_header, &pe_header, &optional_header_type, NULL, NULL, NULL);
 
-    printf("\tSignature: %u.\n", pe_header->signature);
-    printf("\tMachine: %u.\n", pe_header->machine);
-    printf("\t# of sections: %u.\n", pe_header->number_of_sections);
-    printf("\t# of symbols: %u.\n", pe_header->number_of_symbols);
-    printf("\tTimestamp: %u.\n", pe_header->time_date_stamp);
-    printf("\tCharacteristics: %u.\n", pe_header->characteristics);
-    printf("\tOptional header size: %u.\n", pe_header->size_of_optional_header);
-    printf("\tOptional header type: 0x%x\n", optional_header_type);
+    dbprint(VMI_DEBUG_TEST, "\tSignature: %u.\n", pe_header->signature);
+    dbprint(VMI_DEBUG_TEST, "\tMachine: %u.\n", pe_header->machine);
+    dbprint(VMI_DEBUG_TEST, "\t# of sections: %u.\n", pe_header->number_of_sections);
+    dbprint(VMI_DEBUG_TEST, "\t# of symbols: %u.\n", pe_header->number_of_symbols);
+    dbprint(VMI_DEBUG_TEST, "\tTimestamp: %u.\n", pe_header->time_date_stamp);
+    dbprint(VMI_DEBUG_TEST, "\tCharacteristics: %u.\n", pe_header->characteristics);
+    dbprint(VMI_DEBUG_TEST, "\tOptional header size: %u.\n", pe_header->size_of_optional_header);
+    dbprint(VMI_DEBUG_TEST, "\tOptional header type: 0x%x\n", optional_header_type);
 
     uint32_t c;
     for(c=0; c < pe_header->number_of_sections; c++) {
@@ -326,7 +326,7 @@ void print_pe_header(vmi_instance_t vmi, addr_t image_base_p, uint8_t *pe) {
             return;
 
         // The character array is not null terminated, so only print the first 8 characters!
-        printf("\tSection %u: %.8s\n", c+1, section.short_name);
+        dbprint(VMI_DEBUG_TEST, "\tSection %u: %.8s\n", c+1, section.short_name);
     }
 }
 
@@ -337,7 +337,7 @@ int main(int argc, char **argv) {
 
     /* this is the VM that we are looking at */
     if (argc != 3) {
-        printf("Usage: %s name|domid <domain name|domain id>\n", argv[0]);
+        dbprint(VMI_DEBUG_TEST, "Usage: %s name|domid <domain name|domain id>\n", argv[0]);
         return 1;
     }   // if
 
@@ -354,7 +354,7 @@ int main(int argc, char **argv) {
         domain = (void*)&domid;
         init_flags |= VMI_INIT_DOMAINID;
     } else {
-        printf("You have to specify either name or domid!\n");
+        dbprint(VMI_DEBUG_TEST, "You have to specify either name or domid!\n");
         return 1;
     }
 
@@ -364,7 +364,7 @@ int main(int argc, char **argv) {
     /* initialize the libvmi library */
     if (VMI_FAILURE == vmi_init(&vmi, mode, domain, init_flags, NULL, NULL))
     {
-        printf("Failed to init LibVMI library.\n");
+        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
         return 1;
     }
 
@@ -383,7 +383,7 @@ int main(int argc, char **argv) {
         if(VMI_SUCCESS == peparse_get_image(vmi, &ctx, MAX_HEADER_SIZE, pe)) {
             if(VMI_SUCCESS == is_WINDOWS_KERNEL(vmi, ctx.addr, pe)) {
 
-                printf("Windows Kernel found @ 0x%" PRIx64 "\n", ctx.addr);
+                dbprint(VMI_DEBUG_TEST, "Windows Kernel found @ 0x%" PRIx64 "\n", ctx.addr);
                 print_os_version(pe);
                 print_guid(vmi, ctx.addr, pe);
                 print_pe_header(vmi, ctx.addr, pe);

@@ -40,7 +40,7 @@ static void close_handler(int sig){
 
 event_response_t single_step_callback(vmi_instance_t vmi, vmi_event_t *event)
 {
-    printf("Single-step event: VCPU:%u  GFN %"PRIx64" GLA %016"PRIx64"\n",
+    dbprint(VMI_DEBUG_TEST, "Single-step event: VCPU:%u  GFN %"PRIx64" GLA %016"PRIx64"\n",
         event->vcpu_id,
         event->ss_event.gfn,
         event->ss_event.gla);
@@ -75,11 +75,11 @@ int main (int argc, char **argv) {
     /* initialize the libvmi library */
     if (VMI_FAILURE == vmi_init(&vmi, VMI_XEN, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL, NULL))
     {
-        printf("Failed to init LibVMI library.\n");
+        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
         return 1;
     }
 
-    printf("LibVMI init succeeded!\n");
+    dbprint(VMI_DEBUG_TEST, "LibVMI init succeeded!\n");
 
     //Single step setup
     memset(&single_event, 0, sizeof(vmi_event_t));
@@ -90,10 +90,10 @@ int main (int argc, char **argv) {
     SET_VCPU_SINGLESTEP(single_event.ss_event, 0);
     vmi_register_event(vmi, &single_event);
     while(!interrupted ){
-        printf("Waiting for events...\n");
+        dbprint(VMI_DEBUG_TEST, "Waiting for events...\n");
         vmi_events_listen(vmi,500);
     }
-    printf("Finished with test.\n");
+    dbprint(VMI_DEBUG_TEST, "Finished with test.\n");
 
     // cleanup any memory associated with the libvmi instance
     vmi_destroy(vmi);

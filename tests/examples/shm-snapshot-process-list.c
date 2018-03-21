@@ -24,7 +24,7 @@
  * along with LibVMI.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
+#include <tiny_config.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -49,9 +49,9 @@ void list_processes(vmi_instance_t vmi, addr_t current_process,
     if ( VMI_FILE != mode ) {
         uint64_t id = vmi_get_vmid(vmi);
 
-        printf("Process listing for VM %s (id=%"PRIu64")\n", name2, id);
+        dbprint(VMI_DEBUG_TEST, "Process listing for VM %s (id=%"PRIu64")\n", name2, id);
     } else {
-        printf("Process listing for file %s\n", name2);
+        dbprint(VMI_DEBUG_TEST, "Process listing for file %s\n", name2);
     }
     free(name2);
     /* get the head of the list */
@@ -71,11 +71,11 @@ void list_processes(vmi_instance_t vmi, addr_t current_process,
     current_list_entry = list_head;
     status_t status = vmi_read_addr_va(vmi, current_list_entry, 0, &next_list_entry);
     if (status == VMI_FAILURE) {
-        printf("Failed to read next pointer at 0x%"PRIx64" before entering loop\n",
+        dbprint(VMI_DEBUG_TEST, "Failed to read next pointer at 0x%"PRIx64" before entering loop\n",
             current_list_entry);
         goto error_exit;
     }
-    printf("Next list entry is at: %"PRIx64"\n", next_list_entry);
+    dbprint(VMI_DEBUG_TEST, "Next list entry is at: %"PRIx64"\n", next_list_entry);
     do {
         /* Note: the task_struct that we are looking at has a lot of
          * information.  However, the process name and id are burried
@@ -93,12 +93,12 @@ void list_processes(vmi_instance_t vmi, addr_t current_process,
         procname = vmi_read_str_va(vmi, current_process + name_offset, 0);
 
         if (!procname) {
-            printf("Failed to find procname\n");
+            dbprint(VMI_DEBUG_TEST, "Failed to find procname\n");
             goto error_exit;
         }
 
         /* print out the process name */
-        printf("[%5d] %s (struct addr:%"PRIx64")\n", pid, procname, current_process);
+        dbprint(VMI_DEBUG_TEST, "[%5d] %s (struct addr:%"PRIx64")\n", pid, procname, current_process);
         if (procname) {
             free(procname);
             procname = NULL;
@@ -111,7 +111,7 @@ void list_processes(vmi_instance_t vmi, addr_t current_process,
 
         status = vmi_read_addr_va(vmi, current_list_entry, 0, &next_list_entry);
         if (status == VMI_FAILURE) {
-            printf("Failed to read next pointer in loop at %"PRIx64"\n",
+            dbprint(VMI_DEBUG_TEST, "Failed to read next pointer in loop at %"PRIx64"\n",
                 current_list_entry);
             goto error_exit;
         }
@@ -125,7 +125,7 @@ int main (int argc, char **argv)
 {
     /* this is the VM or file that we are looking at */
     if (argc != 2) {
-        printf("Usage: %s <vmname>\n", argv[0]);
+        dbprint(VMI_DEBUG_TEST, "Usage: %s <vmname>\n", argv[0]);
         return 1;
     }
 
@@ -144,7 +144,7 @@ int main (int argc, char **argv)
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
                           VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
     {
-        printf("Failed to init LibVMI library.\n");
+        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
         return 1;
     }
 
@@ -173,7 +173,7 @@ int main (int argc, char **argv)
 
     /* create a shm-snapshot */
     if (vmi_shm_snapshot_create(vmi) != VMI_SUCCESS) {
-        printf("Failed to shm-snapshot VM\n");
+        dbprint(VMI_DEBUG_TEST, "Failed to shm-snapshot VM\n");
         goto error_exit;
     }
 
@@ -193,7 +193,7 @@ int main (int argc, char **argv)
 
     return 0;
 #else
-    printf("Error : this example should only run after ./configure --enable-shm-snapshot.\n");
+    dbprint(VMI_DEBUG_TEST, "Error : this example should only run after ./configure --enable-shm-snapshot.\n");
     return 1; // error
 #endif
 

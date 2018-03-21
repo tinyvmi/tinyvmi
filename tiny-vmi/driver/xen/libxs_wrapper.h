@@ -23,7 +23,7 @@
 #ifndef LIBXS_WRAPPER_H
 #define LIBXS_WRAPPER_H
 
-#include <config.h>
+#include <tiny_config.h>
 // #include <dlfcn.h>
 
 #if HAVE_XENSTORE_H

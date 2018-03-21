@@ -16,4 +16,7 @@ status_t example_map_addr(char *name, addr_t addr);
 /* char *name:  this is the VM or file that we are looking at */
 status_t example_module_list( char *name);
 
+
+status_t example_event (char *name, vmi_pid_t pid );
+
 #endif

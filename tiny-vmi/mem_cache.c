@@ -15,20 +15,20 @@
 	munmap(data,length);
  }
 
-static unsigned int
-g_int64_hash(
-    void * v)
-{
-    return (unsigned int) * (const int64_t *) v;
-}
+// static unsigned int
+// g_int64_hash(
+//     void * v)
+// {
+//     return (unsigned int) * (const int64_t *) v;
+// }
 
-static int
-g_int64_equal(
-    void* v1,
-    void* v2)
-{
-    return *((const int64_t *) v1) == *((const int64_t *) v2);
-}
+// static int
+// g_int64_equal(
+//     void* v1,
+//     void* v2)
+// {
+//     return *((const int64_t *) v1) == *((const int64_t *) v2);
+// }
 
 //---------------------------------------------------------
 // Internal implementation functions

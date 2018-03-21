@@ -32,7 +32,7 @@
 #include <libvmi/events.h>
 
 void print_event(vmi_event_t *event){
-    printf("PAGE ACCESS: %c%c%c for GFN %"PRIx64" (offset %06"PRIx64") gla %016"PRIx64" (vcpu %"PRIu32")\n",
+    dbprint(VMI_DEBUG_TEST, "PAGE ACCESS: %c%c%c for GFN %"PRIx64" (offset %06"PRIx64") gla %016"PRIx64" (vcpu %"PRIu32")\n",
         (event->mem_event.out_access & VMI_MEMACCESS_R) ? 'r' : '-',
         (event->mem_event.out_access & VMI_MEMACCESS_W) ? 'w' : '-',
         (event->mem_event.out_access & VMI_MEMACCESS_X) ? 'x' : '-',
@@ -86,11 +86,11 @@ int main (int argc, char **argv)
         vmi_init_complete(&vmi, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
                           NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
     {
-        printf("Failed to init LibVMI library.\n");
+        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
         return 1;
     }
 
-    printf("LibVMI init succeeded!\n");
+    dbprint(VMI_DEBUG_TEST, "LibVMI init succeeded!\n");
 
     vmi_event_t event;
     memset(&event, 0, sizeof(vmi_event_t));
@@ -105,14 +105,14 @@ int main (int argc, char **argv)
         goto leave;
 
     while(!interrupted){
-        printf("Waiting for events...\n");
+        dbprint(VMI_DEBUG_TEST, "Waiting for events...\n");
         status = vmi_events_listen(vmi,500);
         if (status != VMI_SUCCESS) {
-            printf("Error waiting for events, quitting...\n");
+            dbprint(VMI_DEBUG_TEST, "Error waiting for events, quitting...\n");
             interrupted = -1;
         }
     }
-    printf("Finished with test.\n");
+    dbprint(VMI_DEBUG_TEST, "Finished with test.\n");
 
 leave:
     // cleanup any memory associated with the libvmi instance

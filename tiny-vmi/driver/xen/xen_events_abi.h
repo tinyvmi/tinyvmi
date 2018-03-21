@@ -21,7 +21,7 @@
 #ifndef XEN_EVENTS_ABI_H
 #define XEN_EVENTS_ABI_H
 
-#include <config.h>
+#include <tiny_config.h>
 #include <xen/io/ring.h>
 
 //Lele: compat for lib in minios

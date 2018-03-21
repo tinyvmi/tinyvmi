@@ -20,11 +20,12 @@ Credit for primes table: Aaron Krowne
 static const unsigned int primes[] = {
 53, 97, 193, 389,
 769, 1543, 3079, 6151,
-12289, 24593, 49157, 98317,
+12289, 24593, 49157, /* For 1 << 16 */
+98317, 
 196613, 393241, 786433, 1572869,
 3145739, 6291469, 12582917, 25165843,
 50331653, 100663319, 201326611, 402653189,
-805306457, 1610612741
+805306457, 1610612741  /* For 1 << 31 */
 };
 const unsigned int prime_table_length = sizeof(primes)/sizeof(primes[0]);
 const unsigned int max_load_factor = 65; /* percentage */
@@ -59,6 +60,7 @@ create_hashtable(unsigned int minsize,
     h->size  = size;
     h->primeindex   = pindex;
     h->entrycount   = 0;
+    h->noccupied = 0;
     h->hashfn       = hashf;
     h->eqfn         = eqf;
     h->key_destroy_func   = key_destroy_f;
@@ -145,6 +147,101 @@ hashtable_expand(struct hashtable *h)
     return -1;
 }
 
+int hashtable_set_optimal_size(struct hashtable *h){
+
+    unsigned int minsize;
+    unsigned int size;
+    unsigned int pindex;
+
+    minsize = h->entrycount * 2;
+    /* Check requested hashtable isn't too large */
+    if (minsize > (1u << 30)) return NULL;
+
+    /* Enforce size as prime */
+
+    for (pindex=0; pindex < prime_table_length; pindex++) {
+        if (primes[pindex] > minsize) { size = primes[pindex]; break; }
+    }
+
+    h->primeindex = pindex;
+    h->size = size;
+    h->loadlimit    = (unsigned int)(((uint64_t)size * max_load_factor) / 100);
+
+    return -1;
+}
+/*************
+different with hashtable_expand: it can also shrink hashtable.
+****************************************************************/
+int
+hashtable_resize(struct hashtable *h)
+{
+    /* Double the size of the table to accomodate more entries */
+    struct entry **newtable;
+    struct entry *e;
+    struct entry **pE;
+    unsigned int newsize, i, index;
+    /* Check we're not hitting max capacity */
+    if (h->primeindex == (prime_table_length - 1)) return 0;
+    // newsize = primes[++(h->primeindex)];
+    newsize = hashtable_set_optimal_size(h);
+    h->noccupied = 0; // recount the occupied nodes.
+
+    newtable = (struct entry **)calloc(newsize, sizeof(struct entry*));
+    if (NULL != newtable)
+    {
+        /* This algorithm is not 'stable'. ie. it reverses the list
+         * when it transfers entries between the tables */
+        for (i = 0; i < h->size; i++) {
+            while (NULL != (e = h->table[i])) {  // iterate through the header of list in old table h->table[i], copy to newtable[index] according to the hash value of each node in list.
+                h->table[i] = e->next;  // set old table list to next node.
+                index = indexFor(newsize,e->h);
+                e->next = newtable[index]; //insert to header of list.
+                if (newtable[index] == NULL){
+                    h->noccupied ++;
+                }
+                newtable[index] = e;
+            }
+        }
+        free(h->table);
+        h->table = newtable;
+    }
+    /* Plan B: realloc instead */
+    else 
+    {
+        newtable = (struct entry **)
+                   realloc(h->table, newsize * sizeof(struct entry *));
+        if (NULL == newtable) { (h->primeindex)--; return 0; }
+        h->table = newtable;
+        memset(newtable[h->size], 0, newsize - h->size); // set to 0
+        for (i = 0; i < h->size; i++) {
+            // iterate through one old list.
+            for (pE = &(newtable[i]), e = *pE; e != NULL; e = *pE) {
+                // for each list header, find new index in newtable
+                index = indexFor(newsize,e->h);
+
+                if (newtable[index] == NULL){
+                        h->noccupied ++;
+                }
+
+                // if index not changed, keep the list as before, no change.
+                if (index == i){
+                    pE = &(e->next);
+                }else{  
+                // if index changed, insert node to head of list.
+                // then keep to copy the next entry of current list i.
+                    *pE = e->next;
+                    e->next = newtable[index];
+                    newtable[index] = e;
+                }
+            }
+        }
+    }
+    h->size = newsize;
+    h->loadlimit   = (unsigned int)
+        (((uint64_t)newsize * max_load_factor) / 100);
+    return -1;
+}
+
 /*****************************************************************************/
 unsigned int
 hashtable_count(struct hashtable *h)
@@ -173,7 +270,10 @@ hashtable_insert(struct hashtable *h, void *k, void *v)
     index = indexFor(h->size,e->h);
     e->k = k;
     e->v = v;
-    e->next = h->table[index];
+    e->next = h->table[index]; // insert to header!
+    if (h->table[index] == NULL){
+        h->noccupied ++; // the index i being occupied for the first time.
+    }
     h->table[index] = e;
     return -1;
 }
@@ -191,6 +291,24 @@ hashtable_search(struct hashtable *h, void *k)
     {
         /* Check hash value to short circuit heavier comparison */
         if ((hashvalue == e->h) && (h->eqfn(k, e->k))) return e->v;
+        e = e->next;
+    }
+    return NULL;
+}
+
+/*****************************************************************************/
+struct entry * /* returns entry associated with key */
+hashtable_search_entry(struct hashtable *h, void *k)
+{
+    struct entry *e;
+    unsigned int hashvalue, index;
+    hashvalue = hash(h,k);
+    index = indexFor(h->size,hashvalue);
+    e = h->table[index];
+    while (NULL != e)
+    {
+        /* Check hash value to short circuit heavier comparison */
+        if ((hashvalue == e->h) && (h->eqfn(k, e->k))) return e;
         e = e->next;
     }
     return NULL;

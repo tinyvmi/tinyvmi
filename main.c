@@ -75,8 +75,10 @@ int main(void) {
 	// result=test_map_addr(vmi,vaddr);
 	// result=example_map_addr(name,vaddr);
 	
+	// sleep(2);
+	// result=example_module_list(name);
 	sleep(2);
-	result=example_module_list(name);
+	result=example_event(name, 0);
 	sleep(1);
 
 _bail: 

@@ -23,7 +23,7 @@
 #ifndef LIBXC_WRAPPER_H
 #define LIBXC_WRAPPER_H
 
-#include <config.h>
+#include <tiny_config.h>
 #include <xenctrl.h>
 // #include <dlfcn.h>
 

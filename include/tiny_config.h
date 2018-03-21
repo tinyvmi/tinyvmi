@@ -1,3 +1,6 @@
+#ifndef TINY_CONFIG_H
+#define TINY_CONFIG_H
+
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
@@ -14,7 +17,7 @@
 #define ENABLE_V2P_CACHE 1
 
 /* Enable libvmi.conf */
-#define ENABLE_CONFIGFILE 1   //TODO: add configure file support, (parse from hashtable?)
+#define ENABLE_CONFIGFILE 1 
 
 /* Define to 1 to enable file support. */
 #define ENABLE_FILE 0 // No file support in minios.
@@ -42,6 +45,10 @@
 
 /* Define to 1 to enable Xen support. */
 #define ENABLE_XEN 1
+
+/* define to enable xen events support */
+
+#define ENABLE_XEN_EVENTS 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
@@ -158,3 +165,6 @@
 /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
    `char[]'. */
 #define YYTEXT_POINTER 1
+
+
+#endif // TINY_CONFIG_H

@@ -30,6 +30,10 @@
 
 #include "tiny_private.h"
 
+#if ENABLE_XEN_EVENTS == 1 // events enabled
+#include "events.h"
+#endif
+
 typedef struct driver_interface {
     status_t (*init_ptr) (
         vmi_instance_t,
@@ -113,46 +117,50 @@ typedef struct driver_interface {
         pid_t,
         void**,
         size_t);
-    // status_t (*events_listen_ptr)(
-    //     vmi_instance_t,
-    //     uint32_t);
-    // int (*are_events_pending_ptr)(
-    //     vmi_instance_t);
-    // status_t (*set_reg_access_ptr)(
-    //     vmi_instance_t,
-    //     reg_event_t*);
-    // status_t (*set_intr_access_ptr)(
-    //     vmi_instance_t,
-    //     interrupt_event_t*,
-    //     bool enabled);
-    // status_t (*set_mem_access_ptr)(
-    //     vmi_instance_t,
-    //     addr_t gpfn,
-    //     vmi_mem_access_t,
-    //     uint16_t vmm_pagetable_id);
-    // status_t (*start_single_step_ptr)(
-    //     vmi_instance_t,
-    //     single_step_event_t*);
-    // status_t (*stop_single_step_ptr)(
-    //     vmi_instance_t,
-    //     uint32_t);
-    // status_t (*shutdown_single_step_ptr)(
-    //     vmi_instance_t);
-    // status_t (*set_guest_requested_ptr)(
-    //     vmi_instance_t,
-    //     bool enabled);
-    // status_t (*set_cpuid_event_ptr)(
-    //     vmi_instance_t,
-    //     bool enabled);
-    // status_t (*set_debug_event_ptr)(
-    //     vmi_instance_t,
-    //     bool enabled);
-    // status_t (*set_privcall_event_ptr)(
-    //     vmi_instance_t,
-    //     bool enabled);
-    // status_t (*set_desc_access_event_ptr)(
-    //     vmi_instance_t,
-    //     bool enabled);
+
+#if ENABLE_XEN_EVENTS == 1 //tiny-VMI: events enabled
+    status_t (*events_listen_ptr)(
+        vmi_instance_t,
+        uint32_t);
+    int (*are_events_pending_ptr)(
+        vmi_instance_t);
+    status_t (*set_reg_access_ptr)(
+        vmi_instance_t,
+        reg_event_t*);
+    status_t (*set_intr_access_ptr)(
+        vmi_instance_t,
+        interrupt_event_t*,
+        bool enabled);
+    status_t (*set_mem_access_ptr)(
+        vmi_instance_t,
+        addr_t gpfn,
+        vmi_mem_access_t,
+        uint16_t vmm_pagetable_id);
+    status_t (*start_single_step_ptr)(
+        vmi_instance_t,
+        single_step_event_t*);
+    status_t (*stop_single_step_ptr)(
+        vmi_instance_t,
+        uint32_t);
+    status_t (*shutdown_single_step_ptr)(
+        vmi_instance_t);
+    status_t (*set_guest_requested_ptr)(
+        vmi_instance_t,
+        bool enabled);
+    status_t (*set_cpuid_event_ptr)(
+        vmi_instance_t,
+        bool enabled);
+    status_t (*set_debug_event_ptr)(
+        vmi_instance_t,
+        bool enabled);
+    status_t (*set_privcall_event_ptr)(
+        vmi_instance_t,
+        bool enabled);
+    status_t (*set_desc_access_event_ptr)(
+        vmi_instance_t,
+        bool enabled);
+#endif // ENABLE_XEN_EVENTS == 1 //tiny-VMI: events enabled
+    
     status_t (*slat_get_domain_state_ptr)(
         vmi_instance_t vmi,
         bool *state);
