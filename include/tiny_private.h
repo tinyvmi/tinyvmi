@@ -59,6 +59,7 @@
 
 #include <xenctrl.h>
 
+//#include <console.h>  //Lele: include this will cause xen_events_48.o to have 13Gb Size
 
 //Lele: testing with constant values, all need replacement. 
 // default return value of xen_get_domainid_from_name
@@ -419,6 +420,7 @@ addr_t canonical_addr(addr_t va) {
     vmi_debug_flag_t category,
     char *format,
     ...) __attribute__((format(printf,2,3)));
+    // ...) __attribute__((format(printk,2,3)));
 #endif
 
     void errprint(

@@ -581,12 +581,13 @@ xen_init_vmi(
 
     if(vmi->vm_type == HVM && (vmi->init_flags & VMI_INIT_EVENTS))
     {
-        // ret = xen_init_events(vmi, init_flags, init_data);
+        ret = xen_init_events(vmi, init_flags, init_data);
 
         if ( VMI_FAILURE == ret )
             goto _bail;
     }
 
+    dbprint(VMI_DEBUG_XEN, "%s: ** TODO: altp2m init.\n", __FUNCTION__);
     // xen_init_altp2m(vmi);
 
 _bail:
@@ -610,8 +611,8 @@ xen_destroy(
     dbprint(VMI_DEBUG_XEN, "\t init_flags(%x)\n", vmi->init_flags);
 
     if(vmi->vm_type == HVM && (vmi->init_flags & VMI_INIT_EVENTS)){
-        dbprint (VMI_DEBUG_XEN, "** TODO: destroy xen events\n");
-        // xen_events_destroy(vmi);
+        // dbprint (VMI_DEBUG_XEN, "** TODO: destroy xen events\n");
+        xen_events_destroy(vmi);
     }
 
     // xc_interface *xchandle = xen_get_xchandle(vmi);

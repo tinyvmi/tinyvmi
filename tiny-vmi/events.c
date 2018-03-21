@@ -790,7 +790,7 @@ status_t vmi_register_event(vmi_instance_t vmi, vmi_event_t* event)
 
     if (!(vmi->init_flags & VMI_INIT_EVENTS))
     {
-        dbprint(VMI_DEBUG_EVENTS, "LibVMI wasn't initialized with events!\n");
+        dbprint(VMI_DEBUG_EVENTS, "LibVMI wasn't initialized with events(init_flag: 0x%x, VMI_INIT_EVENTS: %d)!\n", __FUNCTION__, vmi->init_flags, VMI_INIT_EVENTS);
         return VMI_FAILURE;
     }
     if (!event)

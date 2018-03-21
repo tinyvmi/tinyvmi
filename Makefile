@@ -48,6 +48,12 @@ OBJS += $(OB_events) $(OB_drivers)
 
 OB_xc = ./tiny-vmi/driver/xen/libxc_wrapper.o
 OB_xs = ./tiny-vmi/driver/xen/libxs_wrapper.o
+
+OB_xen_events = ./tiny-vmi/driver/xen/xen_events_legacy.o
+OB_xen_events += ./tiny-vmi/driver/xen/xen_events_46.o
+OB_xen_events += ./tiny-vmi/driver/xen/xen_events_48.o
+OB_xen_events += ./tiny-vmi/driver/xen/xen_events.o
+
 OB_xen = ./tiny-vmi/driver/xen/xen.o
 
 OB_arch = ./tiny-vmi/arch/arch_interface.o
@@ -76,7 +82,7 @@ OB_config += ./tiny-vmi/config/libvmi_conf_file.o
 OB_config += ./tiny-vmi/config/libvmi_conf_file_sysmap_4_4_0_32.o
 
 
-OBJS += $(OB_xc) $(OB_xs) $(OB_xen) $(OB_arch) $(OB_config)
+OBJS += $(OB_xc) $(OB_xs) $(OB_xen_events) $(OB_xen) $(OB_arch) $(OB_config)
 
 OBJS += ./tiny-vmi/driver/file/file.o
 

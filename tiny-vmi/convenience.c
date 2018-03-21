@@ -29,22 +29,25 @@
 #include <string.h>
 #include <iconv.h>  // conversion between character sets
 
+// #include <console.h>
+
 #include "tiny_private.h"
 
 #ifndef VMI_DEBUG
 /* Nothing */
 #else
 void
-dbprint(
+dbprint_(
     vmi_debug_flag_t category,
     char *format,
     ...)
 {
     if(category & VMI_DEBUG) {
         va_list args;
-
         va_start(args, format);
         vfprintf(stdout, format, args);
+        // printk(fmt, args);
+        // printk(format,  __VA_ARGS__);
         va_end(args);
     }
 }

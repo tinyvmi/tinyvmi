@@ -52,9 +52,9 @@ extern "C" {
 
 #define VMI_INIT_DOMAINID (1u << 1) /**< initialize using domain id */
 
-// #define VMI_INIT_EVENTS (1u << 2) /**< initialize events */
+#define VMI_INIT_EVENTS (1u << 2) /**< initialize events */
 
-#define VMI_INIT_EVENTS (0) /**< initialize events */
+// #define VMI_INIT_EVENTS (0) /**< initialize events */
 
 #define VMI_INIT_SHM (1u << 3) /**< initialize SHM mode */
 

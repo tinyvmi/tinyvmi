@@ -240,7 +240,7 @@ status_t example_event (char *name, vmi_pid_t pid )
     if (VMI_FAILURE ==
         // vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
         //                   NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
-        vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
+        vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL,
                           VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
     {
         dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
@@ -333,6 +333,7 @@ status_t example_event (char *name, vmi_pid_t pid )
          *  no action is taken.
          */
         cr3_event.reg_event.equal = cr3;
+        dbprint(VMI_DEBUG_TEST, "%s: now register event for pid %d.\n", __FUNCTION__, pid); 
         vmi_register_event(vmi, &cr3_event);
     }
 
