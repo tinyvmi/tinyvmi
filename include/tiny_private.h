@@ -411,6 +411,9 @@ addr_t canonical_addr(addr_t va) {
 /*----------------------------------------------
  * convenience.c
  */
+#define DBG_START  dbprint(VMI_DEBUG_TEST, "->-> now in %s\n", __FUNCTION__)
+#define DBG_DONE dbprint(VMI_DEBUG_TEST, "<-<- done %s\n", __FUNCTION__)
+
 #define dbprint dbprint_
 
 #ifndef VMI_DEBUG
