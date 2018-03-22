@@ -85,7 +85,7 @@ unsigned int
 hash(struct hashtable *h, void *k)
 {
     /* Aim to protect against poor hash functions by adding logic here
-     * - logic taken from java 1.4 hashtable source */
+     * - logic taken from java 1.4 hashtable source */    
     DBG_START;
     if (h->hashfn == NULL){
         errprint("%s: hash table has no hash function initialized\n");
@@ -96,6 +96,9 @@ hash(struct hashtable *h, void *k)
     i ^=  ((i >> 14) | (i << 18)); /* >>> */
     i +=  (i << 4);
     i ^=  ((i >> 10) | (i << 22)); /* >>> */
+    
+    DBG_DONE;
+    
     return i;
 }
 
@@ -108,6 +111,9 @@ hashtable_expand(struct hashtable *h)
     struct entry *e;
     struct entry **pE;
     unsigned int newsize, i, index;
+
+    DBG_START;
+
     /* Check we're not hitting max capacity */
     if (h->primeindex == (prime_table_length - 1)) return 0;
     newsize = primes[++(h->primeindex)];
@@ -155,6 +161,9 @@ hashtable_expand(struct hashtable *h)
     h->size = newsize;
     h->loadlimit   = (unsigned int)
         (((uint64_t)newsize * max_load_factor) / 100);
+    
+    DBG_DONE;
+
     return -1;
 }
 
@@ -163,6 +172,8 @@ int hashtable_set_optimal_size(struct hashtable *h){
     unsigned int minsize;
     unsigned int size;
     unsigned int pindex;
+
+    DBG_START;
 
     minsize = h->entrycount * 2;
     /* Check requested hashtable isn't too large */
@@ -178,6 +189,8 @@ int hashtable_set_optimal_size(struct hashtable *h){
     h->size = size;
     h->loadlimit    = (unsigned int)(((uint64_t)size * max_load_factor) / 100);
 
+    DBG_DONE;
+
     return -1;
 }
 /*************
@@ -191,6 +204,7 @@ hashtable_resize(struct hashtable *h)
     struct entry *e;
     struct entry **pE;
     unsigned int newsize, i, index;
+    DBG_START;
     /* Check we're not hitting max capacity */
     if (h->primeindex == (prime_table_length - 1)) return 0;
     // newsize = primes[++(h->primeindex)];
@@ -250,6 +264,8 @@ hashtable_resize(struct hashtable *h)
     h->size = newsize;
     h->loadlimit   = (unsigned int)
         (((uint64_t)newsize * max_load_factor) / 100);
+
+    DBG_DONE;
     return -1;
 }
 
@@ -267,6 +283,7 @@ hashtable_insert(struct hashtable *h, void *k, void *v)
     /* This method allows duplicate keys - but they shouldn't be used */
     unsigned int index;
     struct entry *e;
+    DBG_START;
     if (++(h->entrycount) > h->loadlimit)
     {
         /* Ignore the return value. If expand fails, we should
@@ -276,7 +293,12 @@ hashtable_insert(struct hashtable *h, void *k, void *v)
         hashtable_expand(h);
     }
     e = (struct entry *)calloc(1, sizeof(struct entry));
-    if (NULL == e) { --(h->entrycount); return 0; } /*oom*/
+    if (NULL == e) { 
+        --(h->entrycount); 
+        dbprint(VMI_DEBUG_TEST, "%s: error calloc entry\n", __FUNCTION__); 
+        return 0; 
+    } /*oom*/
+
     e->h = hash(h,k);
     index = indexFor(h->size,e->h);
     e->k = k;
@@ -286,6 +308,7 @@ hashtable_insert(struct hashtable *h, void *k, void *v)
         h->noccupied ++; // the index i being occupied for the first time.
     }
     h->table[index] = e;
+    DBG_DONE;
     return -1;
 }
 

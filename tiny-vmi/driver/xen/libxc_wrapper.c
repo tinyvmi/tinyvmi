@@ -58,7 +58,7 @@ static status_t sanity_check(xen_instance_t *xen)
     //      !w->xc_domctl || !w->xc_domain_pause || !w->xc_domain_unpause )
     //     return ret;
 
-    dbprint(VMI_DEBUG_XEN, "test xc_interface_open, func addr: 0x%lx\n", (uint64_t)&xc_interface_open);
+    // dbprint(VMI_DEBUG_XEN, "test xc_interface_open, func addr: 0x%lx\n", (uint64_t)&xc_interface_open);
 
 
     // xen->xchandle = xen->libxcw.xc_interface_open(NULL, NULL, 0);
@@ -69,18 +69,12 @@ static status_t sanity_check(xen_instance_t *xen)
     
         xen->xchandle = xen->libxcw.xc_interface_open(NULL, NULL, 0);
     
-        dbprint(VMI_DEBUG_XEN, "test xc_interface_open, success: xchandle addr: 0x%lx\n", xen->xchandle);
+        // dbprint(VMI_DEBUG_XEN, "test xc_interface_open, success: xchandle addr: 0x%lx\n", xen->xchandle);
 
-        // xen->libxcw.xc_interface_close(xen->xchandle);
-        // dbprint(VMI_DEBUG_XEN, "test xc_interface_close, success: xchandle addr: 0x%lx\n", xen->xchandle);
-        // xen->xchandle = 0;
-        // exit(0);
-
-    }else{
-    
-        dbprint(VMI_DEBUG_XEN, "xc_interface already opened, xchandle: 0x%lx\n", xen->xchandle);
-    
     }
+    // else{
+    //     dbprint(VMI_DEBUG_XEN, "%s: WARNING: xc_interface already opened, xchandle: 0x%lx\n", __FUNCTION__, xen->xchandle);
+    // }
 
     if ( !xen->xchandle ) {
         errprint("%s: Failed to open libxc interface.\n", __FUNCTION__);

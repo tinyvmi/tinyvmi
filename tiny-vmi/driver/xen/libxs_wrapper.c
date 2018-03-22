@@ -30,14 +30,14 @@
 
 struct xs_handle *xs_open_wrapper(unsigned long flag)
 {
-    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
-    
+    // DBG_START;
+
     return xs_daemon_open();
 }
 
 void xs_close_wrapper (struct xs_handle *xsh){
 
-    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
+    // DBG_START; 
 
     return xs_daemon_close(xsh);
 }
@@ -58,8 +58,8 @@ static status_t sanity_check(xen_instance_t *xen)
     }
     else{
         xen->libxsw.xs_close(xen->xshandle);
-
-        dbprint(VMI_DEBUG_XEN, "success: libxenstore interface opened and closed.\n");
+        xen->xshandle = 0;
+        dbprint(VMI_DEBUG_XEN, "%s: success: libxenstore interface opened and closed.\n", __FUNCTION__);
     }
 
 

@@ -90,7 +90,7 @@ xen_instance_t *xen_get_instance(
     vmi_instance_t vmi)
 {
     
-    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
+    // DBG_START; 
 
     return ((xen_instance_t *) vmi->driver.driver_data);
 }

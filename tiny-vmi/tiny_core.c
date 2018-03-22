@@ -794,7 +794,7 @@ vmi_init_complete(
     vmi_instance_t _vmi = NULL;
     vmi_mode_t mode;
 
-    dbprint(VMI_DEBUG_CORE, "->-> now in %s\n", __FUNCTION__ );
+    // DBG_START; 
 
     if ( VMI_FAILURE == vmi_get_access_mode(_vmi, domain, init_flags, init_data, &mode) )
     {
@@ -838,7 +838,7 @@ vmi_init_complete(
     }
     *vmi = _vmi;
 
-    dbprint(VMI_DEBUG_CORE, "%s: done.\n\n", __FUNCTION__);
+    // DBG_DONE;
     return VMI_SUCCESS;
 }
 
