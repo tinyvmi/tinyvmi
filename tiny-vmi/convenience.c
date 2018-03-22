@@ -55,6 +55,22 @@ dbprint_(
 }
 #endif
 
+#ifndef VMI_TEST_PRINT
+/*Nothing*/
+#else
+void testprint(vmi_test_print_flag_t category,
+char *format, ...){
+    if(category & VMI_TEST_PRINT) {
+        va_list args;
+        fprintf(stdout, "VMI_TEST: ");
+        va_start(args, format);
+        vfprintf(stdout, format, args);
+        va_end(args);
+        usleep(10000); // lele: sleep us to avoid flooding the console.
+    }
+}
+#endif // VMI_TEST_PRINT
+
 /* prints an error message to stderr */
 void
 errprint(

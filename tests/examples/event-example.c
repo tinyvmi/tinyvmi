@@ -53,7 +53,7 @@ vmi_event_t kernel_vsyscall_event;
 vmi_event_t kernel_sysenter_target_event;
 
 void print_event(vmi_event_t event){
-    dbprint(VMI_DEBUG_TEST, "PAGE ACCESS: %c%c%c for GFN %"PRIx64" (offset %06"PRIx64") gla %016"PRIx64" (vcpu %"PRIu32")\n",
+    ttprint(VMI_TEST_EVENTS, "PAGE ACCESS: %c%c%c for GFN %"PRIx64" (offset %06"PRIx64") gla %016"PRIx64" (vcpu %"PRIu32")\n",
         (event.mem_event.out_access & VMI_MEMACCESS_R) ? 'r' : '-',
         (event.mem_event.out_access & VMI_MEMACCESS_W) ? 'w' : '-',
         (event.mem_event.out_access & VMI_MEMACCESS_X) ? 'x' : '-',
@@ -81,7 +81,7 @@ event_response_t msr_syscall_sysenter_cb(vmi_instance_t vmi, vmi_event_t *event)
     vmi_get_vcpureg(vmi, &rax, RAX, event->vcpu_id);
     vmi_get_vcpureg(vmi, &rdi, RDI, event->vcpu_id);
 
-    dbprint(VMI_DEBUG_TEST, "Syscall happened: RAX(syscall#)=%u RDI(1st argument)=%u\n", (unsigned int)rax, (unsigned int)rdi);
+    ttprint(VMI_TEST_EVENTS, "Syscall happened: RAX(syscall#)=%u RDI(1st argument)=%u\n", (unsigned int)rax, (unsigned int)rdi);
 
     print_event(*event);
 
@@ -94,7 +94,7 @@ event_response_t syscall_compat_cb(vmi_instance_t vmi, vmi_event_t *event){
     vmi_get_vcpureg(vmi, &rax, RAX, event->vcpu_id);
     vmi_get_vcpureg(vmi, &rdi, RDI, event->vcpu_id);
 
-    dbprint(VMI_DEBUG_TEST, "Syscall happened: RAX(syscall#)=%u RDI(1st argument)=%u\n", (unsigned int)rax, (unsigned int)rdi);
+    ttprint(VMI_TEST_EVENTS, "Syscall happened: RAX(syscall#)=%u RDI(1st argument)=%u\n", (unsigned int)rax, (unsigned int)rdi);
 
     print_event(*event);
 
@@ -107,7 +107,7 @@ event_response_t vsyscall_cb(vmi_instance_t vmi, vmi_event_t *event){
     vmi_get_vcpureg(vmi, &rax, RAX, event->vcpu_id);
     vmi_get_vcpureg(vmi, &rdi, RDI, event->vcpu_id);
 
-    dbprint(VMI_DEBUG_TEST, "Syscall happened: RAX(syscall#)=%u RDI(1st argument)=%u\n", (unsigned int)rax, (unsigned int)rdi);
+    ttprint(VMI_TEST_EVENTS, "Syscall happened: RAX(syscall#)=%u RDI(1st argument)=%u\n", (unsigned int)rax, (unsigned int)rdi);
 
     print_event(*event);
 
@@ -120,7 +120,7 @@ event_response_t ia32_sysenter_target_cb(vmi_instance_t vmi, vmi_event_t *event)
     vmi_get_vcpureg(vmi, &rax, RAX, event->vcpu_id);
     vmi_get_vcpureg(vmi, &rdi, RDI, event->vcpu_id);
 
-    dbprint(VMI_DEBUG_TEST, "Syscall happened: RAX(syscall#)=%u RDI(1st argument)=%u\n", (unsigned int)rax, (unsigned int)rdi);
+    ttprint(VMI_TEST_EVENTS, "Syscall happened: RAX(syscall#)=%u RDI(1st argument)=%u\n", (unsigned int)rax, (unsigned int)rdi);
 
     print_event(*event);
 
@@ -133,7 +133,7 @@ event_response_t syscall_lm_cb(vmi_instance_t vmi, vmi_event_t *event){
     vmi_get_vcpureg(vmi, &rax, RAX, event->vcpu_id);
     vmi_get_vcpureg(vmi, &rdi, RDI, event->vcpu_id);
 
-    dbprint(VMI_DEBUG_TEST, "Syscall happened: RAX(syscall#)=%u RDI(1st argument)=%u\n", (unsigned int)rax, (unsigned int)rdi);
+    ttprint(VMI_TEST_EVENTS, "Syscall happened: RAX(syscall#)=%u RDI(1st argument)=%u\n", (unsigned int)rax, (unsigned int)rdi);
 
     print_event(*event);
 
@@ -146,9 +146,9 @@ event_response_t cr3_one_task_callback(vmi_instance_t vmi, vmi_event_t *event){
     vmi_pid_t pid = -1;
     vmi_dtb_to_pid(vmi, event->reg_event.value, &pid);
 
-    dbprint(VMI_DEBUG_TEST, "one_task callback\n");
+    ttprint(VMI_TEST_EVENTS, "one_task callback\n");
     if(event->reg_event.value == cr3){
-        dbprint(VMI_DEBUG_TEST, "My process with PID %"PRIi32", CR3=%"PRIx64" is executing on vcpu %"PRIu32". Previous CR3=%"PRIx64"\n",
+        ttprint(VMI_TEST_EVENTS, "My process with PID %"PRIi32", CR3=%"PRIx64" is executing on vcpu %"PRIu32". Previous CR3=%"PRIx64"\n",
                pid, event->reg_event.value, event->vcpu_id, event->reg_event.previous);
         msr_syscall_sysenter_event.mem_event.in_access = VMI_MEMACCESS_X;
         msr_syscall_sysenter_event.callback=msr_syscall_sysenter_cb;
@@ -165,7 +165,7 @@ event_response_t cr3_one_task_callback(vmi_instance_t vmi, vmi_event_t *event){
             fprintf(stderr, "Could not install sysenter syscall handler.\n");
     }
     else{
-        dbprint(VMI_DEBUG_TEST, "PID %i is executing, not my process!\n", pid);
+        ttprint(VMI_TEST_EVENTS, "PID %i is executing, not my process!\n", pid);
         vmi_clear_event(vmi, &msr_syscall_sysenter_event, NULL);
     }
     return 0;
@@ -174,7 +174,7 @@ event_response_t cr3_one_task_callback(vmi_instance_t vmi, vmi_event_t *event){
 event_response_t cr3_all_tasks_callback(vmi_instance_t vmi, vmi_event_t *event){
     vmi_pid_t pid = -1;
     vmi_dtb_to_pid(vmi, event->reg_event.value, &pid);
-    dbprint(VMI_DEBUG_TEST, "PID %i with CR3=%"PRIx64" executing on vcpu %"PRIu32". Previous CR3=%"PRIx64"\n",
+    ttprint(VMI_TEST_EVENTS, "PID %i with CR3=%"PRIx64" executing on vcpu %"PRIu32". Previous CR3=%"PRIx64"\n",
         pid, event->reg_event.value, event->vcpu_id, event->reg_event.previous);
 
     msr_syscall_sysenter_event.mem_event.in_access = VMI_MEMACCESS_X;
@@ -243,16 +243,16 @@ status_t example_event (char *name, vmi_pid_t pid )
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL,
                           VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
     {
-        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
+        ttprint(VMI_TEST_EVENTS, "Failed to init LibVMI library.\n");
         return 1;
     }
 
-    dbprint(VMI_DEBUG_TEST, "LibVMI init succeeded!\n");
+    ttprint(VMI_TEST_EVENTS, "LibVMI init succeeded!\n");
 
     // Get the cr3 for this process.
     if(pid != -1) {
         vmi_pid_to_dtb(vmi, pid, &cr3);
-        dbprint(VMI_DEBUG_TEST, "CR3 for process (%d) == %llx\n", pid, (unsigned long long)cr3);
+        ttprint(VMI_TEST_EVENTS, "CR3 for process (%d) == %llx\n", pid, (unsigned long long)cr3);
     }
 
     // Get the value of lstar and cstar for the system.
@@ -260,12 +260,12 @@ status_t example_event (char *name, vmi_pid_t pid )
     vmi_get_vcpureg(vmi, &lstar, MSR_LSTAR, 0);
     vmi_get_vcpureg(vmi, &cstar, MSR_CSTAR, 0);
     vmi_get_vcpureg(vmi, &sysenter_ip, SYSENTER_EIP, 0);
-    dbprint(VMI_DEBUG_TEST, "vcpu 0 MSR_LSTAR == %llx\n", (unsigned long long)lstar);
-    dbprint(VMI_DEBUG_TEST, "vcpu 0 MSR_CSTAR == %llx\n", (unsigned long long)cstar);
-    dbprint(VMI_DEBUG_TEST, "vcpu 0 MSR_SYSENTER_IP == %llx\n", (unsigned long long)sysenter_ip);
+    ttprint(VMI_TEST_EVENTS, "vcpu 0 MSR_LSTAR == %llx\n", (unsigned long long)lstar);
+    ttprint(VMI_TEST_EVENTS, "vcpu 0 MSR_CSTAR == %llx\n", (unsigned long long)cstar);
+    ttprint(VMI_TEST_EVENTS, "vcpu 0 MSR_SYSENTER_IP == %llx\n", (unsigned long long)sysenter_ip);
 
     vmi_translate_ksym2v(vmi, "ia32_sysenter_target", &ia32_sysenter_target);
-    dbprint(VMI_DEBUG_TEST, "ksym ia32_sysenter_target == %llx\n", (unsigned long long)ia32_sysenter_target);
+    ttprint(VMI_TEST_EVENTS, "ksym ia32_sysenter_target == %llx\n", (unsigned long long)ia32_sysenter_target);
 
     /* Per Linux ABI, this VA represents the start of the vsyscall page 
      *  If vsyscall support is enabled (deprecated or disabled on many newer 
@@ -275,26 +275,26 @@ status_t example_event (char *name, vmi_pid_t pid )
 
     // Translate to a physical address.
     vmi_translate_kv2p(vmi, lstar, &phys_lstar);
-    dbprint(VMI_DEBUG_TEST, "Physical LSTAR == %llx\n", (unsigned long long)phys_lstar);
+    ttprint(VMI_TEST_EVENTS, "Physical LSTAR == %llx\n", (unsigned long long)phys_lstar);
 
     vmi_translate_kv2p(vmi, cstar, &phys_cstar);
-    dbprint(VMI_DEBUG_TEST, "Physical CSTAR == %llx\n", (unsigned long long)phys_cstar);
+    ttprint(VMI_TEST_EVENTS, "Physical CSTAR == %llx\n", (unsigned long long)phys_cstar);
 
     vmi_translate_kv2p(vmi, sysenter_ip, &phys_sysenter_ip);
-    dbprint(VMI_DEBUG_TEST, "Physical SYSENTER_IP == %llx\n", (unsigned long long)phys_sysenter_ip);
+    ttprint(VMI_TEST_EVENTS, "Physical SYSENTER_IP == %llx\n", (unsigned long long)phys_sysenter_ip);
 
     vmi_translate_kv2p(vmi,ia32_sysenter_target, &phys_ia32_sysenter_target);
-    dbprint(VMI_DEBUG_TEST, "Physical ia32_sysenter_target == %llx\n", (unsigned long long)ia32_sysenter_target);
+    ttprint(VMI_TEST_EVENTS, "Physical ia32_sysenter_target == %llx\n", (unsigned long long)ia32_sysenter_target);
     vmi_translate_kv2p(vmi,vsyscall,&phys_vsyscall);
-    dbprint(VMI_DEBUG_TEST, "Physical phys_vsyscall == %llx\n", (unsigned long long)phys_vsyscall);
+    ttprint(VMI_TEST_EVENTS, "Physical phys_vsyscall == %llx\n", (unsigned long long)phys_vsyscall);
 
 
     // Get only the page that the handler starts.
-    dbprint(VMI_DEBUG_TEST, "LSTAR Physical PFN == %llx\n", (unsigned long long)(phys_lstar >> 12));
-    dbprint(VMI_DEBUG_TEST, "CSTAR Physical PFN == %llx\n", (unsigned long long)(phys_cstar >> 12));
-    dbprint(VMI_DEBUG_TEST, "SYSENTER_IP Physical PFN == %llx\n", (unsigned long long)(phys_sysenter_ip >> 12));
-    dbprint(VMI_DEBUG_TEST, "phys_vsyscall Physical PFN == %llx\n", (unsigned long long)(phys_vsyscall >> 12));
-    dbprint(VMI_DEBUG_TEST, "phys_ia32_sysenter_target Physical PFN == %llx\n", (unsigned long long)(phys_ia32_sysenter_target >> 12));
+    ttprint(VMI_TEST_EVENTS, "LSTAR Physical PFN == %llx\n", (unsigned long long)(phys_lstar >> 12));
+    ttprint(VMI_TEST_EVENTS, "CSTAR Physical PFN == %llx\n", (unsigned long long)(phys_cstar >> 12));
+    ttprint(VMI_TEST_EVENTS, "SYSENTER_IP Physical PFN == %llx\n", (unsigned long long)(phys_sysenter_ip >> 12));
+    ttprint(VMI_TEST_EVENTS, "phys_vsyscall Physical PFN == %llx\n", (unsigned long long)(phys_vsyscall >> 12));
+    ttprint(VMI_TEST_EVENTS, "phys_ia32_sysenter_target Physical PFN == %llx\n", (unsigned long long)(phys_ia32_sysenter_target >> 12));
 
     /* Configure an event to track when the process is running.
      * (The CR3 register is updated on task context switch, allowing
@@ -333,7 +333,7 @@ status_t example_event (char *name, vmi_pid_t pid )
          *  no action is taken.
          */
         cr3_event.reg_event.equal = cr3;
-        dbprint(VMI_DEBUG_TEST, "%s: now register event for pid %d.\n", __FUNCTION__, pid); 
+        ttprint(VMI_TEST_EVENTS, "%s: now register event for pid %d.\n", __FUNCTION__, pid); 
         vmi_register_event(vmi, &cr3_event);
     }
 
@@ -355,14 +355,14 @@ status_t example_event (char *name, vmi_pid_t pid )
     kernel_vsyscall_event.mem_event.gfn = phys_vsyscall >> 12;
 
     while(!interrupted){
-        dbprint(VMI_DEBUG_TEST, "Waiting for events...\n");
+        ttprint(VMI_TEST_EVENTS, "Waiting for events...\n");
         status = vmi_events_listen(vmi,500);
         if (status != VMI_SUCCESS) {
-            dbprint(VMI_DEBUG_TEST, "Error waiting for events, quitting...\n");
+            ttprint(VMI_TEST_EVENTS, "Error waiting for events, quitting...\n");
             interrupted = -1;
         }
     }
-    dbprint(VMI_DEBUG_TEST, "Finished with test.\n");
+    ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
 
     // cleanup any memory associated with the libvmi instance
     vmi_destroy(vmi);

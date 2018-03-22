@@ -38,11 +38,11 @@ int main(void) {
 	long int average=0;
 	int sleep_interval=0;
 
-    printf("Hello, world!\n");
+    ttprint(VMI_TEST_MAIN,  "Hello, world!\n");
     // sleep(2);
 	
 	gettimeofday(&tv_begin,NULL);
-	//printf("LELE: time stamp1: %ld\n",tv_begin.tv_usec);
+	//ttprint(VMI_TEST_MAIN,  "LELE: time stamp1: %ld\n",tv_begin.tv_usec);
     
 	//result = vmi_init(&vmi,0,NULL);
 	// result = vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
@@ -52,25 +52,25 @@ int main(void) {
 
 	// if( VMI_FAILURE == result )
 	// {
-	// 	printf("vmi_init failed\n");
+	// 	ttprint(VMI_TEST_MAIN,  "vmi_init failed\n");
 	// 	goto _bail;
 	// }else{
-	// 	printf("--LELE:%s:vmi_initial succeed\n",__FUNCTION__);
+	// 	ttprint(VMI_TEST_MAIN,  "--LELE:%s:vmi_initial succeed\n",__FUNCTION__);
 	// }
 	
-	// printf("LELE: time stamp1: %ld\n",tv_begin.tv_usec);
+	// ttprint(VMI_TEST_MAIN,  "LELE: time stamp1: %ld\n",tv_begin.tv_usec);
 	//sleep(2);
 	
 	gettimeofday(&tv_end,NULL);
-	printf("LELE: time stamp: %ld\n",tv_end.tv_usec);
+	ttprint(VMI_TEST_MAIN,  "LELE: time stamp: %ld\n",tv_end.tv_usec);
     //sleep(2);
 
 	// duration=(tv_end.tv_sec-tv_begin.tv_sec)*1000000+(tv_end.tv_usec-tv_begin.tv_usec);
-	// printf("LELE: interval: (t2-t1): %dus(%dms)\n",duration,duration/1000);
+	// ttprint(VMI_TEST_MAIN,  "LELE: interval: (t2-t1): %dus(%dms)\n",duration,duration/1000);
     // //sleep(2);
 
 	
-	//printf("--LELE: now test_v2p_pae with vaddress 0x%.16"PRIx64"\n",vaddr);
+	//ttprint(VMI_TEST_MAIN,  "--LELE: now test_v2p_pae with vaddress 0x%.16"PRIx64"\n",vaddr);
     //sleep(2/100);
 	// result=test_map_addr(vmi,vaddr);
 	// result=example_map_addr(name,vaddr);

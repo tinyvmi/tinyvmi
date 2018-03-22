@@ -55,13 +55,13 @@ main(
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
                           VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
     {
-        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
+        ttprint(VMI_TEST_MISC, "Failed to init LibVMI library.\n");
         goto error_exit;
     }
 
     /* get memory starting at symbol for the next PAGE_SIZE bytes */
     if (VMI_FAILURE == vmi_read_ksym(vmi, symbol, PAGE_SIZE, memory, NULL)) {
-        dbprint(VMI_DEBUG_TEST, "failed to get symbol's memory.\n");
+        ttprint(VMI_TEST_MISC, "failed to get symbol's memory.\n");
         goto error_exit;
     }
     vmi_print_hex(memory, PAGE_SIZE);

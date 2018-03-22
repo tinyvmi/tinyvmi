@@ -426,6 +426,15 @@ addr_t canonical_addr(addr_t va) {
     // ...) __attribute__((format(printk,2,3)));
 #endif
 
+#define ttprint testprint
+
+#ifndef VMI_TEST_PRINT
+#define testprint(category, format, args...) ((void)0)
+#else
+    void testprint(vmi_test_print_flag_t category, char *format,
+    ...) __attribute__((format(printf,2,3)));
+#endif
+
     void errprint(
     char *format,
     ...) __attribute__((format(printf,1,2)));

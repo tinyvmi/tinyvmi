@@ -34,7 +34,7 @@
 vmi_event_t msr_event;
 
 event_response_t msr_write_cb(vmi_instance_t vmi, vmi_event_t *event) {
-    dbprint(VMI_DEBUG_TEST, "MSR write happened: MSR=%x Value=%lx\n", event->reg_event.msr, event->reg_event.value);
+    ttprint(VMI_TEST_EVENTS, "MSR write happened: MSR=%x Value=%lx\n", event->reg_event.msr, event->reg_event.value);
     return 0;
 }
 
@@ -69,11 +69,11 @@ int main (int argc, char **argv) {
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
                           NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
     {
-        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
+        ttprint(VMI_TEST_EVENTS, "Failed to init LibVMI library.\n");
         return 1;
     }
 
-    dbprint(VMI_DEBUG_TEST, "LibVMI init succeeded!\n");
+    ttprint(VMI_TEST_EVENTS, "LibVMI init succeeded!\n");
 
     /* Register event to track any writes to a MSR. */
     memset(&msr_event, 0, sizeof(vmi_event_t));
@@ -85,11 +85,11 @@ int main (int argc, char **argv) {
 
     vmi_register_event(vmi, &msr_event);
 
-    dbprint(VMI_DEBUG_TEST, "Waiting for events...\n");
+    ttprint(VMI_TEST_EVENTS, "Waiting for events...\n");
     while(!interrupted){
         vmi_events_listen(vmi,500);
     }
-    dbprint(VMI_DEBUG_TEST, "Finished with test.\n");
+    ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
 
     // cleanup any memory associated with the libvmi instance
     vmi_destroy(vmi);

@@ -65,13 +65,13 @@ main(
     /* initialize the libvmi library */
     if (VMI_FAILURE == vmi_init(&vmi, mode, (void*)name, VMI_INIT_DOMAINNAME, NULL, NULL))
     {
-        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
+        ttprint(VMI_TEST_MISC, "Failed to init LibVMI library.\n");
         goto error_exit;
     }
 
     /* open the file for writing */
     if ((f = fopen(filename, "w+")) == NULL) {
-        dbprint(VMI_DEBUG_TEST, "failed to open file for writing.\n");
+        ttprint(VMI_TEST_MISC, "failed to open file for writing.\n");
         goto error_exit;
     }
 
@@ -85,7 +85,7 @@ main(
             size_t written = fwrite(memory, 1, PAGE_SIZE, f);
 
             if (written != PAGE_SIZE) {
-                dbprint(VMI_DEBUG_TEST, "failed to write memory to file.\n");
+                ttprint(VMI_TEST_MISC, "failed to write memory to file.\n");
                 goto error_exit;
             }
         }
@@ -94,7 +94,7 @@ main(
             size_t written = fwrite(zeros, 1, PAGE_SIZE, f);
 
             if (written != PAGE_SIZE) {
-                dbprint(VMI_DEBUG_TEST, "failed to write zeros to file.\n");
+                ttprint(VMI_TEST_MISC, "failed to write zeros to file.\n");
                 goto error_exit;
             }
         }

@@ -46,7 +46,7 @@ status_t example_module_list( char *name)
            VMI_CONFIG_STRING, get_config_from_file_string(name), NULL)
        )
     {
-        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
+        ttprint(VMI_TEST_MISC, "Failed to init LibVMI library.\n");
         return 1;
     }
 
@@ -65,7 +65,7 @@ status_t example_module_list( char *name)
         goto error_exit;
     }
 
-    dbprint(VMI_DEBUG_TEST, "%s: get module address: 0x%lx\n", __FUNCTION__, next_module);
+    ttprint(VMI_TEST_MISC, "%s: get module address: 0x%lx\n", __FUNCTION__, next_module);
 
     list_head = next_module;
     int count = 0;
@@ -99,8 +99,8 @@ status_t example_module_list( char *name)
             else {
                 modname = vmi_read_str_va(vmi, next_module + 8, 0);
             }
-            // dbprint(VMI_DEBUG_TEST, "\n ---- mode name: %s -----\n", modname);
-            dbprint(VMI_DEBUG_TEST, "\n ----module (no. %d): %s -----\n",count, modname);
+            // ttprint(VMI_TEST_MISC, "\n ---- mode name: %s -----\n", modname);
+            ttprint(VMI_TEST_MISC, "\n ----module (no. %d): %s -----\n",count, modname);
             free(modname);
         }
         else if (VMI_OS_WINDOWS == vmi_get_ostype(vmi)) {
@@ -124,7 +124,7 @@ status_t example_module_list( char *name)
             if (us &&
                 VMI_SUCCESS == vmi_convert_str_encoding(us, &out,
                                                         "UTF-8")) {
-                dbprint(VMI_DEBUG_TEST, "%s\n", out.contents);
+                ttprint(VMI_TEST_MISC, "%s\n", out.contents);
                 //            if (us && 
                 //                VMI_SUCCESS == vmi_convert_string_encoding (us, &out, "WCHAR_T")) {
                 //                printf ("%ls\n", out.contents);
@@ -145,7 +145,7 @@ error_exit:
     vmi_destroy(vmi);
 
     sleep(1);
-    dbprint(VMI_DEBUG_TEST, "\n\n -- Total %d modules -- \n\n", count);
+    ttprint(VMI_TEST_MISC, "\n\n -- Total %d modules -- \n\n", count);
     sleep(1);
     return 0;
 }

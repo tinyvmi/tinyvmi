@@ -46,7 +46,7 @@ status_t example_map_addr(char *name, addr_t addr)
 
     vmi_instance_t vmi;
 
-    dbprint(VMI_DEBUG_TEST, "now in %s\n", __FUNCTION__);
+    ttprint(VMI_TEST_MISC, "now in %s\n", __FUNCTION__);
     unsigned char *memory = malloc(PAGE_SIZE);
 
 
@@ -58,16 +58,16 @@ status_t example_map_addr(char *name, addr_t addr)
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
                           VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
     {
-        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
+        ttprint(VMI_TEST_MISC, "Failed to init LibVMI library.\n");
         goto error_exit;
     }
 
     /* get the symbol's memory page */
     if (VMI_FAILURE == vmi_read_va(vmi, addr, 0, PAGE_SIZE, memory, NULL)) {
-        dbprint(VMI_DEBUG_TEST, "failed to map memory.\n");
+        ttprint(VMI_TEST_MISC, "failed to map memory.\n");
         goto error_exit;
     }
-    dbprint(VMI_DEBUG_TEST, "%s: return from vmi_read_va\n", __FUNCTION__);
+    ttprint(VMI_TEST_MISC, "%s: return from vmi_read_va\n", __FUNCTION__);
 
     vmi_print_hex(memory, PAGE_SIZE);
 

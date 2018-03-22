@@ -27,24 +27,24 @@ status_t test_map_addr(vmi_instance_t vmi, addr_t vaddr){
 
 		vaddr+=0x1000;
 	
-		dbprint(VMI_DEBUG_TEST, "\n%s: LELE:---------------- vaddress: 0x%lx---------------------------------------\n",__FUNCTION__, vaddr);
+		ttprint(VMI_TEST_MISC, "\n%s: LELE:---------------- vaddress: 0x%lx---------------------------------------\n",__FUNCTION__, vaddr);
 		gettimeofday(&tv_begin,NULL);
 
-		dbprint(VMI_DEBUG_TEST, "LELE: time stamp3.%d: %ld\n",count,tv_begin.tv_usec);
+		ttprint(VMI_TEST_MISC, "LELE: time stamp3.%d: %ld\n",count,tv_begin.tv_usec);
 
 		//if (PAGE_SIZE != vmi_read_va(vmi, vaddr, 0, memory, PAGE_SIZE)) {
-		//		dbprint(VMI_DEBUG_TEST, "failed to map memory.\n");
+		//		ttprint(VMI_TEST_MISC, "failed to map memory.\n");
 		//		return 0;
 		//	}
 	
 		if (VMI_FAILURE == vmi_read_va(vmi, vaddr, 0, PAGE_SIZE, memory, NULL)) {
-				dbprint(VMI_DEBUG_TEST, "failed to map memory.\n");
+				ttprint(VMI_TEST_MISC, "failed to map memory.\n");
 				return VMI_FAILURE;
 			}
 
 		gettimeofday(&tv_end,NULL);
 
-		dbprint(VMI_DEBUG_TEST, "LELE: time stamp4.%d: %d\n",count,(int)tv_end.tv_usec);
+		ttprint(VMI_TEST_MISC, "LELE: time stamp4.%d: %d\n",count,(int)tv_end.tv_usec);
 
 		duration= (tv_end.tv_sec - tv_begin.tv_sec)*1000000 + (tv_end.tv_usec - tv_begin.tv_usec);
 
@@ -53,7 +53,7 @@ status_t test_map_addr(vmi_instance_t vmi, addr_t vaddr){
 		if(duration>NOISE_UP||duration<NOISE_DOWN) noise_ct++;
 
 		average=((double)sum)/(count+1);
-		dbprint(VMI_DEBUG_TEST, "------LELE: read_va interval: (t4-t3.%d): %dus(average:%ld)------\n",count,duration,average);
+		ttprint(VMI_TEST_MISC, "------LELE: read_va interval: (t4-t3.%d): %dus(average:%ld)------\n",count,duration,average);
 
 		//vmi_print_hex(memory, PAGE_SIZE);
 		if(sleep_interval>SLEEP_INTERVAL) {
@@ -67,7 +67,7 @@ status_t test_map_addr(vmi_instance_t vmi, addr_t vaddr){
 	sleep(1);
 	average=(sum)/(count);
 
-	dbprint(VMI_DEBUG_TEST, "\n------TEST MAP_ADDRESS: average time: %ld, total count: %d, noise count:%d------\n",average,count,noise_ct);
+	ttprint(VMI_TEST_MISC, "\n------TEST MAP_ADDRESS: average time: %ld, total count: %d, noise count:%d------\n",average,count,noise_ct);
 
     //sleep(1);
 
@@ -92,7 +92,7 @@ status_t test_module_list(vmi_instance_t vmi, addr_t vaddr){//lele,2014.12.11
     //char *name = argv[1];
 
     /* pause the vm for consistent memory access */
-    dbprint(VMI_DEBUG_TEST, "now pause vm\n");
+    ttprint(VMI_TEST_MISC, "now pause vm\n");
 
 	xen_pause_vm(vmi);
 
@@ -103,7 +103,7 @@ status_t test_module_list(vmi_instance_t vmi, addr_t vaddr){//lele,2014.12.11
 
 	gettimeofday(&tv_begin,NULL);
 
-	dbprint(VMI_DEBUG_TEST, "LELE: time stamp: %ds%dus\n",(int)tv_begin.tv_sec,(int)tv_begin.tv_usec);
+	ttprint(VMI_TEST_MISC, "LELE: time stamp: %ds%dus\n",(int)tv_begin.tv_sec,(int)tv_begin.tv_usec);
 
     /* walk the module list */
     while (1) {
@@ -133,7 +133,7 @@ status_t test_module_list(vmi_instance_t vmi, addr_t vaddr){//lele,2014.12.11
            // else {
                 modname = vmi_read_str_va(vmi, next_module + 8, 0);
            // }
-            dbprint(VMI_DEBUG_TEST, "%s\n", modname);
+            ttprint(VMI_TEST_MISC, "%s\n", modname);
             free(modname);
        
         next_module = tmp_next;
@@ -145,13 +145,13 @@ status_t test_module_list(vmi_instance_t vmi, addr_t vaddr){//lele,2014.12.11
     xen_resume_vm(vmi);
 
 	sleep(1);
-	dbprint(VMI_DEBUG_TEST, "LELE: time stamp: %ds%dus\n",(int)tv_end.tv_sec,(int)tv_end.tv_usec);
+	ttprint(VMI_TEST_MISC, "LELE: time stamp: %ds%dus\n",(int)tv_end.tv_sec,(int)tv_end.tv_usec);
 
 	duration= (tv_end.tv_sec - tv_begin.tv_sec)*1000000 + (tv_end.tv_usec - tv_begin.tv_usec);
 
-	dbprint(VMI_DEBUG_TEST, "------LELE: list_module interval: %dus------\n",duration);
+	ttprint(VMI_TEST_MISC, "------LELE: list_module interval: %dus------\n",duration);
 	
-	dbprint(VMI_DEBUG_TEST, "\ndone test module_list...\n");
+	ttprint(VMI_TEST_MISC, "\ndone test module_list...\n");
    
 	return VMI_SUCCESS;
 

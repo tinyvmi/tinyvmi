@@ -34,7 +34,7 @@
 vmi_event_t interrupt_event;
 
 event_response_t int3_cb(vmi_instance_t vmi, vmi_event_t *event){
-    dbprint(VMI_DEBUG_TEST, "Int 3 happened: GFN=%"PRIx64" RIP=%"PRIx64" Length: %"PRIu32"\n",
+    ttprint(VMI_TEST_EVENTS, "Int 3 happened: GFN=%"PRIx64" RIP=%"PRIx64" Length: %"PRIu32"\n",
         event->interrupt_event.gfn, event->interrupt_event.gla,
         event->interrupt_event.insn_length);
 
@@ -89,11 +89,11 @@ int main (int argc, char **argv) {
     if (VMI_FAILURE ==
         vmi_init(&vmi, VMI_XEN, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL, NULL))
     {
-        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
+        ttprint(VMI_TEST_EVENTS, "Failed to init LibVMI library.\n");
         return 1;
     }
 
-    dbprint(VMI_DEBUG_TEST, "LibVMI init succeeded!\n");
+    ttprint(VMI_TEST_EVENTS, "LibVMI init succeeded!\n");
 
     /* Register event to track INT3 interrupts */
     memset(&interrupt_event, 0, sizeof(vmi_event_t));
@@ -104,11 +104,11 @@ int main (int argc, char **argv) {
 
     vmi_register_event(vmi, &interrupt_event);
 
-    dbprint(VMI_DEBUG_TEST, "Waiting for events...\n");
+    ttprint(VMI_TEST_EVENTS, "Waiting for events...\n");
     while(!interrupted){
         vmi_events_listen(vmi,500);
     }
-    dbprint(VMI_DEBUG_TEST, "Finished with test.\n");
+    ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
 
     // cleanup any memory associated with the libvmi instance
     vmi_destroy(vmi);

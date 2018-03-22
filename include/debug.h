@@ -56,4 +56,15 @@ typedef enum {
 /* uncomment this and recompile to enable debug output */
 #define VMI_DEBUG __VMI_DEBUG_ALL
 
+typedef enum {
+    VMI_TEST_MAIN     = (1 << 0),
+    VMI_TEST_MISC     = (1 << 1),
+    VMI_TEST_EVENTS     = (1 << 2),
+
+    __VMI_TEST_ALL    = ~(0ULL)
+} vmi_test_print_flag_t;
+
+/* uncomment this and recompile to enable debug output */
+#define VMI_TEST_PRINT __VMI_TEST_ALL
+
 #endif

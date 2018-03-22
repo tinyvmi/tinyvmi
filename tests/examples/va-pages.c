@@ -69,7 +69,7 @@ event_response_t cr3_callback(vmi_instance_t vmi, vmi_event_t *event) {
 
         uint64_t test;
         if(VMI_FAILURE == vmi_read_64(vmi, &ctx, &test)) {
-            dbprint(VMI_DEBUG_TEST, "Page in virtual address space of DTB 0x%"PRIx64" unaccessible: 0x%"PRIx64".\t"
+            ttprint(VMI_TEST_MISC, "Page in virtual address space of DTB 0x%"PRIx64" unaccessible: 0x%"PRIx64".\t"
                 "Size: 0x%"PRIx64"\n",
                 ctx.dtb, page->vaddr, (uint64_t)page->size);
         }
@@ -112,11 +112,11 @@ int main (int argc, char **argv)
         vmi_init_complete(&vmi, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
                           NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
     {
-        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
+        ttprint(VMI_TEST_MISC, "Failed to init LibVMI library.\n");
         return 1;
     }
 
-    dbprint(VMI_DEBUG_TEST, "LibVMI init succeeded!\n");
+    ttprint(VMI_TEST_MISC, "LibVMI init succeeded!\n");
 
     /* Configure an event to track when the process is running.
      * (The CR3 register is updated on task context switch, allowing
@@ -126,14 +126,14 @@ int main (int argc, char **argv)
     vmi_register_event(vmi, &cr3_event);
 
     while(!interrupted){
-        dbprint(VMI_DEBUG_TEST, "Waiting for events...\n");
+        ttprint(VMI_TEST_MISC, "Waiting for events...\n");
         status = vmi_events_listen(vmi,500);
         if (status != VMI_SUCCESS) {
-            dbprint(VMI_DEBUG_TEST, "Error waiting for events, quitting...\n");
+            ttprint(VMI_TEST_MISC, "Error waiting for events, quitting...\n");
             interrupted = -1;
         }
     }
-    dbprint(VMI_DEBUG_TEST, "Finished with test.\n");
+    ttprint(VMI_TEST_MISC, "Finished with test.\n");
 
     free_va_pages();
     // cleanup any memory associated with the libvmi instance

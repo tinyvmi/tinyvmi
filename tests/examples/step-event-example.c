@@ -46,7 +46,7 @@ static void close_handler(int sig){
 }
 
 void print_event(vmi_event_t *event){
-    dbprint(VMI_DEBUG_TEST, "\tPAGE ACCESS: %c%c%c for GFN %"PRIx64" (offset %06"PRIx64") gla %016"PRIx64" (vcpu %u)\n",
+    ttprint(VMI_TEST_EVENTS, "\tPAGE ACCESS: %c%c%c for GFN %"PRIx64" (offset %06"PRIx64") gla %016"PRIx64" (vcpu %u)\n",
         (event->mem_event.out_access & VMI_MEMACCESS_R) ? 'r' : '-',
         (event->mem_event.out_access & VMI_MEMACCESS_W) ? 'w' : '-',
         (event->mem_event.out_access & VMI_MEMACCESS_X) ? 'x' : '-',
@@ -58,7 +58,7 @@ void print_event(vmi_event_t *event){
 }
 
 event_response_t step_callback(vmi_instance_t vmi, vmi_event_t *event) {
-    dbprint(VMI_DEBUG_TEST, "Re-registering event\n");
+    ttprint(VMI_TEST_EVENTS, "Re-registering event\n");
     vmi_register_event(vmi, event);
     return 0;
 }
@@ -72,16 +72,16 @@ event_response_t mm_callback(vmi_instance_t vmi, vmi_event_t *event) {
     reg_t rip_test;
     vmi_get_vcpureg(vmi, &rip_test, RIP, 0);
 
-    dbprint(VMI_DEBUG_TEST, "Memevent: {\n\tPID %u. RIP 0x%lx:\n", current_pid, rip_test);
+    ttprint(VMI_TEST_EVENTS, "Memevent: {\n\tPID %u. RIP 0x%lx:\n", current_pid, rip_test);
 
     print_event(event);
 
     if( current_pid == pid && event->mem_event.gla == rip) {
-        dbprint(VMI_DEBUG_TEST, "\tCought the original RIP executing again!");
+        ttprint(VMI_TEST_EVENTS, "\tCought the original RIP executing again!");
         vmi_clear_event(vmi, event, NULL);
         interrupted = 1;
     } else {
-        dbprint(VMI_DEBUG_TEST, "\tEvent on same page, but not the same RIP");
+        ttprint(VMI_TEST_EVENTS, "\tEvent on same page, but not the same RIP");
         vmi_clear_event(vmi, event, NULL);
 
         /* These two calls are equivalent */
@@ -89,25 +89,25 @@ event_response_t mm_callback(vmi_instance_t vmi, vmi_event_t *event) {
         vmi_step_event(vmi, event, event->vcpu_id, 1, step_callback);
     }
 
-    dbprint(VMI_DEBUG_TEST, "\n}\n");
+    ttprint(VMI_TEST_EVENTS, "\n}\n");
     return 0;
 }
 
 event_response_t cr3_callback(vmi_instance_t vmi, vmi_event_t *event){
     vmi_pid_t current_pid = -1;
     vmi_dtb_to_pid(vmi, event->reg_event.value, &current_pid);
-    dbprint(VMI_DEBUG_TEST, "PID %i with CR3=%"PRIx64" executing on vcpu %u.\n", current_pid, event->reg_event.value, event->vcpu_id);
+    ttprint(VMI_TEST_EVENTS, "PID %i with CR3=%"PRIx64" executing on vcpu %u.\n", current_pid, event->reg_event.value, event->vcpu_id);
 
     if(current_pid == pid) {
         if(!mm_enabled) {
             mm_enabled = 1;
-            dbprint(VMI_DEBUG_TEST, " -- Enabling mem-event\n");
+            ttprint(VMI_TEST_EVENTS, " -- Enabling mem-event\n");
             vmi_register_event(vmi, &mm_event);
         }
     } else {
         if(mm_enabled) {
             mm_enabled = 0;
-            dbprint(VMI_DEBUG_TEST, " -- Disabling mem-event\n");
+            ttprint(VMI_TEST_EVENTS, " -- Disabling mem-event\n");
             vmi_clear_event(vmi, &mm_event, NULL);
         }
     }
@@ -147,11 +147,11 @@ int main (int argc, char **argv)
         vmi_init_complete(&vmi, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
                           NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
     {
-        dbprint(VMI_DEBUG_TEST, "Failed to init LibVMI library.\n");
+        ttprint(VMI_TEST_EVENTS, "Failed to init LibVMI library.\n");
         return 1;
     }
 
-    dbprint(VMI_DEBUG_TEST, "LibVMI init succeeded!\n");
+    ttprint(VMI_TEST_EVENTS, "LibVMI init succeeded!\n");
 
     vmi_pause_vm(vmi);
 
@@ -164,7 +164,7 @@ int main (int argc, char **argv)
     vmi_get_vcpureg(vmi, &rip, RIP, 0);
     vmi_get_vcpureg(vmi, &cr3, CR3, 0);
 
-    dbprint(VMI_DEBUG_TEST, "Current value of RIP is 0x%lx\n", rip);
+    ttprint(VMI_TEST_EVENTS, "Current value of RIP is 0x%lx\n", rip);
     rip -= 0x1;
 
     vmi_dtb_to_pid(vmi, cr3, &pid);
@@ -174,7 +174,7 @@ int main (int argc, char **argv)
         vmi_translate_kv2p(vmi, rip, &rip_pa);
     }
 
-    dbprint(VMI_DEBUG_TEST, "Preparing memory event to catch next RIP 0x%lx, PA 0x%lx, page 0x%lx for PID %u\n",
+    ttprint(VMI_TEST_EVENTS, "Preparing memory event to catch next RIP 0x%lx, PA 0x%lx, page 0x%lx for PID %u\n",
             rip, rip_pa, rip_pa >> 12, pid);
     SETUP_MEM_EVENT(&mm_event, rip_pa, VMI_MEMACCESS_X, mm_callback, 0);
 
@@ -183,11 +183,11 @@ int main (int argc, char **argv)
     while(!interrupted){
         status = vmi_events_listen(vmi,500);
         if (status != VMI_SUCCESS) {
-            dbprint(VMI_DEBUG_TEST, "Error waiting for events, quitting...\n");
+            ttprint(VMI_TEST_EVENTS, "Error waiting for events, quitting...\n");
             interrupted = -1;
         }
     }
-    dbprint(VMI_DEBUG_TEST, "Finished with test.\n");
+    ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
 
     // cleanup any memory associated with the libvmi instance
     vmi_destroy(vmi);
