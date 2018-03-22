@@ -30,14 +30,14 @@
 
 struct xs_handle *xs_open_wrapper(unsigned long flag)
 {
-    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
+    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
     
     return xs_daemon_open();
 }
 
 void xs_close_wrapper (struct xs_handle *xsh){
 
-    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
+    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
 
     return xs_daemon_close(xsh);
 }

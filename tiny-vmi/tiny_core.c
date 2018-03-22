@@ -591,6 +591,7 @@ status_t vmi_init(
     }
 
     /* setup the caches */
+    dbprint(VMI_DEBUG_TEST, "%s: ** TODO: implement pid, sym, rva caches\n", __FUNCTION__);
     // pid_cache_init(_vmi);
     // sym_cache_init(_vmi);
     // rva_cache_init(_vmi);
@@ -616,12 +617,12 @@ status_t vmi_init(
 #endif
     }
 
-    // if ( init_flags & VMI_INIT_EVENTS )
-    // {
-    //     status = events_init(_vmi);
-    //     if ( error && VMI_FAILURE == status )
-    //         *error = VMI_INIT_ERROR_EVENTS;
-    // }
+    if ( init_flags & VMI_INIT_EVENTS )
+    {
+        status = events_init(_vmi);
+        if ( error && VMI_FAILURE == status )
+            *error = VMI_INIT_ERROR_EVENTS;
+    }
 
 error_exit:
     if ( VMI_FAILURE == status ) {

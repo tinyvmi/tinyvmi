@@ -51,7 +51,7 @@ xen_get_memory_pfn(
     int prot)
 {
     
-    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
+    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
 
     xen_instance_t *xen = xen_get_instance(vmi);
     
@@ -94,7 +94,7 @@ xen_get_memory(
     uint32_t UNUSED(length))
 {
     //TODO assuming length == page size is safe for now, but isn't the most clean approach
-    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
+    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
 
     addr_t pfn = paddr >> vmi->page_shift;
 
@@ -362,7 +362,7 @@ xen_check_domainid(
     int rc;
     xen_instance_t *xen = NULL;
 
-    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
+    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
     if ( domainid > max_domid ) {
         dbprint(VMI_DEBUG_XEN,"Domain ID is invalid, larger then the max supported on Xen!\n");
         return ret;
@@ -459,7 +459,7 @@ xen_init(
     void *UNUSED(init_data))
 {
 
-    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
+    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
 
     if ( xen_get_instance(vmi) )
         return VMI_SUCCESS;
@@ -598,7 +598,7 @@ void
 xen_destroy(
     vmi_instance_t vmi)
 {
-    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
+    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
     xen_instance_t *xen = xen_get_instance(vmi);
 
     if(!xen) {
@@ -750,7 +750,7 @@ xen_get_vcpureg_hvm(
     unsigned long vcpu)
 {
     
-    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
+    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
     status_t ret = VMI_SUCCESS;
     struct hvm_hw_cpu* hvm_cpu = NULL;
     xen_instance_t *xen = xen_get_instance(vmi);

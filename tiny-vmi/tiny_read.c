@@ -585,7 +585,7 @@ tiny_test(
     struct vmi_instance _vmi = {0};
     vmi_instance_t vmi = &_vmi;
 
-    dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
+    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
   
     if (domainid == VMI_INVALID_DOMID && name == NULL) {
         errprint("VMI_ERROR: xen_test: domid or name must be specified\n");

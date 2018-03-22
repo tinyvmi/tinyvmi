@@ -217,6 +217,7 @@ static status_t register_msr_event(vmi_instance_t vmi, vmi_event_t *event)
 {
     status_t rc = VMI_FAILURE;
 
+    dbprint(VMI_DEBUG_TEST, "->-> now in %s\n", __FUNCTION__);
     if (NULL != g_hash_table_lookup(vmi->msr_events, &(event->reg_event.msr)))
     {
         dbprint(VMI_DEBUG_EVENTS, "An event is already registered on this MSR: %"PRIx32"\n",
@@ -232,6 +233,7 @@ static status_t register_msr_event(vmi_instance_t vmi, vmi_event_t *event)
         rc = VMI_SUCCESS;
     }
 
+    dbprint(VMI_DEBUG_TEST, "<-<- %s Done.\n", __FUNCTION__);
     return rc;
 }
 
@@ -240,9 +242,14 @@ status_t register_reg_event(vmi_instance_t vmi, vmi_event_t *event)
 
     status_t rc = VMI_FAILURE;
 
+    DBG_START;
+
     if ( MSR_UNDEFINED == event->reg_event.reg && event->reg_event.msr )
     {
-        return register_msr_event(vmi, event);
+        dbprint(VMI_DEBUG_TEST, "%s: MSR undefined\n", __FUNCTION__);
+        rc =  register_msr_event(vmi, event);
+        DBG_DONE;
+        return rc;
     }
 
     if (NULL != g_hash_table_lookup(vmi->reg_events, &(event->reg_event.reg)))
@@ -252,6 +259,9 @@ status_t register_reg_event(vmi_instance_t vmi, vmi_event_t *event)
     }
     else if (VMI_SUCCESS == driver_set_reg_access(vmi, &event->reg_event))
     {
+
+        dbprint(VMI_DEBUG_TEST, "%s: done driver set reg access\n", __FUNCTION__);
+
         gint *reg = g_malloc0(sizeof(gint));
         *reg = event->reg_event.reg;
 
@@ -259,6 +269,9 @@ status_t register_reg_event(vmi_instance_t vmi, vmi_event_t *event)
         dbprint(VMI_DEBUG_EVENTS, "Enabled register event on reg: %"PRIu64"\n", event->reg_event.reg);
         rc = VMI_SUCCESS;
     }
+
+
+    dbprint(VMI_DEBUG_TEST, "<-<- %s Done.\n", __FUNCTION__);
 
     return rc;
 }
@@ -858,6 +871,9 @@ status_t vmi_register_event(vmi_instance_t vmi, vmi_event_t* event)
         dbprint(VMI_DEBUG_EVENTS, "Unknown event type: %d\n", event->type);
         break;
     }
+
+
+    dbprint(VMI_DEBUG_TEST, "->-> %s Done.\n", __FUNCTION__);
 
     return rc;
 }

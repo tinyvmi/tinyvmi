@@ -169,7 +169,7 @@ driver_get_vcpureg(
     unsigned long vcpu)
 {
 
-    dbprint(VMI_DEBUG_DRIVER, "->-> now in %s\n", __FUNCTION__);
+    DBG_START; //dbprint(VMI_DEBUG_DRIVER, "->-> now in %s\n", __FUNCTION__);
     if (vmi->driver.initialized && vmi->driver.get_vcpureg_ptr) {
         return vmi->driver.get_vcpureg_ptr(vmi, value, reg, vcpu);
     }
@@ -392,6 +392,9 @@ driver_set_reg_access(
     vmi_instance_t vmi,
     reg_event_t *event)
 {
+
+    DBG_START; // dbprint(VMI_DEBUG_TEST, "->-> now in %s\n", __FUNCTION__);
+
     if (vmi->driver.initialized && vmi->driver.set_reg_access_ptr){
         return vmi->driver.set_reg_access_ptr(vmi, event);
     }

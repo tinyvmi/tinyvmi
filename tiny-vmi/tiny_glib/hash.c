@@ -4,6 +4,7 @@
 /* Functions defined here are mostly copied from glib/ghash.c of official glib repo
 at https://github.com/GNOME/glib, commit 7c1e2b7cef88c9b9685ab88e0b2b7c45e853fd8c ,on Mar 10, 2018*/
 
+#include "tiny_private.h" // for debugging purpose
 
 #include "hash.h"
 #include "hashtable.h"
@@ -260,6 +261,7 @@ g_int_equal (gconstpointer v1,
 guint
 g_int_hash (gconstpointer v)
 {
+  DBG_START;
   return *(const gint*) v;
 }
 
@@ -814,3 +816,28 @@ g_hash_table_iter_next (GHashTableIter *iter,
 }
 
 
+/**
+ * g_hash_table_lookup:
+ * @hash_table: a #GHashTable
+ * @key: the key to look up
+ *
+ * Looks up a key in a #GHashTable. Note that this function cannot
+ * distinguish between a key that is not present and one which is present
+ * and has the value %NULL. If you need this distinction, use
+ * g_hash_table_lookup_extended().
+ *
+ * Returns: (nullable): the associated value, or %NULL if the key is not found
+ */
+
+gpointer g_hash_table_lookup (GHashTable *hash_table, gconstpointer key){
+
+  gpointer ret;
+
+  DBG_START;
+
+  ret = hashtable_search(hash_table, key);
+
+  DBG_DONE;
+
+  return ret;
+}

@@ -5,6 +5,7 @@
  *  - tools/blktap2/drivers/hashtable.c
  */
 
+#include "tiny_private.h" // for debugging: DBG_START
 #include "hashtable.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -42,6 +43,8 @@ create_hashtable(unsigned int minsize,
     struct hashtable *h;
     unsigned int pindex, size = primes[0];
 
+    DBG_START;
+
     /* Check requested hashtable isn't too large */
     if (minsize > (1u << 30)) return NULL;
 
@@ -66,11 +69,14 @@ create_hashtable(unsigned int minsize,
     h->key_destroy_func   = key_destroy_f;
     h->value_destroy_func = value_destroy_f;
     h->loadlimit    = (unsigned int)(((uint64_t)size * max_load_factor) / 100);
+
+    DBG_DONE;
     return h;
 
 err1:
    free(h);
 err0:
+    DBG_DONE;
    return NULL;
 }
 
@@ -80,6 +86,11 @@ hash(struct hashtable *h, void *k)
 {
     /* Aim to protect against poor hash functions by adding logic here
      * - logic taken from java 1.4 hashtable source */
+    DBG_START;
+    if (h->hashfn == NULL){
+        errprint("%s: hash table has no hash function initialized\n");
+        return 0;
+    }
     unsigned int i = h->hashfn(k);
     i += ~(i << 9);
     i ^=  ((i >> 14) | (i << 18)); /* >>> */
@@ -284,15 +295,45 @@ hashtable_search(struct hashtable *h, void *k)
 {
     struct entry *e;
     unsigned int hashvalue, index;
+
+    DBG_START;
+
+    if (h == NULL){
+        errprint("%s: hash table is NULL. cannot do search\n", __FUNCTION__);
+        goto error_exit;
+    }
+
     hashvalue = hash(h,k);
+
+    dbprint(VMI_DEBUG_TEST, "%s: got hashvalue: 0x%x\n", __FUNCTION__, hashvalue);
+    if (hashvalue == 0){ // doubel check hash value, when hash() fails, it returns 0
+        errprint("%s: hashvalue invalid. cannot do search\n", __FUNCTION__);
+        goto error_exit;
+    }
     index = indexFor(h->size,hashvalue);
+
+    dbprint(VMI_DEBUG_TEST, "%s: got index: %d\n", __FUNCTION__, index);
+    
     e = h->table[index];
+
+    dbprint(VMI_DEBUG_TEST, "%s: got entry pointer: 0x%p\n", __FUNCTION__, e);
+    
     while (NULL != e)
     {
+
+        dbprint(VMI_DEBUG_TEST, "%s: check hash and value for entry: 0x%p\n", __FUNCTION__, e);
+    
         /* Check hash value to short circuit heavier comparison */
-        if ((hashvalue == e->h) && (h->eqfn(k, e->k))) return e->v;
+        if ((hashvalue == e->h) && (h->eqfn(k, e->k))) {
+
+            DBG_DONE;
+            return e->v;
+        }
         e = e->next;
     }
+error_exit:
+
+    DBG_DONE;
     return NULL;
 }
 

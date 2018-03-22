@@ -730,6 +730,9 @@ status_t xen_set_reg_access_48(vmi_instance_t vmi, reg_event_t *event)
 {
     bool enable;
     int rc;
+
+    DBG_START;
+
     xc_interface * xch = xen_get_xchandle(vmi);
     domid_t dom = xen_get_domainid(vmi);
     xen_events_t * xe = xen_get_events(vmi);
@@ -869,9 +872,11 @@ status_t xen_set_reg_access_48(vmi_instance_t vmi, reg_event_t *event)
             goto done;
     }
 
+    DBG_DONE;
     return VMI_SUCCESS;
 
 done:
+    DBG_DONE;
     return VMI_FAILURE;
 }
 
@@ -1275,7 +1280,7 @@ void xen_events_destroy_48(vmi_instance_t vmi)
     xen_events_t * xe = xen_get_events(vmi);
     domid_t dom = xen_get_domainid(vmi);
 
-    dbprint(VMI_DEBUG_TEST, "->-> now in %s\n", __FUNCTION__);
+    DBG_START; //dbprint(VMI_DEBUG_TEST, "->-> now in %s\n", __FUNCTION__);
 
     if ( !xen ) {
         errprint("%s error: invalid xen_instance_t handle\n", __FUNCTION__);

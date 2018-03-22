@@ -121,11 +121,11 @@ gboolean    g_hash_table_remove            (GHashTable     *hash_table,
 // GLIB_AVAILABLE_IN_ALL
 // void        g_hash_table_steal_all         (GHashTable     *hash_table);
 // GLIB_AVAILABLE_IN_ALL
-// gpointer    g_hash_table_lookup            (GHashTable     *hash_table,
-//                                             gconstpointer   key);
+gpointer    g_hash_table_lookup            (GHashTable     *hash_table,
+                                            gconstpointer   key);
 
-#define g_hash_table_lookup(hash_table, key) \
-hashtable_search(hash_table, key)
+// #define g_hash_table_lookup(hash_table, key) \
+// hashtable_search(hash_table, key)
 
 // GLIB_AVAILABLE_IN_ALL
 // gboolean    g_hash_table_contains          (GHashTable     *hash_table,
