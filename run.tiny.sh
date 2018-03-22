@@ -4,13 +4,16 @@ guestXLconfig="/home/smeller/extdisk/lab/vmi/vmidocker/xenGuests/u1432bhvm.cfg"
 
 tinyDir=$(dirname $0)
 
+waitTime="1"
+WAITBOOT="60"
+
 function hasGuestDom(){
 
  lists="$(xl list)"
 
  lines=$(echo "$(xl list)" | wc -l)
 
- echo "get $lines lines"
+ #echo "get $lines lines"
 
  if [ "$lines" -eq 2 ]
  then
@@ -36,6 +39,12 @@ function checkAndCreateGuest(){
  hasGuest="$?"
  #echo "hasGuest: $hasGuest"
 
+ if [ "$hasGuest" -ne 0 ]
+ then
+   echo "no need to create guest"
+   return 1
+ fi
+
  try=1
  maxtry=2
 
@@ -58,6 +67,9 @@ function checkAndCreateGuest(){
    return 0
  fi
 
+ # success to create guest, wait for 60 seconds allowing the guest to boot
+ waitTime=$WAITBOOT
+
  return 1
 
 }
@@ -76,6 +88,11 @@ fi
 cd $tinyDir
 cd ..
 
+options=""
+if [ ! -z $2 ]; then
+options="$2"
+fi
+
 if [ -z $1 ];then
 
 #make tinyvmi-stubdom
@@ -85,29 +102,33 @@ if [ -z $1 ];then
 #	exit $res
 #fi
 
+echo "wait for $waitTime seconds before start tinyVMI"
+sleep $waitTime
 cd mini-os-x86_64-tinyvmi
 xl create -c ../../extras/mini-os/domain_config
 cd -
 
 else
 
-make clean -C ../extras/mini-os
-make clean -C tinyvmi
+make clean -C ../extras/mini-os $options
+make clean -C tinyvmi $options
 
-make -C ../extras/mini-os
+make -C ../extras/mini-os $options
 res=$?
 if [ $res -ne 0 ]; then
 	echo "error run make, return $res"
 	exit $res
 fi
 
-make tinyvmi-stubdom
+make tinyvmi-stubdom $options
 res=$?
 if [ $res -ne 0 ]; then
 	echo "error run make, return $res"
 	exit $res
 fi
 
+echo "wait for $waitTime seconds before start tinyVMI"
+sleep $waitTime
 cd mini-os-x86_64-tinyvmi
 xl create -c ../../extras/mini-os/domain_config
 cd -
