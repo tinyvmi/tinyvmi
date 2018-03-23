@@ -42,6 +42,8 @@
 
 #define PAGE_SIZE 1 << 12
 
+#define TEST_TIME_LIMIT 100  // time in seconds
+
 reg_t cr3;
 vmi_event_t cr3_event;
 vmi_event_t msr_syscall_lm_event;
@@ -200,6 +202,9 @@ status_t example_event (char *name, vmi_pid_t pid )
 
     struct sigaction act;
 
+	struct timeval tv_begin,tv_end;
+    int duration;
+
     reg_t lstar = 0;
     addr_t phys_lstar = 0;
     reg_t cstar = 0;
@@ -211,21 +216,6 @@ status_t example_event (char *name, vmi_pid_t pid )
     addr_t phys_ia32_sysenter_target = 0;
     addr_t vsyscall = 0;
     addr_t phys_vsyscall = 0;
-
-    // char *name = NULL;
-    // vmi_pid_t pid = -1;
-
-    // if(argc < 2){
-    //     fprintf(stderr, "Usage: events_example <name of VM> <PID of process to track {optional}>\n");
-    //     exit(1);
-    // }
-
-    // // Arg 1 is the VM name.
-    // name = argv[1];
-
-    // // Arg 2 is the pid of the process to track.
-    // if(argc == 3)
-    //     pid = (int) strtoul(argv[2], NULL, 0);
 
     /* for a clean exit */
     act.sa_handler = close_handler;
@@ -354,6 +344,9 @@ status_t example_event (char *name, vmi_pid_t pid )
     kernel_vsyscall_event.type = VMI_EVENT_MEMORY;
     kernel_vsyscall_event.mem_event.gfn = phys_vsyscall >> 12;
 
+    /* second way of clean exit */
+    gettimeofday(&tv_begin,NULL);
+
     while(!interrupted){
         ttprint(VMI_TEST_EVENTS, "Waiting for events...\n");
         status = vmi_events_listen(vmi,500);
@@ -361,7 +354,14 @@ status_t example_event (char *name, vmi_pid_t pid )
             ttprint(VMI_TEST_EVENTS, "Error waiting for events, quitting...\n");
             interrupted = -1;
         }
+
+		gettimeofday(&tv_end,NULL);
+		duration= (tv_end.tv_sec - tv_begin.tv_sec);
+        if (duration > TEST_TIME_LIMIT){
+            break;
+        }
     }
+
     ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
 
     // cleanup any memory associated with the libvmi instance

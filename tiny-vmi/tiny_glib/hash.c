@@ -214,6 +214,8 @@ g_str_hash (gconstpointer v)
   // guint32 h = 5381;
   guint h = 5381;
 
+  DBG_START;
+
   for (p = v; *p != '\0'; p++)
     h = (h << 5) + h + *p;
 
@@ -304,6 +306,8 @@ g_int64_equal (gconstpointer v1,
 guint
 g_int64_hash (gconstpointer v)
 {
+
+  DBG_START;
   return (guint) *(const gint64*) v;
 }
 
@@ -325,6 +329,8 @@ g_memdup (gconstpointer mem,
 {
   gpointer new_mem;
 
+  DBG_START;
+
   if (mem && byte_size != 0)
     {
       new_mem = g_malloc (byte_size);
@@ -332,6 +338,8 @@ g_memdup (gconstpointer mem,
     }
   else
     new_mem = NULL;
+
+  DBG_DONE;
 
   return new_mem;
 }
@@ -455,8 +463,9 @@ g_hash_table_replace (GHashTable *hash_table,
  * Returns: %TRUE if the key was found and removed from the #GHashTable
  */
 gboolean  g_hash_table_remove(GHashTable *hash_table,gconstpointer   key){
-  hashtable_remove(hash_table, key);
-  return TRUE;
+  gpointer *value = hashtable_remove(hash_table, key);
+  // value would be null if not found.
+  return (value != NULL);
 }
 
 /**
