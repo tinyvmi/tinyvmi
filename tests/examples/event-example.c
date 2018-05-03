@@ -42,7 +42,7 @@
 
 #define PAGE_SIZE 1 << 12
 
-#define TEST_TIME_LIMIT 10000  // time in seconds
+#define TEST_TIME_LIMIT 105  // time in seconds
 
 reg_t cr3;
 vmi_event_t cr3_event;
@@ -204,7 +204,7 @@ status_t example_event (char *name, vmi_pid_t pid )
 
 	struct timeval tv_begin,tv_end;
     int duration;
-
+    
     reg_t lstar = 0;
     addr_t phys_lstar = 0;
     reg_t cstar = 0;
@@ -347,6 +347,9 @@ status_t example_event (char *name, vmi_pid_t pid )
     /* second way of clean exit */
     gettimeofday(&tv_begin,NULL);
 
+    int inter_duration = 0;
+    int last_duration_start = 0;
+    
     while(!interrupted){
         ttprint(VMI_TEST_EVENTS, "Waiting for events...\n");
         status = vmi_events_listen(vmi,500);
@@ -357,9 +360,14 @@ status_t example_event (char *name, vmi_pid_t pid )
 
 		gettimeofday(&tv_end,NULL);
 		duration= (tv_end.tv_sec - tv_begin.tv_sec);
+
+        inter_duration = duration - last_duration_start;
+        
         if (duration > TEST_TIME_LIMIT){
             break;
-        }else if (duration > 100){
+        }else if (duration > 100 && inter_duration > 100){
+            last_duration_start = duration;
+		    //gettimeofday(&tv_begin,NULL);
             ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
             ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
             ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
@@ -368,6 +376,7 @@ status_t example_event (char *name, vmi_pid_t pid )
             ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
             ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
             ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+            
         }
     }
 

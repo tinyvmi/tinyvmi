@@ -154,20 +154,27 @@ status_t tiny_list_free(tiny_list_t list){
 
     int next_index ;
 	tiny_list_node_t next;
-
-	list->head=-1;
 	
 	while(node_index != -1){
 
         next_index = node->next;
-		next =list->nodes[next_index];
+		next = list->nodes[next_index];
 
 		free(node->data);
 		free(node);
-		node = next;
-        node_index = next_index;
 
+        list->size --;
+        node_index = next_index;
+        node = next;
 	}
+    
+    list->head = -1;
+    list->tail = -1;
+
+    if(list->size != 0) {
+        errprint("ERROR, list size should be 0 after clean. in %s", __FUNCTION__);
+    }
+
 	return VMI_SUCCESS;
 }
 
@@ -462,7 +469,7 @@ clean_cache(
             
             mem_cache_entry_free(mem_c->cache_lines[i]->entry);
             
-            free(mem_c->cache_lines[i]->entry);
+            //free(mem_c->cache_lines[i]->entry);
             free(mem_c->cache_lines[i]);
             
         }
