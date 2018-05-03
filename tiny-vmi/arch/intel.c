@@ -55,7 +55,7 @@ status_t get_pdpi (vmi_instance_t instance,
     addr_t *pdpi_entry,
     uint64_t *pdpi_value)
 {
-    DBG_START; //dbprint(VMI_DEBUG_TEST, "->-> now in %s\n", __FUNCTION__);
+    // DBG_START; 
 
     *pdpi_entry = get_pdptb(dtb) + pdpi_index(vaddr);
     

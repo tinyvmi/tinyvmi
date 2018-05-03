@@ -885,6 +885,9 @@ status_t xen_set_mem_access_48(vmi_instance_t vmi, addr_t gpfn,
 {
     int rc;
     xenmem_access_t access;
+
+    DBG_START;
+    
     xen_instance_t *xen = xen_get_instance(vmi);
     xc_interface * xch = xen_get_xchandle(vmi);
     xen_events_t * xe = xen_get_events(vmi);

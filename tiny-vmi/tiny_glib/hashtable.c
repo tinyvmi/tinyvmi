@@ -86,18 +86,22 @@ hash(struct hashtable *h, void *k)
 {
     /* Aim to protect against poor hash functions by adding logic here
      * - logic taken from java 1.4 hashtable source */    
-    DBG_START;
+    // DBG_START;
     if (h->hashfn == NULL){
         errprint("%s: hash table has no hash function initialized\n");
         return 0;
     }
     unsigned int i = h->hashfn(k);
+    if (i == 0){
+        errprint("%s: hashfn returned 0 as hash\n");
+        return 0;
+    }
     i += ~(i << 9);
     i ^=  ((i >> 14) | (i << 18)); /* >>> */
     i +=  (i << 4);
     i ^=  ((i >> 10) | (i << 22)); /* >>> */
     
-    DBG_DONE;
+    // DBG_DONE;
     
     return i;
 }
@@ -328,23 +332,23 @@ hashtable_search(struct hashtable *h, void *k)
 
     hashvalue = hash(h,k);
 
-    dbprint(VMI_DEBUG_TEST, "%s: got hashvalue: 0x%x\n", __FUNCTION__, hashvalue);
+    // dbprint(VMI_DEBUG_TEST, "%s: got hashvalue: 0x%x\n", __FUNCTION__, hashvalue);
     if (hashvalue == 0){ // doubel check hash value, when hash() fails, it returns 0
         errprint("%s: hashvalue invalid. cannot do search\n", __FUNCTION__);
         goto error_exit;
     }
     index = indexFor(h->size,hashvalue);
 
-    dbprint(VMI_DEBUG_TEST, "%s: got index: %d\n", __FUNCTION__, index);
+    // dbprint(VMI_DEBUG_TEST, "%s: got index: %d\n", __FUNCTION__, index);
     
     e = h->table[index];
 
-    dbprint(VMI_DEBUG_TEST, "%s: got entry pointer: 0x%p\n", __FUNCTION__, e);
+    // dbprint(VMI_DEBUG_TEST, "%s: got entry pointer: 0x%p\n", __FUNCTION__, e);
     
     while (NULL != e)
     {
 
-        dbprint(VMI_DEBUG_TEST, "%s: check hash and value for entry: 0x%p\n", __FUNCTION__, e);
+        // dbprint(VMI_DEBUG_TEST, "%s: check hash and value for entry: 0x%p\n", __FUNCTION__, e);
     
         /* Check hash value to short circuit heavier comparison */
         if ((hashvalue == e->h) && (h->eqfn(k, e->k))) {

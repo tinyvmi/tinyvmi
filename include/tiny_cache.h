@@ -17,6 +17,8 @@
 #define MAX_V2P_CACHE 1280
 #define MAX_MEM_CACHE 1280
 
+#define INIT_SIZE_MEM_CACHE_LRU 512
+
 /* Custom 128-bit key functions */
 struct key_128 {
     uint64_t low;
@@ -192,21 +194,6 @@ status_t v2m_cache_del(vmi_instance_t vmi, addr_t va, pid_t pid);
 
 typedef int64_t *mem_key_t;
 
-struct tiny_list_node{
-	struct tiny_list_node *next;
-	mem_key_t data;
-};
-
-typedef struct tiny_list_node *tiny_list_node_t;
-
-
-struct tiny_list{
-	int size;
-	tiny_list_node_t head;
-	tiny_list_node_t tail;
-};
-typedef struct tiny_list *tiny_list_t;
-
 
 struct mem_cache_entry {
     addr_t paddr;
@@ -244,7 +231,34 @@ int mem_cache_size(mem_cache_t mem_cache);
 status_t mem_cache_insert(mem_cache_t mem_cache,mem_key_t key,mem_cache_entry_t entry);					  
 
 
+
 //list for most recent pages
+
+struct tiny_list_node{
+    // struct tiny_list_node *previous;
+	// struct tiny_list_node *next;
+    int next;
+    int previous;
+	mem_key_t data;
+};
+
+typedef struct tiny_list_node *tiny_list_node_t;
+
+
+struct tiny_list{  // TODO: implement as queue
+	int size;
+    int capacity;
+    tiny_list_node_t *nodes;
+	int head;   // index of head
+	int tail;   // index of tail
+	// tiny_list_node_t head;
+	// tiny_list_node_t tail;
+};
+
+typedef struct tiny_list *tiny_list_t;
+
+tiny_list_t create_new_list();
+
 tiny_list_node_t tiny_list_last(tiny_list_t mem_cache_lru);
 
 status_t tiny_list_foreach(tiny_list_t list,void * remove_entry,mem_cache_t mem_c);
@@ -253,9 +267,11 @@ status_t tiny_list_free(tiny_list_t list);
 
 tiny_list_node_t tiny_list_find_custom(tiny_list_t lru, mem_key_t paddr);
 
-tiny_list_t tiny_list_remove_link(tiny_list_t lru, tiny_list_node_t last);
+// static inline tiny_list_t tiny_list_remove_link(tiny_list_t lru, tiny_list_node_t last);
 
 tiny_list_t tiny_list_remove(tiny_list_t list,mem_key_t key);
+tiny_list_t tiny_list_remove_last(tiny_list_t list);
+
 tiny_list_t tiny_list_prepend(tiny_list_t list,mem_key_t key);
 
 // void memory_cache_init(vmi_instance_t vmi,unsigned long age_limit);

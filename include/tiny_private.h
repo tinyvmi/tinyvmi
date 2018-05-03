@@ -63,7 +63,7 @@
 
 //Lele: testing with constant values, all need replacement. 
 // default return value of xen_get_domainid_from_name
-#define DOMAIN_ID 1
+#define DOMAIN_ID 9
 // default enable hvm
 // #define HVM 1
 // default 32-bit guest system
@@ -300,15 +300,15 @@ struct vmi_instance {
 #if ENABLE_PAGE_CACHE == 1
     // GHashTable *memory_cache;  /**< hash table for memory cache */
 
-	mem_cache_t memory_cache;  /**LELE: <memory cache */
+	mem_cache_t memory_cache;  /**LELE changed: <memory cache */
 
-	tiny_list_t memory_cache_lru;  /**LELE: < list holding the most recently used pages */
+	tiny_list_t memory_cache_lru;  /**LELE changed: double linked list holding the most recently used pages */
 
     // GQueue *memory_cache_lru;  /**< queue holding the most recently used pages */
 
     uint32_t memory_cache_age; /**< max age of memory cache entry */
 
-    uint32_t memory_cache_size;/**LELE: < current size of memory cache */
+    //uint32_t memory_cache_size;/**LELE created: < current size of memory cache */
 
     uint32_t memory_cache_size_max;/**< max size of memory cache */
 #else
@@ -411,6 +411,7 @@ addr_t canonical_addr(addr_t va) {
 /*----------------------------------------------
  * convenience.c
  */
+#define DBG_LINE dbprint(VMI_DEBUG_TEST, "%s: %s:%d\n", __FUNCTION__, __FILE__, __LINE__)
 #define DBG_START  dbprint(VMI_DEBUG_TEST, "->-> now in %s\n", __FUNCTION__)
 #define DBG_DONE dbprint(VMI_DEBUG_TEST, "<-<- done %s\n", __FUNCTION__)
 

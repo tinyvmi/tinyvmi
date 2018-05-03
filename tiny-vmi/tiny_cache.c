@@ -38,13 +38,13 @@ key_128_t key_128_build (vmi_instance_t vmi, uint64_t low, uint64_t high)
 // Virtual address --> Physical address cache implementation
 static int get_key_index(v2p_cache_t v2p_c, key_128_t key){
 	int i,found=0;
-	//printf("---searching the key:<va,dtb>=<0x%lx,0x%lx>, in %s\n",key->low,key->high,__FUNCTION__);
+	//dbprint(VMI_DEBUG_V2PCACHE, "---searching the key:<va,dtb>=<0x%lx,0x%lx>, in %s\n",key->low,key->high,__FUNCTION__);
 	if(v2p_c->count<=0){
-	//printf("---nothing in v2p cache, in %s\n",__FUNCTION__);
+	//dbprint(VMI_DEBUG_V2PCACHE, "---nothing in v2p cache, in %s\n",__FUNCTION__);
 		return -1;
 	}
 	for(i=0;i<v2p_c->count;i++){
-	//printf("---searching the key:%d<va,dtb>=<0x%lx,0x%lx>, in %s\n",i,v2p_c->cache_lines[i]->key->low,v2p_c->cache_lines[i]->key->high,__FUNCTION__);
+	//dbprint(VMI_DEBUG_V2PCACHE, "---searching the key:%d<va,dtb>=<0x%lx,0x%lx>, in %s\n",i,v2p_c->cache_lines[i]->key->low,v2p_c->cache_lines[i]->key->high,__FUNCTION__);
 		if(key_128_equals(v2p_c->cache_lines[i]->key,key)){
 			found=1;
 			return i;
@@ -66,7 +66,7 @@ status_t tiny_cache_insert(v2p_cache_t v2p_c, key_128_t key,v2p_cache_entry_t en
             entry->pa, key->high, key->low,__FUNCTION__);
 		return VMI_SUCCESS;
 	}else{
-		printf("ERROR: v2p cache out of bound(%d). in %s\n",v2p_c->count,__FUNCTION__);
+		errprint("ERROR: v2p cache out of bound(%d). in %s\n",v2p_c->count,__FUNCTION__);
 		return VMI_FAILURE;
 	}
 }
@@ -113,7 +113,7 @@ void tiny_cache_destroy(v2p_cache_t v2p_c){
 
 v2p_cache_entry_t tiny_cache_lookup(v2p_cache_t v2p_c,key_128_t key){
 	int key_i;
-	//printf("---searching the key:<va,dtb>=<0x%lx,0x%lx>in %s\n",key->low,key->high,__FUNCTION__);
+	//dbprint(VMI_DEBUG_V2PCACHE, "---searching the key:<va,dtb>=<0x%lx,0x%lx>in %s\n",key->low,key->high,__FUNCTION__);
 	key_i=get_key_index(v2p_c,key);
 	if(key_i<0) return NULL;
 	return v2p_c->cache_lines[key_i]->entry;
@@ -122,7 +122,7 @@ v2p_cache_entry_t tiny_cache_lookup(v2p_cache_t v2p_c,key_128_t key){
 void v2p_cache_init(
     vmi_instance_t vmi)
 {
-	//printf("%s:size of v2p_cache array:%d",__FUNCTION__,MAX_V2P_CACHE*sizeof(v2p_cache_line_t));
+	//dbprint(VMI_DEBUG_V2PCACHE, "%s:size of v2p_cache array:%d",__FUNCTION__,MAX_V2P_CACHE*sizeof(v2p_cache_line_t));
 	
 	v2p_cache_t v2p_cache=(v2p_cache_t)malloc(sizeof(struct v2p_cache_array));
 	
@@ -154,15 +154,15 @@ status_t v2p_cache_get(
     struct key_128 local_key;
     key_128_t key = &local_key;
 
-	//printf("---now init the key:<va,dtb>=<0x%lx,0x%lx>in %s\n",(uint64_t)va, (uint64_t)dtb,__FUNCTION__);
+	//dbprint(VMI_DEBUG_V2PCACHE, "---now init the key:<va,dtb>=<0x%lx,0x%lx>in %s\n",(uint64_t)va, (uint64_t)dtb,__FUNCTION__);
     key_128_init(vmi, key, (uint64_t)va, (uint64_t)dtb);
 
-	//printf("---now look up the key:<va,dtb>=<0x%lx,0x%lx>in %s\n",(uint64_t)va, (uint64_t)dtb,__FUNCTION__);
+	//dbprint(VMI_DEBUG_V2PCACHE, "---now look up the key:<va,dtb>=<0x%lx,0x%lx>in %s\n",(uint64_t)va, (uint64_t)dtb,__FUNCTION__);
     if ((entry = tiny_cache_lookup(vmi->v2p_cache, key)) != NULL) {
 
         entry->last_used = time(NULL);
         *pa = entry->pa | ((vmi->page_size - 1) & va);
-        printf("--V2P cache hit 0x%.16"PRIx64" -- 0x%.16"PRIx64" (0x%.16"PRIx64"/0x%.16"PRIx64"),in %s\n",
+        dbprint(VMI_DEBUG_V2PCACHE, "--V2P cache hit 0x%.16"PRIx64" -- 0x%.16"PRIx64" (0x%.16"PRIx64"/0x%.16"PRIx64"),in %s\n",
                 va, *pa, key->high, key->low,__FUNCTION__);
         return VMI_SUCCESS;
     }
@@ -232,7 +232,7 @@ v2p_cache_flush(
     //          g_hash_table_remove_all(v);
     // }
     tiny_cache_remove_all(vmi->v2p_cache);
-    // printf("--V2P cache flushed,in %s\n",__FUNCTION__);
+    // dbprint(VMI_DEBUG_V2PCACHE, "--V2P cache flushed,in %s\n",__FUNCTION__);
     dbprint(VMI_DEBUG_V2PCACHE, "--V2P cache flushed\n");
 	
 }

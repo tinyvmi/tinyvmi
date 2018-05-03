@@ -96,12 +96,12 @@ hashtable_destroy(hash_table, HASH_TABLE_FREE_VALUES)
 
 
 // GLIB_AVAILABLE_IN_ALL
-// gboolean    g_hash_table_insert            (GHashTable     *hash_table,
-//                                             gpointer        key,
-//                                             gpointer        value);
+gboolean    g_hash_table_insert            (GHashTable     *hash_table,
+                                            gpointer        key,
+                                            gpointer        value);
 
-#define g_hash_table_insert(hash_table, key, value) \
-hashtable_insert(hash_table, key, value)
+// #define g_hash_table_insert(hash_table, key, value) \
+// hashtable_insert(hash_table, key, value)
 
 // GLIB_AVAILABLE_IN_ALL
 gboolean    g_hash_table_replace           (GHashTable     *hash_table,

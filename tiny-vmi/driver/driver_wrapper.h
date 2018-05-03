@@ -426,6 +426,7 @@ driver_set_mem_access(
     vmi_mem_access_t page_access_flag,
     uint16_t vmm_pagetable_id)
 {
+    DBG_START;
     if (vmi->driver.initialized && vmi->driver.set_mem_access_ptr){
         return vmi->driver.set_mem_access_ptr(vmi, gpfn, page_access_flag, vmm_pagetable_id);
     }

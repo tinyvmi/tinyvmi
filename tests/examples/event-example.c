@@ -42,7 +42,7 @@
 
 #define PAGE_SIZE 1 << 12
 
-#define TEST_TIME_LIMIT 100  // time in seconds
+#define TEST_TIME_LIMIT 10000  // time in seconds
 
 reg_t cr3;
 vmi_event_t cr3_event;
@@ -359,6 +359,15 @@ status_t example_event (char *name, vmi_pid_t pid )
 		duration= (tv_end.tv_sec - tv_begin.tv_sec);
         if (duration > TEST_TIME_LIMIT){
             break;
+        }else if (duration > 100){
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+            ttprint(VMI_TEST_EVENTS, "\n another 100s passed ...\n");
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
         }
     }
 

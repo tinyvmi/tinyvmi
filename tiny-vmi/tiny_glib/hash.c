@@ -286,7 +286,11 @@ gboolean
 g_int64_equal (gconstpointer v1,
                gconstpointer v2)
 {
-  return *((const gint64*) v1) == *((const gint64*) v2);
+  guint keyHash1 = ((guint) v1) < 2 ? 2 : (guint) v1;
+  guint keyHash2 = ((guint) v2) < 2 ? 2 : (guint) v2;
+
+  // return *((const gint64*) v1) == *((const gint64*) v2);
+  return keyHash1 == keyHash2;
 }
 
 /**
@@ -308,7 +312,29 @@ g_int64_hash (gconstpointer v)
 {
 
   DBG_START;
-  return (guint) *(const gint64*) v;
+  guint keyHash;
+
+  if (v == NULL){
+    errprint("%s: key is null\n", __FUNCTION__);
+    return NULL;
+  }
+
+  dbprint(VMI_DEBUG_TEST, "%s: key pointer: %p(%p)\n", __FUNCTION__, v, (const gint64 *)v);
+
+  // keyHash = (guint) *(const gint64*) v;
+  keyHash = (guint) v;
+
+  if (keyHash < 2){
+    keyHash = 2;
+  }
+
+
+  dbprint(VMI_DEBUG_TEST, "%s: key hash value is:\n", __FUNCTION__);
+
+  dbprint(VMI_DEBUG_TEST, "\t%u\n", keyHash);
+
+  // return (guint) *(const gint64*) v;
+  return keyHash;
 }
 
 
@@ -344,7 +370,6 @@ g_memdup (gconstpointer mem,
   return new_mem;
 }
 
-
 /*
  * g_hash_table_insert_internal:
  * @hash_table: our #GHashTable
@@ -374,6 +399,8 @@ g_hash_table_insert_internal (GHashTable *hash_table,
 
   gboolean already_exists = FALSE;
 
+  DBG_START;
+
   struct entry * e = hashtable_search_entry(hash_table, key);
 
   if (NULL != e){
@@ -397,16 +424,18 @@ g_hash_table_insert_internal (GHashTable *hash_table,
       free(oldvalue);
 
     }else{
-      // free new key and do not change table
+      // free new key and old value
+      // update old key with new value
 
       if (hash_table->key_destroy_func){
         hash_table->key_destroy_func(key);
       }
       if (hash_table->value_destroy_func){
-        hash_table->value_destroy_func(value);
+        hash_table->value_destroy_func(e->v);
       }
       free(key);
-      free(value);
+      free(e->v);
+      e->v = value;
     }
 
   }else{
@@ -414,8 +443,40 @@ g_hash_table_insert_internal (GHashTable *hash_table,
     hashtable_insert(hash_table, key, value);
   }
 
+  DBG_DONE;
+  
   return !already_exists;
 
+}
+
+
+/**
+ * g_hash_table_insert:
+ * @hash_table: a #GHashTable
+ * @key: a key to insert
+ * @value: the value to associate with the key
+ *
+ * Inserts a new key and value into a #GHashTable.
+ *
+ * If the key already exists in the #GHashTable its current
+ * value is replaced with the new value. If you supplied a
+ * @value_destroy_func when creating the #GHashTable, the old
+ * value is freed using that function. If you supplied a
+ * @key_destroy_func when creating the #GHashTable, the passed
+ * key is freed using that function.
+ *
+ * Starting from GLib 2.40, this function returns a boolean value to
+ * indicate whether the newly added value was already in the hash table
+ * or not.
+ *
+ * Returns: %TRUE if the key did not exist yet
+ */
+gboolean g_hash_table_insert (GHashTable *hash_table, gpointer key, gpointer        value){
+  
+  DBG_START;
+  gboolean ret = g_hash_table_insert_internal (hash_table, key, value, FALSE);
+  DBG_DONE;
+  return ret;
 }
 
 
@@ -842,11 +903,11 @@ gpointer g_hash_table_lookup (GHashTable *hash_table, gconstpointer key){
 
   gpointer ret;
 
-  DBG_START;
+  // DBG_START;
 
   ret = hashtable_search(hash_table, key);
 
-  DBG_DONE;
+  // DBG_DONE;
 
   return ret;
 }

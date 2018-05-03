@@ -343,6 +343,7 @@ event_response_t step_and_reg_events(vmi_instance_t vmi, vmi_event_t *singlestep
 
 static status_t register_mem_event_generic(vmi_instance_t vmi, vmi_event_t *event)
 {
+    DBG_START;
     if ( event->mem_event.gfn != ~0ULL )
     {
         dbprint(VMI_DEBUG_EVENTS, "GFN must be ~0 for generic mem event types.\n");
@@ -365,11 +366,13 @@ static status_t register_mem_event_generic(vmi_instance_t vmi, vmi_event_t *even
     *access = event->mem_event.in_access;
 
     g_hash_table_insert(vmi->mem_events_generic, access, event);
+    DBG_DONE;
     return VMI_SUCCESS;
 }
 
 static status_t register_mem_event_on_gfn(vmi_instance_t vmi, vmi_event_t *event)
 {
+    DBG_START;
     if ( event->mem_event.gfn > (vmi->max_physical_address >> vmi->page_shift) )
     {
         errprint("Invalid GFN for setting memory event: 0x%lx, beyond max physical address\n",
@@ -403,15 +406,19 @@ static status_t register_mem_event_on_gfn(vmi_instance_t vmi, vmi_event_t *event
                                              event->mem_event.in_access,
                                              event->slat_id))
     {
-        g_hash_table_insert(vmi->mem_events_on_gfn, g_memdup(&event->mem_event.gfn, sizeof(addr_t)), event);
+        addr_t *new_mem = g_memdup(&event->mem_event.gfn, sizeof(addr_t));
+
+        dbprint(VMI_DEBUG_TEST, "%s: now insert key: %p(0x%lx), value: %p (event pointer). \n", __FUNCTION__,new_mem, *(gint64 *)new_mem, event );
+        g_hash_table_insert(vmi->mem_events_on_gfn, new_mem , event);
         return VMI_SUCCESS;
     }
-
+    DBG_DONE;
     return VMI_FAILURE;
 }
 
 status_t register_mem_event(vmi_instance_t vmi, vmi_event_t *event)
 {
+    DBG_START;
     if ( event->mem_event.generic )
         return register_mem_event_generic(vmi, event);
     else
@@ -801,7 +808,7 @@ status_t vmi_register_event(vmi_instance_t vmi, vmi_event_t* event)
 {
     status_t rc = VMI_FAILURE;
 
-    dbprint(VMI_DEBUG_TEST, "->-> now in %s\n", __FUNCTION__);
+    DBG_START;
 
     if (!(vmi->init_flags & VMI_INIT_EVENTS))
     {
@@ -873,7 +880,7 @@ status_t vmi_register_event(vmi_instance_t vmi, vmi_event_t* event)
     }
 
 
-    dbprint(VMI_DEBUG_TEST, "->-> %s Done.\n", __FUNCTION__);
+    DBG_DONE;
 
     return rc;
 }

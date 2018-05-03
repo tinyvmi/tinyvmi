@@ -691,7 +691,7 @@ os_t vmi_init_os(
     vmi->os_type = VMI_OS_UNKNOWN;
     GHashTable *_config = NULL;
 
-    dbprint(VMI_DEBUG_CORE, "->-> now in %s\n", __FUNCTION__ );
+    DBG_START;
     
     switch(config_mode) {
         case VMI_CONFIG_STRING:
@@ -778,6 +778,7 @@ os_t vmi_init_os(
     };
 
 error_exit:
+    // DBG_DONE;
     return vmi->os_type;
 }
 
@@ -799,7 +800,7 @@ vmi_init_complete(
     if ( VMI_FAILURE == vmi_get_access_mode(_vmi, domain, init_flags, init_data, &mode) )
     {
         
-        dbprint(VMI_DEBUG_CORE, "%s: failed\n", __FUNCTION__ );
+        dbprint(VMI_DEBUG_TEST, "%s: failed\n", __FUNCTION__ );
         if ( error )
             *error = VMI_INIT_ERROR_DRIVER_NOT_DETECTED;
 
@@ -809,7 +810,7 @@ vmi_init_complete(
     if ( VMI_FAILURE == vmi_init(&_vmi, mode, domain, init_flags, init_data, error) )
         return VMI_FAILURE;
     else{
-        dbprint(VMI_DEBUG_CORE, "%s: vmi_init success\n", __FUNCTION__);
+        dbprint(VMI_DEBUG_TEST, "%s: vmi_init success\n", __FUNCTION__);
     }
 
     /*
@@ -824,17 +825,17 @@ vmi_init_complete(
 
         return VMI_FAILURE;
     }else{
-        dbprint(VMI_DEBUG_CORE, "%s: vmi_init_paging success\n", __FUNCTION__);
+        dbprint(VMI_DEBUG_TEST, "%s: vmi_init_paging success\n", __FUNCTION__);
     }
 
-    // dbprint(VMI_DEBUG_CORE, "** TODO: vmi_init_os need port\n", __FUNCTION__);
+    // dbprint(VMI_DEBUG_TEST, "** TODO: vmi_init_os need port\n", __FUNCTION__);
     if ( VMI_OS_UNKNOWN == vmi_init_os(_vmi, config_mode, config, error) ){
 
-        dbprint(VMI_DEBUG_CORE, "%s: vmi_init_os failed\n", __FUNCTION__);
+        dbprint(VMI_DEBUG_TEST, "%s: vmi_init_os failed\n", __FUNCTION__);
         return VMI_FAILURE;
     }
     else{
-        dbprint(VMI_DEBUG_CORE, "%s: vmi_init_os success\n", __FUNCTION__);
+        dbprint(VMI_DEBUG_TEST, "%s: vmi_init_os success\n", __FUNCTION__);
     }
     *vmi = _vmi;
 

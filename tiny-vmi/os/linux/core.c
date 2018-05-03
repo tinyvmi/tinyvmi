@@ -315,7 +315,7 @@ return VMI_FAILURE;
     status_t rc;
     os_interface_t os_interface = NULL;
 
-    dbprint(VMI_DEBUG_CORE, "->-> now in %s\n ", __FUNCTION__);
+    DBG_START;
     
     
     if (!config) {
@@ -389,6 +389,8 @@ return VMI_FAILURE;
     os_interface->os_teardown = linux_teardown;
 
     vmi->os_interface = os_interface;
+
+    DBG_DONE;
 
     return VMI_SUCCESS;
 

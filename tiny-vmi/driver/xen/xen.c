@@ -51,14 +51,23 @@ xen_get_memory_pfn(
     int prot)
 {
     
-    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
+    DBG_START; 
 
     xen_instance_t *xen = xen_get_instance(vmi);
     
     dbprint(VMI_DEBUG_XEN, "%s: done get xen instance\n", __FUNCTION__);
 
     if (!xen->xchandle){
+        
+        dbprint(VMI_DEBUG_XEN, "%s: xen xc handle is NULL, now open it\n", __FUNCTION__);
         xen->xchandle = xen->libxcw.xc_interface_open(NULL,NULL,0 );
+    }
+    
+    dbprint(VMI_DEBUG_XEN, "%s: now call xc_map_foreign_range\n", __FUNCTION__);
+
+    if (!xen->libxcw.xc_map_foreign_range){
+        errprint("xen xc_map_foreign_range is NULL\n");
+        return NULL;
     }
     void *memory = xen->libxcw.xc_map_foreign_range(xen->xchandle,
                                                     xen->domainid,
@@ -83,7 +92,7 @@ xen_get_memory_pfn(
     memcpy(buf, memory, XC_PAGE_SIZE);
 #endif // VMI_DEBUG
 
-    dbprint(VMI_DEBUG_XEN, "%s: done\n\n", __FUNCTION__);
+    DBG_DONE;
     return memory;
 }
 
@@ -94,11 +103,13 @@ xen_get_memory(
     uint32_t UNUSED(length))
 {
     //TODO assuming length == page size is safe for now, but isn't the most clean approach
-    DBG_START; //dbprint(VMI_DEBUG_XEN, "->-> now in %s\n", __FUNCTION__);
+    DBG_START; 
 
     addr_t pfn = paddr >> vmi->page_shift;
-
-    return xen_get_memory_pfn(vmi, pfn, PROT_READ);
+    void * ret = xen_get_memory_pfn(vmi, pfn, PROT_READ);
+    
+    DBG_DONE;
+    return ret;
 }
 
 void
