@@ -95,42 +95,60 @@ fi
 
 if [ -z $1 ];then
 
-#make tinyvmi-stubdom
-#res=$?
-#if [ $res -ne 0 ]; then
-#	echo "error run make, return $res"
-#	exit $res
-#fi
+  #make tinyvmi-stubdom
+  #res=$?
+  #if [ $res -ne 0 ]; then
+  #	echo "error run make, return $res"
+  #	exit $res
+  #fi
 
-echo "wait for $waitTime seconds before start tinyVMI"
-sleep $waitTime
-cd mini-os-x86_64-tinyvmi
-xl create -c ../../extras/mini-os/domain_config
-cd -
+  echo "wait for $waitTime seconds before start tinyVMI"
+  sleep $waitTime
+  cd mini-os-x86_64-tinyvmi
+  xl create -c ../../extras/mini-os/domain_config
+  cd -
+
+fi
+
+if [ "$1" == "make" ];then
+ 
+  make tinyvmi-stubdom $options
+  res=$?
+  if [ $res -ne 0 ]; then
+    echo "error run make, return $res"
+    exit $res
+  fi
+
+  echo "wait for $waitTime seconds before start tinyVMI"
+  sleep $waitTime
+  cd mini-os-x86_64-tinyvmi
+  xl create -c ../../extras/mini-os/domain_config
+  cd -
 
 else
+ 
+  exit 1
+  make clean -C ../extras/mini-os $options
+  make clean -C tinyvmi $options
 
-make clean -C ../extras/mini-os $options
-make clean -C tinyvmi $options
+  make -C ../extras/mini-os $options
+  res=$?
+  if [ $res -ne 0 ]; then
+    echo "error run make, return $res"
+    exit $res
+  fi
 
-make -C ../extras/mini-os $options
-res=$?
-if [ $res -ne 0 ]; then
-	echo "error run make, return $res"
-	exit $res
-fi
+  make tinyvmi-stubdom $options
+  res=$?
+  if [ $res -ne 0 ]; then
+    echo "error run make, return $res"
+    exit $res
+  fi
 
-make tinyvmi-stubdom $options
-res=$?
-if [ $res -ne 0 ]; then
-	echo "error run make, return $res"
-	exit $res
-fi
-
-echo "wait for $waitTime seconds before start tinyVMI"
-sleep $waitTime
-cd mini-os-x86_64-tinyvmi
-xl create -c ../../extras/mini-os/domain_config
-cd -
+  echo "wait for $waitTime seconds before start tinyVMI"
+  sleep $waitTime
+  cd mini-os-x86_64-tinyvmi
+  xl create -c ../../extras/mini-os/domain_config
+  cd -
 
 fi

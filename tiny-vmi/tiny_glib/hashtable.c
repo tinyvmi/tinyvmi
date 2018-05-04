@@ -92,10 +92,10 @@ hash(struct hashtable *h, void *k)
         return 0;
     }
     unsigned int i = h->hashfn(k);
-    if (i == 0){
-        errprint("%s: hashfn returned 0 as hash\n");
-        return 0;
-    }
+    // if (i == 0){
+    //     errprint("%s: hashfn returned 0 as hash\n");
+    //     return 0;
+    // }
     i += ~(i << 9);
     i ^=  ((i >> 14) | (i << 18)); /* >>> */
     i +=  (i << 4);
