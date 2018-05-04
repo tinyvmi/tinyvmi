@@ -127,7 +127,7 @@ if [ "$1" == "make" ];then
 
 else
  
-  exit 1
+  # exit 1
   make clean -C ../extras/mini-os $options
   make clean -C tinyvmi $options
 

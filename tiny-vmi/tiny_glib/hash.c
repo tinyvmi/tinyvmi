@@ -426,12 +426,14 @@ g_hash_table_insert_internal (GHashTable *hash_table,
 
       if (hash_table->key_destroy_func){
         hash_table->key_destroy_func(oldkey);
+      }else{
+        free(oldkey);
       }
       if (hash_table->value_destroy_func){
         hash_table->value_destroy_func(oldvalue);
+      }else{
+        free(oldvalue);
       }
-      free(oldkey);
-      free(oldvalue);
 
     }else{
       // free new key and old value
@@ -439,12 +441,16 @@ g_hash_table_insert_internal (GHashTable *hash_table,
 
       if (hash_table->key_destroy_func){
         hash_table->key_destroy_func(key);
+      }else{
+        free(key);
       }
       if (hash_table->value_destroy_func){
         hash_table->value_destroy_func(e->v);
+      }else{
+        free(e->v);
       }
-      free(key);
-      free(e->v);
+      // free(key);
+      // free(e->v);
       e->v = value;
     }
 
