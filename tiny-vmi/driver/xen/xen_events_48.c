@@ -328,6 +328,7 @@ status_t process_register(vmi_instance_t vmi,
     event->x86_regs = (x86_registers_t *)&req->data.regs.x86;
 
     vmi->event_callback = 1;
+    dbprint(VMI_DEBUG_EVENTS, "%s: now call process_response (callback func)\n", __FUNCTION__);
     process_response ( event->callback(vmi, event), event, rsp );
     vmi->event_callback = 0;
 

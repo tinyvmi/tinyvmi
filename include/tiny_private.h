@@ -48,6 +48,7 @@
 // #include "cache.h"
 #include "tiny_libvmi.h"
 #include "tiny_cache.h"
+#include "driver/tiny_memory_cache.h"
 
 #include <events.h>
 // #include "shm.h"
@@ -63,7 +64,7 @@
 
 //Lele: testing with constant values, all need replacement. 
 // default return value of xen_get_domainid_from_name
-#define DOMAIN_ID 1
+#define DOMAIN_ID 16
 // default enable hvm
 // #define HVM 1
 // default 32-bit guest system
@@ -298,9 +299,9 @@ struct vmi_instance {
 #endif
 
 #if ENABLE_PAGE_CACHE == 1
-    // GHashTable *memory_cache;  /**< hash table for memory cache */
+    GHashTable *memory_cache;  /**< hash table for memory cache */
 
-	mem_cache_t memory_cache;  /**LELE changed: <memory cache */
+	// mem_cache_t memory_cache;  /**LELE changed: <memory cache */
 
 	tiny_list_t memory_cache_lru;  /**LELE changed: double linked list holding the most recently used pages */
 

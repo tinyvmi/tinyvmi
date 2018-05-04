@@ -42,7 +42,7 @@
 
 #define PAGE_SIZE 1 << 12
 
-#define TEST_TIME_LIMIT 105  // time in seconds
+#define TEST_TIME_LIMIT 1005  // time in seconds
 
 reg_t cr3;
 vmi_event_t cr3_event;

@@ -311,7 +311,7 @@ guint
 g_int64_hash (gconstpointer v)
 {
 
-  DBG_START;
+  // DBG_START;
   guint keyHash;
 
   if (v == NULL){
@@ -319,7 +319,7 @@ g_int64_hash (gconstpointer v)
     return NULL;
   }
 
-  dbprint(VMI_DEBUG_TEST, "%s: key pointer: %p(%p)\n", __FUNCTION__, v, (const gint64 *)v);
+  // dbprint(VMI_DEBUG_TEST, "%s: key pointer: %p(%p)\n", __FUNCTION__, v, (const gint64 *)v);
 
   // keyHash = (guint) *(const gint64*) v;
   keyHash = (guint) v;
@@ -329,9 +329,9 @@ g_int64_hash (gconstpointer v)
   }
 
 
-  dbprint(VMI_DEBUG_TEST, "%s: key hash value is:\n", __FUNCTION__);
+  // dbprint(VMI_DEBUG_TEST, "%s: key hash value is:\n", __FUNCTION__);
 
-  dbprint(VMI_DEBUG_TEST, "\t%u\n", keyHash);
+  // dbprint(VMI_DEBUG_TEST, "\t%u\n", keyHash);
 
   // return (guint) *(const gint64*) v;
   return keyHash;

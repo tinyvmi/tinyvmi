@@ -22,7 +22,10 @@ OB_tests += $(OB_test_map_addr) $(OB_test_module_list) $(OB_test_event)
 
 OBJS += $(OB_tests)
 
-OBJS += ./tiny-vmi/tiny_cache.o ./tiny-vmi/mem_cache.o
+# OBJS += ./tiny-vmi/tiny_cache.o ./tiny-vmi/mem_cache.o
+OBJS += ./tiny-vmi/tiny_cache.o 
+OBJS += ./tiny-vmi/driver/tiny_memory_cache.o
+OBJS += ./tiny-vmi/driver/tiny_memory_cache_list.o
 
 OBJS += ./tiny-vmi/accessors.o  
 

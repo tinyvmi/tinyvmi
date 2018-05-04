@@ -353,6 +353,7 @@ hashtable_search(struct hashtable *h, void *k)
         /* Check hash value to short circuit heavier comparison */
         if ((hashvalue == e->h) && (h->eqfn(k, e->k))) {
 
+            dbprint(VMI_DEBUG_TEST, "key found\n");
             DBG_DONE;
             return e->v;
         }
@@ -360,6 +361,7 @@ hashtable_search(struct hashtable *h, void *k)
     }
 error_exit:
 
+    dbprint(VMI_DEBUG_TEST, "key not found\n");
     DBG_DONE;
     return NULL;
 }

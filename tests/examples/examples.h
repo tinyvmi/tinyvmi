@@ -19,4 +19,6 @@ status_t example_module_list( char *name);
 
 status_t example_event (char *name, vmi_pid_t pid );
 
+status_t monitor_event (char *name, vmi_pid_t pid );
+
 #endif
