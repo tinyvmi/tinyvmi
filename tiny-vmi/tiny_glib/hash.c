@@ -264,7 +264,16 @@ guint
 g_int_hash (gconstpointer v)
 {
   DBG_START;
-  return *(const gint*) v;
+
+  //cite: https://stackoverflow.com/questions/664014/what-integer-hash-function-are-good-that-accepts-an-integer-hash-key
+  gint x = *(const gint*)v;
+
+  x = ((x >> 16) ^ x) * 0x45d9f3b;
+  x = ((x >> 16) ^ x) * 0x45d9f3b;
+  x = (x >> 16) ^ x;
+  return x;
+
+  // return *(const gint*) v;
 }
 
 /**
@@ -286,11 +295,11 @@ gboolean
 g_int64_equal (gconstpointer v1,
                gconstpointer v2)
 {
-  guint keyHash1 = ((guint) v1) < 2 ? 2 : (guint) v1;
-  guint keyHash2 = ((guint) v2) < 2 ? 2 : (guint) v2;
+  // guint keyHash1 = ((guint) v1) < 2 ? 2 : (guint) v1;
+  // guint keyHash2 = ((guint) v2) < 2 ? 2 : (guint) v2;
 
-  // return *((const gint64*) v1) == *((const gint64*) v2);
-  return keyHash1 == keyHash2;
+  return *((const gint64*) v1) == *((const gint64*) v2);
+  // return keyHash1 == keyHash2;
 }
 
 /**
@@ -321,20 +330,21 @@ g_int64_hash (gconstpointer v)
 
   // dbprint(VMI_DEBUG_TEST, "%s: key pointer: %p(%p)\n", __FUNCTION__, v, (const gint64 *)v);
 
-  // keyHash = (guint) *(const gint64*) v;
-  keyHash = (guint) v;
+  // cite: https://stackoverflow.com/questions/664014/what-integer-hash-function-are-good-that-accepts-an-integer-hash-key
+  gint64 x =  (guint) *(const gint64*) v;
 
-  if (keyHash < 2){
-    keyHash = 2;
-  }
+    x = (x ^ (x >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
+    x = (x ^ (x >> 27)) * UINT64_C(0x94d049bb133111eb);
+    x = x ^ (x >> 31);
 
+  keyHash = (uint64) x;
 
   // dbprint(VMI_DEBUG_TEST, "%s: key hash value is:\n", __FUNCTION__);
 
   // dbprint(VMI_DEBUG_TEST, "\t%u\n", keyHash);
 
   // return (guint) *(const gint64*) v;
-  return keyHash;
+  return (guint) keyHash;
 }
 
 
