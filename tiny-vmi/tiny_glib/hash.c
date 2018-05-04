@@ -337,7 +337,7 @@ g_int64_hash (gconstpointer v)
     x = (x ^ (x >> 27)) * UINT64_C(0x94d049bb133111eb);
     x = x ^ (x >> 31);
 
-  keyHash = (uint64) x;
+  keyHash = (guint) x;
 
   // dbprint(VMI_DEBUG_TEST, "%s: key hash value is:\n", __FUNCTION__);
 
