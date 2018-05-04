@@ -126,6 +126,7 @@
 #define LT_OBJDIR ".libs/"
 
 /* Max number of pages held in page cache */
+// #define MAX_PAGE_CACHE_SIZE 512
 #define MAX_PAGE_CACHE_SIZE 512
 
 /* Name of package */

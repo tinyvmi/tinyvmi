@@ -93,7 +93,10 @@ if [ ! -z $2 ]; then
 options="$2"
 fi
 
-if [ -z $1 ];then
+justMake="make"
+mode=$1
+
+if [ -z $mode ];then
 
   #make tinyvmi-stubdom
   #res=$?
@@ -108,9 +111,7 @@ if [ -z $1 ];then
   xl create -c ../../extras/mini-os/domain_config
   cd -
 
-fi
-
-if [ "$1" == "make" ];then
+elif [ "$mode" == "$justMake" ];then
  
   make tinyvmi-stubdom $options
   res=$?
@@ -119,11 +120,11 @@ if [ "$1" == "make" ];then
     exit $res
   fi
 
-  echo "wait for $waitTime seconds before start tinyVMI"
-  sleep $waitTime
-  cd mini-os-x86_64-tinyvmi
-  xl create -c ../../extras/mini-os/domain_config
-  cd -
+  # echo "wait for $waitTime seconds before start tinyVMI"
+  # sleep $waitTime
+  # cd mini-os-x86_64-tinyvmi
+  # xl create -c ../../extras/mini-os/domain_config
+  # cd -
 
 else
  

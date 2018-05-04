@@ -408,7 +408,8 @@ static status_t register_mem_event_on_gfn(vmi_instance_t vmi, vmi_event_t *event
     {
         addr_t *new_mem = g_memdup(&event->mem_event.gfn, sizeof(addr_t));
 
-        dbprint(VMI_DEBUG_TEST, "%s: now insert key: %p(0x%lx), value: %p (event pointer). \n", __FUNCTION__,new_mem, *(gint64 *)new_mem, event );
+        dbprint(VMI_DEBUG_TEST, "%s: now insert key: %p(0x%lx), value: %p (event pointer). \n", 
+            __FUNCTION__,new_mem, *(gint64 *)new_mem, event );
         g_hash_table_insert(vmi->mem_events_on_gfn, new_mem , event);
         return VMI_SUCCESS;
     }

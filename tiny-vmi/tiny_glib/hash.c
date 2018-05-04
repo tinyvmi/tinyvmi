@@ -404,8 +404,8 @@ g_hash_table_insert_internal (GHashTable *hash_table,
                               gpointer    value,
                               gboolean    keep_new_key)
 {
-  guint key_hash;
-  guint node_index;
+  // guint key_hash;
+  // guint node_index;
 
   gboolean already_exists = FALSE;
 
@@ -417,6 +417,9 @@ g_hash_table_insert_internal (GHashTable *hash_table,
     // found same key exists.
     already_exists = TRUE;
 
+    dbprint(VMI_DEBUG_TEST, "key already exists, key %p, keey new key: %d\n", key, keep_new_key);
+
+
     if (keep_new_key){
       // free old key and insert new key
       gpointer oldkey = e->k;
@@ -426,29 +429,37 @@ g_hash_table_insert_internal (GHashTable *hash_table,
 
       if (hash_table->key_destroy_func){
         hash_table->key_destroy_func(oldkey);
-      }else{
-        free(oldkey);
       }
+      // else{
+      //   free(oldkey);
+      // }
       if (hash_table->value_destroy_func){
         hash_table->value_destroy_func(oldvalue);
-      }else{
-        free(oldvalue);
       }
+      // else{
+      //   free(oldvalue);
+      // }
 
     }else{
       // free new key and old value
       // update old key with new value
 
       if (hash_table->key_destroy_func){
+        dbprint(VMI_DEBUG_TEST, "\tnow call k destroy func\n");
         hash_table->key_destroy_func(key);
-      }else{
-        free(key);
       }
+      // else{
+      //   dbprint(VMI_DEBUG_TEST, "\tnow free key manually\n");
+      //   free(key);
+      // }
       if (hash_table->value_destroy_func){
+        dbprint(VMI_DEBUG_TEST, "\tnow call v destroy func\n");
         hash_table->value_destroy_func(e->v);
-      }else{
-        free(e->v);
       }
+      // else{
+      //   dbprint(VMI_DEBUG_TEST, "\tnow free value manually\n");
+      //   // free(e->v);
+      // }
       // free(key);
       // free(e->v);
       e->v = value;
@@ -487,9 +498,10 @@ g_hash_table_insert_internal (GHashTable *hash_table,
  *
  * Returns: %TRUE if the key did not exist yet
  */
-gboolean g_hash_table_insert (GHashTable *hash_table, gpointer key, gpointer        value){
+gboolean g_hash_table_insert (GHashTable *hash_table, gpointer key, gpointer value){
   
   DBG_START;
+  dbprint(VMI_DEBUG_TEST, "%s: key:%p value: %p\n", __FUNCTION__, key, value);
   gboolean ret = g_hash_table_insert_internal (hash_table, key, value, FALSE);
   DBG_DONE;
   return ret;
