@@ -79,7 +79,8 @@ int main(void) {
 	// result=example_module_list(name);
 	sleep(2);
 	//result=event_example(name, 0);
-	result=interrupt_event_example(name);
+	// result=interrupt_event_example(name);
+	result = map_symbol(name, "startup_32"); //"xen_entry"
 	sleep(1);
 
 _bail: 

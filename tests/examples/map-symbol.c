@@ -26,34 +26,44 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <sys/mman.h>
 #include <stdio.h>
 
 #include <tiny_libvmi.h>
 
-#define PAGE_SIZE 1 << 12
+#include "examples.h"
 
-int
-main(
-    int argc,
-    char **argv)
+#ifndef PAGE_SIZE 
+#define PAGE_SIZE 1 << 12
+#endif
+
+// int
+// main(
+//     int argc,
+//     char **argv)
+status_t map_symbol(char *name, char *symbol)
 {
-    if ( argc != 3 )
-        return 1;
+    // if ( argc != 3 )
+    //     return 1;
+    status_t rc = VMI_FAILURE;
 
     vmi_instance_t vmi;
     unsigned char *memory = malloc(PAGE_SIZE);
 
-    /* this is the VM or file that we are looking at */
-    char *name = argv[1];
+    // /* this is the VM or file that we are looking at */
+    // char *name = argv[1];
 
-    /* this is the symbol to map */
-    char *symbol = argv[2];
+    // /* this is the symbol to map */
+    // char *symbol = argv[2];
 
     /* initialize the libvmi library */
     if (VMI_FAILURE ==
+        // vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
+        //                   VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
-                          VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
+                          VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
+
     {
         ttprint(VMI_TEST_MISC, "Failed to init LibVMI library.\n");
         goto error_exit;
@@ -64,7 +74,11 @@ main(
         ttprint(VMI_TEST_MISC, "failed to get symbol's memory.\n");
         goto error_exit;
     }
+    ttprint(VMI_TEST_MISC, "map_symbol: %s, page dump:\n", symbol);
     vmi_print_hex(memory, PAGE_SIZE);
+    printf("\n");
+    
+    rc = VMI_SUCCESS;
 
 error_exit:
     if (memory)
@@ -73,5 +87,6 @@ error_exit:
     /* cleanup any memory associated with the libvmi instance */
     vmi_destroy(vmi);
 
-    return 0;
+    // return 0;
+    return rc;
 }

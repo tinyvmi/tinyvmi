@@ -135,7 +135,7 @@ status_t interrupt_event_example (char *vm_name) {
 		gettimeofday(&tv_end,NULL);
 		duration= (tv_end.tv_sec - tv_begin.tv_sec);
         if (duration > TEST_TIME_LIMIT){
-            ttprint(VMI_TEST_EVENTS, "Waiting for events... timeout (%d)\n", TEST_TIME_LIMIT);
+            ttprint(VMI_TEST_EVENTS, "Waiting for events... timeout (%d seconds)\n", TEST_TIME_LIMIT);
             break;
         }
     }

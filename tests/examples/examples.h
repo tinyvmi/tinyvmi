@@ -22,9 +22,9 @@ status_t example_module_list( char *name);
 
 status_t event_example (char *name, vmi_pid_t pid );
 
-
 status_t interrupt_event_example (char *vm_name);
 
+status_t map_symbol(char *name, char *symbol);
 
 status_t monitor_event (char *name, vmi_pid_t pid );
 
