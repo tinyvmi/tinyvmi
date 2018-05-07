@@ -94,6 +94,7 @@ options="$2"
 fi
 
 justMake="make"
+makeRun="makerun"
 mode=$1
 
 if [ -z $mode ];then
@@ -126,8 +127,23 @@ elif [ "$mode" == "$justMake" ];then
   # xl create -c ../../extras/mini-os/domain_config
   # cd -
 
+elif [ "$mode" == "$makeRun" ];then
+
+  make tinyvmi-stubdom $options
+  res=$?
+  if [ $res -ne 0 ]; then
+    echo "error run make, return $res"
+    exit $res
+  fi
+
+  echo "wait for $waitTime seconds before start tinyVMI"
+  sleep $waitTime
+  cd mini-os-x86_64-tinyvmi
+  xl create -c ../../extras/mini-os/domain_config
+  cd -
+
 else
- 
+
   # exit 1
   make clean -C ../extras/mini-os $options
   make clean -C tinyvmi $options

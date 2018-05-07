@@ -11,7 +11,7 @@ int main(void) {
 
     /* The following values need to be set before run this:
     * domain_name , the virtual machine name in string
-	* vaddr, the virtual address to be tested, used by example_map_addr
+	* vaddr, the virtual address to be tested, used by example map_addr
     */
     
 	char * name = "u1432hvm";
@@ -73,14 +73,15 @@ int main(void) {
 	//ttprint(VMI_TEST_MAIN,  "--LELE: now test_v2p_pae with vaddress 0x%.16"PRIx64"\n",vaddr);
     //sleep(2/100);
 	// result=test_map_addr(vmi,vaddr);
-	// result=example_map_addr(name,vaddr);
 	
-	// sleep(2);
-	// result=example_module_list(name);
 	sleep(2);
-	//result=event_example(name, 0);
+
+	// result = map_addr(name,vaddr);
+	result=module_list(name);
+
+	// result=event_example(name, 0);
 	// result=interrupt_event_example(name);
-	result = map_symbol(name, "startup_32"); //"xen_entry"
+	// result = map_symbol(name, "startup_32"); //"xen_entry"
 	sleep(1);
 
 _bail: 

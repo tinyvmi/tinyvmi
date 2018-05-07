@@ -39,7 +39,7 @@
 * char *name, this is the VM or file that we are looking at 
 * addr_t addr this is the address to map *
 */
-status_t example_map_addr(char *name, addr_t addr)
+status_t map_addr(char *name, addr_t addr)
 {
     
     status_t ret = VMI_FAILURE;

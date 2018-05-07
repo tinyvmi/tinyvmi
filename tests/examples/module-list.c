@@ -33,7 +33,7 @@
 #include "examples.h"
 
 /* char *name:  this is the VM or file that we are looking at */
-status_t example_module_list( char *name)
+status_t module_list( char *name)
 {
     vmi_instance_t vmi;
     addr_t next_module, list_head;

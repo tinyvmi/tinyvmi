@@ -12,12 +12,12 @@
 * char *name, this is the VM or file that we are looking at 
 * addr_t addr this is the address to map *
 */
-status_t example_map_addr(char *name, addr_t addr);
+status_t map_addr(char *name, addr_t addr);
 
 
 
 /* char *name:  this is the VM or file that we are looking at */
-status_t example_module_list( char *name);
+status_t module_list( char *name);
 
 
 status_t event_example (char *name, vmi_pid_t pid );
