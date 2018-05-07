@@ -42,8 +42,6 @@
 
 #define PAGE_SIZE 1 << 12
 
-#define TEST_TIME_LIMIT 105  // time in seconds
-
 reg_t cr3;
 vmi_event_t cr3_event;
 vmi_event_t msr_syscall_lm_event;
@@ -198,7 +196,7 @@ static void close_handler(int sig){
 
 // int main (int argc, char **argv)
 // {
-status_t example_event (char *name, vmi_pid_t pid )
+status_t event_example (char *name, vmi_pid_t pid )
 {
     vmi_instance_t vmi = NULL;
     status_t status = VMI_SUCCESS;
@@ -352,9 +350,12 @@ status_t example_event (char *name, vmi_pid_t pid )
 
     int inter_duration = 0;
     int last_duration_start = 0;
-    
+    int count = 0;
     while(!interrupted){
-        ttprint(VMI_TEST_EVENTS, "Waiting for events...\n");
+
+        ttprint(VMI_TEST_EVENTS, "Waiting for events...(500ms) %d\n", count);
+        count ++;
+
         status = vmi_events_listen(vmi,500);
         if (status != VMI_SUCCESS) {
             ttprint(VMI_TEST_EVENTS, "Error waiting for events, quitting...\n");

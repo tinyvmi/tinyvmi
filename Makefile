@@ -18,6 +18,9 @@ SRC_CODE += ./tests/examples/map-addr.c
 OB_test_event += ./tests/examples/event-example.o
 SRC_CODE += ./tests/examples/event-example.c
 
+OB_test_event += ./tests/examples/interrupt-event-example.o
+SRC_CODE += ./tests/examples/interrupt-event-example.c
+
 OB_tests += $(OB_test_map_addr) $(OB_test_module_list) $(OB_test_event)
 
 OBJS += $(OB_tests)

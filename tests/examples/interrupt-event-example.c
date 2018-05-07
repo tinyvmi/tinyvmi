@@ -29,7 +29,9 @@
 #include <signal.h>
 
 #include <tiny_libvmi.h>
-#include <libvmi/events.h>
+#include <events.h>
+
+#include "examples.h"
 
 vmi_event_t interrupt_event;
 
@@ -64,7 +66,16 @@ static void close_handler(int sig){
     interrupted = sig;
 }
 
-int main (int argc, char **argv) {
+status_t interrupt_event_example (char *vm_name) {
+
+    int inter_duration = 0;
+    int last_duration_start = 0;
+    int count = 0;
+
+    status_t status = VMI_SUCCESS;
+	struct timeval tv_begin,tv_end;
+    int duration;
+
     vmi_instance_t vmi;
     struct sigaction act;
     act.sa_handler = close_handler;
@@ -77,13 +88,14 @@ int main (int argc, char **argv) {
 
     char *name = NULL;
 
-    if(argc < 2){
-        fprintf(stderr, "Usage: interrupt_events_example <name of VM>\n");
-        exit(1);
-    }
+    // if(argc < 2){
+    //     fprintf(stderr, "Usage: interrupt_events_example <name of VM>\n");
+    //     exit(1);
+    // }
 
     // Arg 1 is the VM name.
-    name = argv[1];
+    // name = argv[1];
+    name = vm_name;
 
     // Initialize the libvmi library.
     if (VMI_FAILURE ==
@@ -105,13 +117,33 @@ int main (int argc, char **argv) {
     vmi_register_event(vmi, &interrupt_event);
 
     ttprint(VMI_TEST_EVENTS, "Waiting for events...\n");
+
+    /* second way of clean exit */
+    gettimeofday(&tv_begin,NULL);
+
     while(!interrupted){
+
+        count ++;
+
         vmi_events_listen(vmi,500);
+
+        if (status != VMI_SUCCESS) {
+            ttprint(VMI_TEST_EVENTS, "Error waiting for events, quitting...\n");
+            interrupted = -1;
+        }
+
+		gettimeofday(&tv_end,NULL);
+		duration= (tv_end.tv_sec - tv_begin.tv_sec);
+        if (duration > TEST_TIME_LIMIT){
+            ttprint(VMI_TEST_EVENTS, "Waiting for events... timeout (%d)\n", TEST_TIME_LIMIT);
+            break;
+        }
     }
+
     ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
 
     // cleanup any memory associated with the libvmi instance
     vmi_destroy(vmi);
 
-    return 0;
+    return VMI_SUCCESS;
 }

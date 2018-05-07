@@ -78,7 +78,8 @@ int main(void) {
 	// sleep(2);
 	// result=example_module_list(name);
 	sleep(2);
-	result=example_event(name, 0);
+	//result=event_example(name, 0);
+	result=interrupt_event_example(name);
 	sleep(1);
 
 _bail: 
