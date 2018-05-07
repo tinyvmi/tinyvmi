@@ -263,7 +263,7 @@ g_int_equal (gconstpointer v1,
 guint
 g_int_hash (gconstpointer v)
 {
-  DBG_START;
+  // DBG_START;
 
   //cite: https://stackoverflow.com/questions/664014/what-integer-hash-function-are-good-that-accepts-an-integer-hash-key
   gint x = *(const gint*)v;
@@ -365,7 +365,7 @@ g_memdup (gconstpointer mem,
 {
   gpointer new_mem;
 
-  DBG_START;
+  // DBG_START;
 
   if (mem && byte_size != 0)
     {
@@ -375,7 +375,7 @@ g_memdup (gconstpointer mem,
   else
     new_mem = NULL;
 
-  DBG_DONE;
+  // DBG_DONE;
 
   return new_mem;
 }
@@ -409,7 +409,7 @@ g_hash_table_insert_internal (GHashTable *hash_table,
 
   gboolean already_exists = FALSE;
 
-  DBG_START;
+  // DBG_START;
 
   struct entry * e = hashtable_search_entry(hash_table, key);
 
@@ -417,7 +417,7 @@ g_hash_table_insert_internal (GHashTable *hash_table,
     // found same key exists.
     already_exists = TRUE;
 
-    dbprint(VMI_DEBUG_TEST, "key already exists, key %p, keey new key: %d\n", key, keep_new_key);
+    dbprint(VMI_DEBUG_TEST, "key already exists, key %p, keep new key: %d\n", key, keep_new_key);
 
 
     if (keep_new_key){
@@ -470,7 +470,7 @@ g_hash_table_insert_internal (GHashTable *hash_table,
     hashtable_insert(hash_table, key, value);
   }
 
-  DBG_DONE;
+  // DBG_DONE;
   
   return !already_exists;
 
@@ -500,10 +500,10 @@ g_hash_table_insert_internal (GHashTable *hash_table,
  */
 gboolean g_hash_table_insert (GHashTable *hash_table, gpointer key, gpointer value){
   
-  DBG_START;
-  dbprint(VMI_DEBUG_TEST, "%s: key:%p value: %p\n", __FUNCTION__, key, value);
+  // DBG_START;
+  // dbprint(VMI_DEBUG_TEST, "%s: key:%p value: %p\n", __FUNCTION__, key, value);
   gboolean ret = g_hash_table_insert_internal (hash_table, key, value, FALSE);
-  DBG_DONE;
+  // DBG_DONE;
   return ret;
 }
 
@@ -552,8 +552,10 @@ g_hash_table_replace (GHashTable *hash_table,
  * Returns: %TRUE if the key was found and removed from the #GHashTable
  */
 gboolean  g_hash_table_remove(GHashTable *hash_table,gconstpointer   key){
+  DBG_START;
   gpointer *value = hashtable_remove(hash_table, key);
   // value would be null if not found.
+  DBG_DONE;
   return (value != NULL);
 }
 

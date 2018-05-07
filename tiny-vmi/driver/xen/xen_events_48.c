@@ -887,12 +887,17 @@ status_t xen_set_mem_access_48(vmi_instance_t vmi, addr_t gpfn,
     int rc;
     xenmem_access_t access;
 
-    DBG_START;
+    // DBG_START;
     
     xen_instance_t *xen = xen_get_instance(vmi);
+    // dbprint(VMI_DEBUG_TEST, "done get instance\n");
     xc_interface * xch = xen_get_xchandle(vmi);
+    // dbprint(VMI_DEBUG_TEST, "done get xchandle\n");
     xen_events_t * xe = xen_get_events(vmi);
+    // dbprint(VMI_DEBUG_TEST, "done get events\n");
     domid_t dom = xen_get_domainid(vmi);
+
+    // dbprint(VMI_DEBUG_TEST, "done get domainid\n");
 
     if ( !xch ) {
         errprint("%s error: invalid xc_interface handle\n", __FUNCTION__);
@@ -909,15 +914,26 @@ status_t xen_set_mem_access_48(vmi_instance_t vmi, addr_t gpfn,
     if ( VMI_FAILURE == convert_vmi_flags_to_xenmem(page_access_flag, &access) )
         return VMI_FAILURE;
 
-    if ( !altp2m_idx )
+    // dbprint(VMI_DEBUG_TEST, "done convert vmi flags\n");
+
+    if ( !altp2m_idx ){
+
+        // dbprint(VMI_DEBUG_TEST, "%s:%d: now call xc_set_mem_access\n", __FUNCTION__, __LINE__);
+        
+        // dbprint(VMI_DEBUG_TEST, "%s:%d: xch %p, dom: %d, access: %d, gpfn: %p\n", 
+        //     __FUNCTION__, __LINE__, xch, dom, access, gpfn);
+        
         rc = xen->libxcw.xc_set_mem_access(xch, dom, access, gpfn, 1); // 1 page at a time
-    else
+    }else{
+        // dbprint(VMI_DEBUG_TEST, "now call xc_altp2m_set_mem_access\n");
         rc = xen->libxcw.xc_altp2m_set_mem_access(xch, dom, altp2m_idx, gpfn, access);
+    }
 
     if(rc) {
         errprint("xc_hvm_set_mem_access failed with code: %d\n", rc);
         return VMI_FAILURE;
     }
+
     dbprint(VMI_DEBUG_XEN, "--Done Setting memaccess on GPFN: %"PRIu64"\n", gpfn);
     return VMI_SUCCESS;
 }

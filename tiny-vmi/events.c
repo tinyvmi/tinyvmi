@@ -593,6 +593,7 @@ status_t clear_reg_event(vmi_instance_t vmi, vmi_event_t *event)
 
 status_t clear_mem_event(vmi_instance_t vmi, vmi_event_t *event)
 {
+    DBG_START;
     /* For generic events we just have to remove the handler */
     if ( event->mem_event.generic )
     {
@@ -610,8 +611,11 @@ status_t clear_mem_event(vmi_instance_t vmi, vmi_event_t *event)
             event->mem_event.gfn, event->slat_id,
             (rc == VMI_FAILURE) ? "failed" : "success");
 
-    if ( !vmi->shutting_down && rc == VMI_SUCCESS )
+    if ( !vmi->shutting_down && rc == VMI_SUCCESS ){
         g_hash_table_remove(vmi->mem_events_on_gfn, &event->mem_event.gfn);
+    }
+
+    DBG_DONE;
 
     return rc;
 
@@ -891,8 +895,11 @@ status_t vmi_clear_event(vmi_instance_t vmi, vmi_event_t* event,
 {
     status_t rc = VMI_FAILURE;
 
+    DBG_START;
+
     if (!(vmi->init_flags & VMI_INIT_EVENTS))
     {
+        DBG_DONE;
         return VMI_FAILURE;
     }
 
@@ -910,6 +917,7 @@ status_t vmi_clear_event(vmi_instance_t vmi, vmi_event_t* event,
          * vmi_clear_event will cause issues for the new event. */
         if (g_slist_find_custom(vmi->swap_events, &event, swap_search_from)) {
             dbprint(VMI_DEBUG_EVENTS, "Event was already queued for swapping.\n");
+            DBG_DONE;
             return VMI_FAILURE;
         }
 
@@ -917,12 +925,14 @@ status_t vmi_clear_event(vmi_instance_t vmi, vmi_event_t* event,
             g_hash_table_insert(vmi->clear_events,
                                 g_memdup(&event, sizeof(void*)),
                                 free_routine);
+            DBG_DONE;
             return VMI_SUCCESS;
         }
 
         /* Event was already requested to be cleared and we haven't
          * got around to actually do it yet. */
         dbprint(VMI_DEBUG_EVENTS, "Event was already queued for clearing.\n");
+        DBG_DONE;
         return VMI_FAILURE;
     }
 
@@ -956,6 +966,8 @@ status_t vmi_clear_event(vmi_instance_t vmi, vmi_event_t* event,
 
     if ( free_routine )
         free_routine(event, rc);
+
+    DBG_DONE;
 
     return rc;
 }

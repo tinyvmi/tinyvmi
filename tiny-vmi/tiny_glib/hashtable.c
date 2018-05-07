@@ -323,7 +323,7 @@ hashtable_search(struct hashtable *h, void *k)
     struct entry *e;
     unsigned int hashvalue, index;
 
-    DBG_START;
+    // DBG_START;
 
     if (h == NULL){
         errprint("%s: hash table is NULL. cannot do search\n", __FUNCTION__);
@@ -333,10 +333,11 @@ hashtable_search(struct hashtable *h, void *k)
     hashvalue = hash(h,k);
 
     // dbprint(VMI_DEBUG_TEST, "%s: got hashvalue: 0x%x\n", __FUNCTION__, hashvalue);
-    if (hashvalue == 0){ // doubel check hash value, when hash() fails, it returns 0
-        errprint("%s: hashvalue invalid. cannot do search\n", __FUNCTION__);
-        goto error_exit;
-    }
+    // if (hashvalue == 0){ // doubel check hash value, when hash() fails, it returns 0
+    //     errprint("%s: hashvalue invalid. cannot do search\n", __FUNCTION__);
+    //     goto error_exit;
+    // }
+
     index = indexFor(h->size,hashvalue);
 
     // dbprint(VMI_DEBUG_TEST, "%s: got index: %d\n", __FUNCTION__, index);
@@ -353,16 +354,16 @@ hashtable_search(struct hashtable *h, void *k)
         /* Check hash value to short circuit heavier comparison */
         if ((hashvalue == e->h) && (h->eqfn(k, e->k))) {
 
-            dbprint(VMI_DEBUG_TEST, "key found\n");
-            DBG_DONE;
+            // dbprint(VMI_DEBUG_TEST, "%s: key found, %p, %p, hash: 0x%x\n", __FUNCTION__, k, e->k, hashvalue);
+            // DBG_DONE;
             return e->v;
         }
         e = e->next;
     }
 error_exit:
 
-    dbprint(VMI_DEBUG_TEST, "key not found\n");
-    DBG_DONE;
+    dbprint(VMI_DEBUG_TEST, "%s: key not found, %p\n",__FUNCTION__, k);
+    // DBG_DONE;
     return NULL;
 }
 
@@ -381,6 +382,8 @@ hashtable_search_entry(struct hashtable *h, void *k)
         if ((hashvalue == e->h) && (h->eqfn(k, e->k))) return e;
         e = e->next;
     }
+
+    dbprint(VMI_DEBUG_TEST, "%s: entry not found, %p\n",__FUNCTION__, k);
     return NULL;
 }
 
@@ -396,9 +399,19 @@ hashtable_remove(struct hashtable *h, void *k)
     void *v;
     unsigned int hashvalue, index;
 
+    DBG_START;
+
+    dbprint(VMI_DEBUG_TEST, "\t key: %p\n", __FUNCTION__, k);
+
     hashvalue = hash(h,k);
+
+    dbprint(VMI_DEBUG_TEST, "\t hash: 0x%lx\n", hashvalue);
+
     //index = indexFor(h->size,hash(h,k)); // ? hashvalue not reused?
     index = indexFor(h->size,hashvalue);
+
+    dbprint(VMI_DEBUG_TEST, "\t index: %d\n", index);
+
     pE = &(h->table[index]);
     e = *pE;
     while (NULL != e)
@@ -406,19 +419,41 @@ hashtable_remove(struct hashtable *h, void *k)
         /* Check hash value to short circuit heavier comparison */
         if ((hashvalue == e->h) && (h->eqfn(k, e->k)))
         {
+
+            dbprint(VMI_DEBUG_TEST, "\t key found, value ptr: %p\n", e->v);
+
             *pE = e->next;
             h->entrycount--;
             v = e->v;
             // freekey(e->k);
             // free(e);
-            h->key_destroy_func (e->k);
-            h->value_destroy_func(e->v);
+            if (h->key_destroy_func){
+               h->key_destroy_func (e->k);
+            }
+            else{
+                dbprint(VMI_DEBUG_TEST, "\t no key destroy func\n", e->v);
+            }
+
+            if (h->value_destroy_func){
+                h->value_destroy_func(e->v);
+            }
+            else{
+                dbprint(VMI_DEBUG_TEST, "\t no value destroy func\n", e->v);
+            }
+
             free(e);
+
+            DBG_DONE;
+            
             return v;
         }
         pE = &(e->next);
         e = e->next;
     }
+
+    dbprint(VMI_DEBUG_TEST, "\t key not found, key ptr: %p\n", __FUNCTION__, k);
+
+    DBG_DONE;
     return NULL;
 }
 
@@ -442,8 +477,10 @@ hashtable_destroy(struct hashtable *h, int free_values)
                 // freekey(f->k); 
                 // free(f->v); 
                 // free(f); 
-                h->key_destroy_func(f->k);
-                h->value_destroy_func(f->v);
+                if (h->key_destroy_func)
+                    h->key_destroy_func(f->k);
+                if (h->value_destroy_func)
+                    h->value_destroy_func(f->v);
                 free(f);
             }
         }
@@ -459,7 +496,8 @@ hashtable_destroy(struct hashtable *h, int free_values)
                 e = e->next; 
                 // freekey(f->k); 
                 // free(f); 
-                h->key_destroy_func(f->k);
+                if (h->key_destroy_func)
+                    h->key_destroy_func(f->k);
                 // h->value_destroy_func(f->v);
                 free(f);
             }

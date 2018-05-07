@@ -51,7 +51,7 @@ xen_get_memory_pfn(
     int prot)
 {
     
-    DBG_START; 
+    // DBG_START; 
 
     xen_instance_t *xen = xen_get_instance(vmi);
     
@@ -92,7 +92,7 @@ xen_get_memory_pfn(
     memcpy(buf, memory, XC_PAGE_SIZE);
 #endif // VMI_DEBUG
 
-    DBG_DONE;
+    // DBG_DONE;
     return memory;
 }
 

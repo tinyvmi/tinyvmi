@@ -55,7 +55,7 @@ typedef enum {
 
 /* uncomment this and recompile to enable debug output */
 // #define VMI_DEBUG __VMI_DEBUG_ALL
-#define VMI_DEBUG VMI_DEBUG_TEST
+#define VMI_DEBUG (VMI_DEBUG_TEST|VMI_DEBUG_EVENTS)
 
 typedef enum {
     VMI_TEST_MAIN     = (1 << 0),

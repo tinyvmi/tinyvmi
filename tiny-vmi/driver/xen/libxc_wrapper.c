@@ -240,6 +240,10 @@ status_t create_libxc_wrapper(xen_instance_t *xen)
     // wrapper->xc_hvm_set_mem_access = &xc_hvm_set_mem_access;
     // wrapper->xc_hvm_get_mem_access = &xc_hvm_get_mem_access;
     wrapper->xc_set_mem_access = &xc_set_mem_access;
+
+    dbprint(VMI_DEBUG_XEN, "%s: xc_set_mem_access, func addr: %p\n", 
+        __FUNCTION__, (uint64_t)&xc_set_mem_access);
+
     wrapper->xc_get_mem_access = &xc_get_mem_access;
     // wrapper->xc_mem_access_enable = &xc_mem_access_enable;
     // wrapper->xc_mem_access_enable2 = &xc_mem_access_enable;
