@@ -14,7 +14,8 @@ int main(void) {
 	* vaddr, the virtual address to be tested, used by example map_addr
     */
     
-	char * name = "u1432hvm";
+	//char * name = "u1432hvm";
+	char * name = "ubu14hvm";
 
 	addr_t vaddr=0xc1c3a000;
 
@@ -77,9 +78,9 @@ int main(void) {
 	sleep(2);
 
 	// result = map_addr(name,vaddr);
-	result=module_list(name);
+	//result=module_list(name);
 
-	// result=event_example(name, 0);
+	result=event_example(name, 0);
 	// result=interrupt_event_example(name);
 	// result = map_symbol(name, "startup_32"); //"xen_entry"
 	sleep(1);

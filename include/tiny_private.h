@@ -62,9 +62,8 @@
 
 //#include <console.h>  //Lele: include this will cause xen_events_48.o to have 13Gb Size
 
-//Lele: testing with constant values, all need replacement. 
-// default return value of xen_get_domainid_from_name
-#define DOMAIN_ID 38
+#include "domain_id.h"
+
 // default enable hvm
 // #define HVM 1
 // default 32-bit guest system
