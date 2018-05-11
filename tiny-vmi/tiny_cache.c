@@ -62,7 +62,7 @@ status_t tiny_cache_insert(v2p_cache_t v2p_c, key_128_t key,v2p_cache_entry_t en
 		v2p_c->cache_lines[v2p_c->count]->entry=entry;
 		
 		v2p_c->count++;
-		dbprint(VMI_DEBUG_MEMCACHE, "--V2P cache set 0x%.16"PRIx64" -- 0x%.16"PRIx64" (0x%.16"PRIx64"/0x%.16"PRIx64"),in %s\n", key->high,
+		dbprint(VMI_DEBUG_MEMCACHE, "--V2P cache insert 0x%.16"PRIx64" -- 0x%.16"PRIx64" (0x%.16"PRIx64"/0x%.16"PRIx64"),in %s\n", key->high,
             entry->pa, key->high, key->low,__FUNCTION__);
 		return VMI_SUCCESS;
 	}else{

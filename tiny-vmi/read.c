@@ -49,24 +49,31 @@ vmi_read(
     addr_t offset = 0;
     addr_t dtb = 0;
     size_t buf_offset = 0;
+    size_t count_o = count;
 
-    dbprint(VMI_DEBUG_READ, "->-> now in %s\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_READ, "->-> now in %s:%d\n", __FUNCTION__, __LINE__);
 
     if (NULL == ctx) {
-        dbprint(VMI_DEBUG_READ, "--%s: ctx passed as NULL, returning without read\n", __FUNCTION__);
+        dbprint(VMI_DEBUG_READ, 
+            "--%s:%d ctx passed as NULL, returning without read\n",
+            __FUNCTION__, __LINE__);
         goto done;
     }
 
     if (NULL == buf) {
-        dbprint(VMI_DEBUG_READ, "--%s: buf passed as NULL, returning without read\n", __FUNCTION__);
+        dbprint(VMI_DEBUG_READ, 
+            "--%s:%d buf passed as NULL, returning without read\n",
+            __FUNCTION__,__LINE__);
         goto done;
     }
 
     switch (ctx->translate_mechanism) {
         case VMI_TM_NONE:
+            DBG_LINE;
             start_addr = ctx->addr;
             break;
         case VMI_TM_KERNEL_SYMBOL:
+            DBG_LINE;
             if (!vmi->arch_interface || !vmi->os_interface || !vmi->kpgd)
                 goto done;
 
@@ -76,6 +83,7 @@ vmi_read(
             break;
         case VMI_TM_PROCESS_PID:
 
+            DBG_LINE;
             dbprint(VMI_DEBUG_READ, "%s: VMI_TM_PROCESS_PID\n", __FUNCTION__);
           
             if (!vmi->arch_interface){
@@ -106,6 +114,7 @@ vmi_read(
             start_addr = ctx->addr;
             break;
         case VMI_TM_PROCESS_DTB:
+            DBG_LINE;
             if (!vmi->arch_interface)
                 goto done;
 
@@ -120,6 +129,10 @@ vmi_read(
     dbprint(VMI_DEBUG_READ, "%s: get dtb: %lx\n", __FUNCTION__, dtb);
             
     while (count > 0) {
+        
+        DBG_LINE;
+        dbprint(VMI_DEBUG_TEST, "\tcount: %d\n", count);
+
         size_t read_len = 0;
 
         if(dtb) {
@@ -162,7 +175,7 @@ done:
     if ( bytes_read )
         *bytes_read = buf_offset;
 
-    dbprint(VMI_DEBUG_READ, "%s: Done\n\n", __FUNCTION__);
+    dbprint(VMI_DEBUG_READ, "%s: Done. Bytes read: %d\n\n", __FUNCTION__, count_o);
     return ret;
 }
 
@@ -501,7 +514,11 @@ vmi_read_32_va(
     vmi_pid_t pid,
     uint32_t * value)
 {
-    return vmi_read_va(vmi, vaddr, pid, 4, value, NULL);
+    DBG_START;
+    // return vmi_read_va(vmi, vaddr, pid, 4, value, NULL);
+    status_t ret = vmi_read_va(vmi, vaddr, pid, 4, value, NULL);
+    DBG_DONE;
+    return ret;
 }
 
 status_t

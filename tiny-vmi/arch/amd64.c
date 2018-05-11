@@ -162,6 +162,8 @@ status_t v2p_ia32e (vmi_instance_t vmi,
     // validate address based on above (e.g., is it canonical?)
 
     // determine what MAXPHYADDR is
+    DBG_START;
+    DBG_LINE;
 
     dbprint(VMI_DEBUG_PTLOOKUP, "--PTLookup: lookup vaddr = 0x%.16"PRIx64"\n", vaddr);
     dbprint(VMI_DEBUG_PTLOOKUP, "--PTLookup: dtb = 0x%.16"PRIx64"\n", dtb);
@@ -231,6 +233,7 @@ status_t v2p_ia32e (vmi_instance_t vmi,
 
 done:
     dbprint(VMI_DEBUG_PTLOOKUP, "--PTLookup: paddr = 0x%.16"PRIx64"\n", info->paddr);
+    DBG_DONE;
     return status;
 }
 
@@ -369,6 +372,8 @@ done:
 
 status_t amd64_init(vmi_instance_t vmi) {
 
+    DBG_START;
+
     if(!vmi->arch_interface) {
         vmi->arch_interface = g_malloc0(sizeof(struct arch_interface));
         if ( !vmi->arch_interface )
@@ -377,6 +382,9 @@ status_t amd64_init(vmi_instance_t vmi) {
 
     vmi->arch_interface->v2p = v2p_ia32e;
     vmi->arch_interface->get_va_pages = get_va_pages_ia32e;
+
+    dbprint(VMI_DEBUG_TEST, "%s: v2p set to v2p_ia32e. \n", __FUNCTION__);
+    DBG_DONE;
 
     return VMI_SUCCESS;
 }

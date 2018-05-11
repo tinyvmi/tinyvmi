@@ -94,6 +94,9 @@ event_response_t msr_syscall_sysenter_cb(vmi_instance_t vmi, vmi_event_t *event)
 
 event_response_t syscall_compat_cb(vmi_instance_t vmi, vmi_event_t *event){
     reg_t rdi, rax;
+
+    DBG_START;
+
     vmi_get_vcpureg(vmi, &rax, RAX, event->vcpu_id);
     vmi_get_vcpureg(vmi, &rdi, RDI, event->vcpu_id);
 
@@ -102,11 +105,17 @@ event_response_t syscall_compat_cb(vmi_instance_t vmi, vmi_event_t *event){
     print_event(*event);
 
     vmi_clear_event(vmi, &msr_syscall_compat_event, NULL);
+
+    DBG_DONE;
+
     return 0;
 }
 
 event_response_t vsyscall_cb(vmi_instance_t vmi, vmi_event_t *event){
     reg_t rdi, rax;
+
+    DBG_START;
+
     vmi_get_vcpureg(vmi, &rax, RAX, event->vcpu_id);
     vmi_get_vcpureg(vmi, &rdi, RDI, event->vcpu_id);
 
@@ -115,11 +124,17 @@ event_response_t vsyscall_cb(vmi_instance_t vmi, vmi_event_t *event){
     print_event(*event);
 
     vmi_clear_event(vmi, &kernel_vsyscall_event, NULL);
+
+    DBG_DONE;
+
     return 0;
 }
 
 event_response_t ia32_sysenter_target_cb(vmi_instance_t vmi, vmi_event_t *event){
     reg_t rdi, rax;
+
+    DBG_START;
+
     vmi_get_vcpureg(vmi, &rax, RAX, event->vcpu_id);
     vmi_get_vcpureg(vmi, &rdi, RDI, event->vcpu_id);
 
@@ -128,11 +143,17 @@ event_response_t ia32_sysenter_target_cb(vmi_instance_t vmi, vmi_event_t *event)
     print_event(*event);
 
     vmi_clear_event(vmi, &kernel_sysenter_target_event, NULL);
+
+    DBG_DONE;
+
     return 0;
 }
 
 event_response_t syscall_lm_cb(vmi_instance_t vmi, vmi_event_t *event){
     reg_t rdi, rax;
+
+    DBG_START;
+
     vmi_get_vcpureg(vmi, &rax, RAX, event->vcpu_id);
     vmi_get_vcpureg(vmi, &rdi, RDI, event->vcpu_id);
 
@@ -141,15 +162,21 @@ event_response_t syscall_lm_cb(vmi_instance_t vmi, vmi_event_t *event){
     print_event(*event);
 
     vmi_clear_event(vmi, &msr_syscall_lm_event, NULL);
+
+    DBG_DONE;
+
     return 0;
 }
 
 event_response_t cr3_one_task_callback(vmi_instance_t vmi, vmi_event_t *event){
 
     vmi_pid_t pid = -1;
+
+    DBG_START;
+
     vmi_dtb_to_pid(vmi, event->reg_event.value, &pid);
 
-    ttprint(VMI_TEST_EVENTS, "one_task callback\n");
+    ttprint(VMI_TEST_EVENTS, "%s: one_task callback\n", __FUNCTION__);
     if(event->reg_event.value == cr3){
         ttprint(VMI_TEST_EVENTS, "My process with PID %"PRIi32", CR3=%"PRIx64" is executing on vcpu %"PRIu32". Previous CR3=%"PRIx64"\n",
                pid, event->reg_event.value, event->vcpu_id, event->reg_event.previous);
@@ -171,11 +198,17 @@ event_response_t cr3_one_task_callback(vmi_instance_t vmi, vmi_event_t *event){
         ttprint(VMI_TEST_EVENTS, "PID %i is executing, not my process!\n", pid);
         vmi_clear_event(vmi, &msr_syscall_sysenter_event, NULL);
     }
+
+    DBG_DONE;
+
     return 0;
 }
 
 event_response_t cr3_all_tasks_callback(vmi_instance_t vmi, vmi_event_t *event){
     vmi_pid_t pid = -1;
+
+    DBG_START;
+
     vmi_dtb_to_pid(vmi, event->reg_event.value, &pid);
     ttprint(VMI_TEST_EVENTS, "PID %i with CR3=%"PRIx64" executing on vcpu %"PRIu32". Previous CR3=%"PRIx64"\n",
         pid, event->reg_event.value, event->vcpu_id, event->reg_event.previous);
@@ -186,6 +219,9 @@ event_response_t cr3_all_tasks_callback(vmi_instance_t vmi, vmi_event_t *event){
     if(vmi_register_event(vmi, &msr_syscall_sysenter_event) == VMI_FAILURE)
         fprintf(stderr, "Could not install sysenter syscall handler.\n");
     vmi_clear_event(vmi, &msr_syscall_sysenter_event, NULL);
+
+    DBG_DONE;
+
     return 0;
 }
 

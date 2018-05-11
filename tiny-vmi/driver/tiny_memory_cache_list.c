@@ -12,6 +12,9 @@
 tiny_list_t create_new_list(int capacity){
     
     tiny_list_t list = (tiny_list_t)malloc(sizeof(struct tiny_list));
+    
+    DBG_LINE;
+
     list->nodes = (tiny_list_node_t *)malloc(capacity * sizeof(tiny_list_node_t));
     list->capacity = capacity;
     list->head = -1;
@@ -26,7 +29,9 @@ status_t tiny_list_free(tiny_list_t list){
 
     if (!list)
         return VMI_SUCCESS;
-
+   
+    DBG_LINE;
+    
 	int node_index = list->head;
     tiny_list_node_t node=list->nodes[node_index];
 
@@ -59,7 +64,10 @@ status_t tiny_list_free(tiny_list_t list){
 	return VMI_SUCCESS;
 }
 
-tiny_list_node_t tiny_list_last(tiny_list_t list){
+tiny_list_node_t tiny_list_last(tiny_list_t list){   
+
+    DBG_LINE;
+    
     if(list->tail == -1){
         errprint("tiny_list_last: ERROR, list has no element yet.");
     }
@@ -75,6 +83,8 @@ tiny_list_node_t tiny_list_find_custom(tiny_list_t list,
 				
     int node_index = list->head;
 	tiny_list_node_t node;	
+   
+    DBG_LINE;
     
 	while(node_index != -1){
         node = list->nodes[node_index];
@@ -101,7 +111,9 @@ void tiny_list_unlink(tiny_list_t list, tiny_list_node_t node){
     // first, get its next node and pre node
     int next_node = node->next;
     int pre_node = node->previous;
-
+   
+    DBG_LINE;
+    
     // if next_node and pre_node are both -1, then remove the only node
     if (pre_node == -1 && next_node == -1){
         list->tail = -1;
@@ -149,9 +161,11 @@ tiny_list_t tiny_list_remove(tiny_list_t list,mem_key_t key){
     
     //tiny_list_node_t node = list->nodes[list->head];
     tiny_list_node_t node;
-
+   
     int node_index = list->head;
 
+    DBG_LINE;
+    
 	while(node_index != -1){
 
         node = list->nodes[node_index];
@@ -179,6 +193,8 @@ gpointer tiny_list_pop_last(tiny_list_t list){
         errprint("ERROR: no tail node yet");
     }
 
+    DBG_LINE;
+    
     tiny_list_node_t old_last_node = list->nodes[old_tail];
 
     gpointer data = old_last_node->data;
@@ -209,6 +225,8 @@ tiny_list_t tiny_list_remove_last(tiny_list_t list){
 
     int old_tail = list->tail;
 
+    DBG_LINE;
+    
     if (old_tail == -1){
         errprint("ERROR: no tail node yet");
     }
@@ -227,6 +245,8 @@ tiny_list_t tiny_list_increase_capacity(tiny_list_t list, int factor){
     int old_capacity = list->capacity;
     int new_capacity = list->capacity * factor;
 
+    DBG_LINE;
+    
     // malloc the space of new list
     tiny_list_node_t * new_list_nodes = (tiny_list_node_t *) malloc (new_capacity * sizeof (tiny_list_node_t));
 
@@ -248,6 +268,12 @@ tiny_list_t tiny_list_increase_capacity(tiny_list_t list, int factor){
 // put an existing node to head.
 void tiny_list_push_head_link(tiny_list_t list, tiny_list_node_t new_node){
     
+    DBG_LINE;
+    
+    if (list->size == list-> capacity){
+        errprint("ERROR: list->size == list->capacity, reach max capacity? should not happend here\n");
+    }
+
 	list->size++;
 
     // now insert the node to head
@@ -269,6 +295,7 @@ void tiny_list_push_head_link(tiny_list_t list, tiny_list_node_t new_node){
         if (list->head == list-> tail){
             errprint("ERROR: list->head == list->tail, reach max capacity? should not happend here\n");
         }
+
 
         // maintain the data structure for old head and new head:
 
@@ -297,9 +324,7 @@ tiny_list_t tiny_list_prepend(tiny_list_t list,mem_key_t key){
 
 	//dbprint(VMI_DEBUG_MEMCACHE, "-- set node data=0x%lx, in %s\n",*key,__FUNCTION__);
 	
-    dbprint(VMI_DEBUG_MEMCACHE, "-- in %s: prepend one element as head, new size: %d\n",__FUNCTION__, list->size);
-
-	if (list->size > list->capacity) {  
+	if (list->size >= list->capacity) {  
         // we have more nodes than the capacity of the queue
         // either:
         //      - replace tail with new node, set head to it
@@ -313,6 +338,8 @@ tiny_list_t tiny_list_prepend(tiny_list_t list,mem_key_t key){
     }
 
     tiny_list_push_head_link(list, new_node);
+
+    dbprint(VMI_DEBUG_MEMCACHE, "-- in %s: prepend one element as head, new size: %d\n",__FUNCTION__, list->size);
 
 	DBG_DONE;
 

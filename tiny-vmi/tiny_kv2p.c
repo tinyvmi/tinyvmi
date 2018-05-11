@@ -3,32 +3,32 @@
 /* expose virtual to physical mapping for kernel space via api call */
 // addr_t vmi_translate_kv2p (vmi_instance_t vmi, addr_t virt_address)
 
-status_t vmi_translate_kv2p(
-    vmi_instance_t vmi,
-    addr_t virt_address,
-    addr_t *paddr) {
+// status_t vmi_translate_kv2p(
+//     vmi_instance_t vmi,
+//     addr_t virt_address,
+//     addr_t *paddr) {
 
-    reg_t cr3 = 0;
+//     reg_t cr3 = 0;
 
-   // printf("---in %s\n",__FUNCTION__);
-    if (vmi->kpgd) {
-        cr3 = vmi->kpgd;
-	//	printf("---has vmi->kgpd, in %s\n",__FUNCTION__);
-    } else {
-		//printf("---no vmi->kgpd in %s, read it...\n",__FUNCTION__);
-        // tiny_get_vcpureg(vmi, &cr3, CR3, 0);
-        xen_get_vcpureg(vmi, &cr3, CR3, 0);
-		//printf("---no vmi->kgpd in %s, read done...\n",__FUNCTION__);
-    }
-    if (!cr3) {
-        printf("--early bail on v2p lookup because cr3 is zero\n");
-        return VMI_FAILURE;
-    } else {
+//    // printf("---in %s\n",__FUNCTION__);
+//     if (vmi->kpgd) {
+//         cr3 = vmi->kpgd;
+// 	//	printf("---has vmi->kgpd, in %s\n",__FUNCTION__);
+//     } else {
+// 		//printf("---no vmi->kgpd in %s, read it...\n",__FUNCTION__);
+//         // tiny_get_vcpureg(vmi, &cr3, CR3, 0);
+//         xen_get_vcpureg(vmi, &cr3, CR3, 0);
+// 		//printf("---no vmi->kgpd in %s, read done...\n",__FUNCTION__);
+//     }
+//     if (!cr3) {
+//         printf("--early bail on v2p lookup because cr3 is zero\n");
+//         return VMI_FAILURE;
+//     } else {
 
-        vmi_pagetable_lookup(vmi, cr3, virt_address, paddr);
-        return VMI_SUCCESS;
-    }
-}
+//         vmi_pagetable_lookup(vmi, cr3, virt_address, paddr);
+//         return VMI_SUCCESS;
+//     }
+// }
 
 
 

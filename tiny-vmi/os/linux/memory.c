@@ -218,6 +218,8 @@ linux_pgd_to_pid(
     linux_instance_t linux_instance = NULL;
     int pid_offset = 0;
 
+    DBG_START;
+
     if (!vmi->os_data) {
         errprint("VMI_ERROR: No os_data initialized\n");
         return VMI_FAILURE;
@@ -234,5 +236,8 @@ linux_pgd_to_pid(
     }
 
     /* now follow the pointer to the memory descriptor and grab the pid value */
-    return vmi_read_32_va(vmi, ts_addr + pid_offset, 0, (uint32_t*)pid);
+    // return vmi_read_32_va(vmi, ts_addr + pid_offset, 0, (uint32_t*)pid);
+    status_t ret = vmi_read_32_va(vmi, ts_addr + pid_offset, 0, (uint32_t*)pid);
+    DBG_DONE;
+    return ret;
 }

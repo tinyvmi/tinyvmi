@@ -3,6 +3,15 @@ XEN_ROOT = $(CURDIR)/../..
 include $(XEN_ROOT)/Config.mk
 
 SRC_CODE += ./include/tiny_private.h
+SRC_CODE += ./include/debug.h
+SRC_CODE += ./include/domain_id.h
+SRC_CODE += ./include/tiny_cache.h
+SRC_CODE += ./include/tiny_config.h
+SRC_CODE += ./include/tiny_glib.h
+SRC_CODE += ./include/tiny_libvmi.h
+SRC_CODE += ./include/x86.h
+
+
 
 OBJS=main.o 
 SRC_CODE += main.c
@@ -35,7 +44,7 @@ OBJS += ./tiny-vmi/driver/tiny_memory_cache_list.o
 
 OBJS += ./tiny-vmi/accessors.o  
 
-OBJS += ./tiny-vmi/tiny_kv2p.o  
+#OBJS += ./tiny-vmi/tiny_kv2p.o  
 
 # OBJS += ./tiny-vmi/tiny_vmi_init.o 
 

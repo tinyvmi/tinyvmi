@@ -418,10 +418,15 @@ status_t vmi_dtb_to_pid (vmi_instance_t vmi, addr_t dtb, vmi_pid_t *pid)
     status_t ret = VMI_FAILURE;
     vmi_pid_t _pid = -1;
 
+    DBG_START;
+
     if (vmi->os_interface && vmi->os_interface->os_pgd_to_pid)
         ret = vmi->os_interface->os_pgd_to_pid(vmi, dtb, &_pid);
 
     *pid = _pid;
+
+    DBG_DONE;
+    
     return ret;
 }
 
@@ -457,6 +462,8 @@ status_t vmi_pagetable_lookup_cache(
     addr_t vaddr,
     addr_t *paddr)
 {
+    DBG_START;
+
     status_t ret = VMI_FAILURE;
     page_info_t info = { .vaddr = vaddr,
                          .dtb = dtb
@@ -473,11 +480,16 @@ status_t vmi_pagetable_lookup_cache(
         uint8_t value = 0;
 
         if (VMI_SUCCESS == vmi_read_8_pa(vmi, *paddr, &value)) {
-            return VMI_SUCCESS;
+            ret = VMI_SUCCESS;
+            goto done_;
         }
         else {
-            if ( VMI_FAILURE == v2p_cache_del(vmi, vaddr, dtb) )
-                return VMI_FAILURE;
+            if ( VMI_FAILURE == v2p_cache_del(vmi, vaddr, dtb) ){
+
+                ret = VMI_FAILURE;
+                goto done_;
+
+            }
         }
     }
 
@@ -493,6 +505,9 @@ status_t vmi_pagetable_lookup_cache(
         *paddr = info.paddr;
         v2p_cache_set(vmi, vaddr, dtb, info.paddr);
     }
+
+done_:
+    DBG_DONE;
     return ret;
 }
 
@@ -506,6 +521,8 @@ status_t vmi_pagetable_lookup_extended(
     status_t ret = VMI_FAILURE;
 
     if(!info) return ret;
+
+    DBG_START;
 
     memset(info, 0, sizeof(page_info_t));
     info->vaddr = vaddr;
@@ -521,19 +538,22 @@ status_t vmi_pagetable_lookup_extended(
     if (ret == VMI_SUCCESS) {
         v2p_cache_set(vmi, vaddr, dtb, info->paddr);
     }
+    
+    DBG_DONE;
+
     return ret;
 }
 
-// /* expose virtual to physical mapping for kernel space via api call */
-// status_t vmi_translate_kv2p (vmi_instance_t vmi, addr_t virt_address, addr_t *paddr)
-// {
-//     if (!vmi->kpgd) {
-//         dbprint(VMI_DEBUG_PTLOOKUP, "--early bail on v2p lookup because the kernel page global directory is unknown\n");
-//         return VMI_FAILURE;
-//     }
+/* expose virtual to physical mapping for kernel space via api call */
+status_t vmi_translate_kv2p (vmi_instance_t vmi, addr_t virt_address, addr_t *paddr)
+{
+    if (!vmi->kpgd) {
+        dbprint(VMI_DEBUG_PTLOOKUP, "--early bail on v2p lookup because the kernel page global directory is unknown\n");
+        return VMI_FAILURE;
+    }
 
-//     return vmi_pagetable_lookup(vmi, vmi->kpgd, virt_address, paddr);
-// }
+    return vmi_pagetable_lookup(vmi, vmi->kpgd, virt_address, paddr);
+}
 
 status_t vmi_translate_uv2p (vmi_instance_t vmi, addr_t virt_address, vmi_pid_t pid, addr_t *paddr)
 {

@@ -81,16 +81,25 @@ static status_t linux_filemode_init(vmi_instance_t vmi)
     {
     case VMI_PM_AARCH64:
     case VMI_PM_IA32E:
+
+        dbprint(VMI_DEBUG_TEST, "%s: vmi page mode 64\n", __FUNCTION__);
+    
         linux_symbol_to_address(vmi, "phys_startup_64", NULL, &phys_start);
         linux_symbol_to_address(vmi, "startup_64", NULL, &virt_start);
         break;
     case VMI_PM_AARCH32:
     case VMI_PM_LEGACY:
     case VMI_PM_PAE:
+
+        dbprint(VMI_DEBUG_TEST, "%s: vmi page mode 32\n", __FUNCTION__);
+    
         linux_symbol_to_address(vmi, "phys_startup_32", NULL, &phys_start);
         linux_symbol_to_address(vmi, "startup_32", NULL, &virt_start);
         break;
     case VMI_PM_UNKNOWN:
+        
+        dbprint(VMI_DEBUG_TEST, "%s: vmi page mode unknown\n", __FUNCTION__);
+
         linux_symbol_to_address(vmi, "phys_startup_64", NULL, &phys_start);
         linux_symbol_to_address(vmi, "startup_64", NULL, &virt_start);
 

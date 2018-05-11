@@ -106,6 +106,7 @@ void put_response(xen_vm_event_t *mem_event,
 static inline
 void process_response ( event_response_t response, vmi_event_t* event, vm_event_48_request_t *rsp )
 {
+    DBG_START;
     if ( response && event ) {
         uint32_t i = VMI_EVENT_RESPONSE_NONE+1;
 
@@ -158,6 +159,7 @@ void process_response ( event_response_t response, vmi_event_t* event, vm_event_
             }
         }
     }
+    DBG_DONE;
 }
 
 static
@@ -294,10 +296,18 @@ status_t process_register(vmi_instance_t vmi,
                           vm_event_48_request_t *rsp)
 {
     gint lookup = reg;
+
+    DBG_START;
+
     vmi_event_t * event = g_hash_table_lookup(vmi->reg_events, &lookup);
 
-    if ( !event )
+    if ( !event ){
+        dbprint(VMI_DEBUG_EVENTS, 
+            "%s: no event struct found in hash table\n", __FUNCTION__);
+
+        DBG_DONE;
         return VMI_FAILURE;
+    }
 
     switch ( reg ) {
     case MSR_ALL:
@@ -313,8 +323,14 @@ status_t process_register(vmi_instance_t vmi,
          *  a specific VALUE of the register
          */
         if ( event->reg_event.equal &&
-             event->reg_event.equal != req->u.write_ctrlreg.new_value )
-        return VMI_SUCCESS;
+             event->reg_event.equal != req->u.write_ctrlreg.new_value ){
+            dbprint(VMI_DEBUG_EVENTS, 
+                "%s: event equal is set and value is not new value, now return\n", 
+                __FUNCTION__);
+
+            DBG_DONE;
+            return VMI_SUCCESS;
+        }
 
         event->reg_event.value = req->u.write_ctrlreg.new_value;
         event->reg_event.previous = req->u.write_ctrlreg.old_value;
@@ -331,6 +347,8 @@ status_t process_register(vmi_instance_t vmi,
     dbprint(VMI_DEBUG_EVENTS, "%s: now call process_response (callback func)\n", __FUNCTION__);
     process_response ( event->callback(vmi, event), event, rsp );
     vmi->event_callback = 0;
+
+    DBG_DONE;
 
     return VMI_SUCCESS;
 }

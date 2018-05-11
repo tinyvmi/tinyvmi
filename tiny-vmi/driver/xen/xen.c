@@ -1039,8 +1039,7 @@ xen_get_vcpureg_hvm(
     }
 
 _bail:
-
-    dbprint(VMI_DEBUG_XEN, "\t%s: done.\n", __FUNCTION__);
+    DBG_DONE; //dbprint(VMI_DEBUG_XEN, "\t%s: done.\n", __FUNCTION__);
     return ret;
 }
 

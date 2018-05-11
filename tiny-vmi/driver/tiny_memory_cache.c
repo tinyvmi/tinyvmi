@@ -99,6 +99,8 @@ validate_and_return_data(
     memory_cache_entry_t entry)
 {
     time_t now = time(NULL);
+    
+    DBG_LINE;
 
     if (vmi->memory_cache_age &&
         (now - entry->last_updated > vmi->memory_cache_age)) {
@@ -185,7 +187,7 @@ void memory_cache_init(
                               g_free,
                               memory_cache_entry_free);
     
-    dbprint(VMI_DEBUG_MEMCACHE, "TODO: tiny list(g_queue)");
+    dbprint(VMI_DEBUG_MEMCACHE, "TODO: tiny list(g_queue)\n");
     //vmi->memory_cache_lru = g_queue_new();
     vmi->memory_cache_lru = create_new_list(MAX_PAGE_CACHE_SIZE);
 
@@ -202,20 +204,26 @@ memory_cache_insert(
 {
     memory_cache_entry_t entry = NULL;
     addr_t paddr_aligned = paddr & ~(((addr_t) vmi->page_size) - 1);
+    void * ret;
+
+    DBG_START;
 
     if (paddr != paddr_aligned) {
         errprint("Memory cache request for non-aligned page\n");
-        return NULL;
+        ret = NULL;
+        goto done_;
+        //return NULL;
     }
 
     gint64 *key = (gint64*)&paddr;
     if ((entry = g_hash_table_lookup(vmi->memory_cache, key)) != NULL) {
         dbprint(VMI_DEBUG_MEMCACHE, "--MEMORY cache hit 0x%"PRIx64"\n", paddr);
-        return validate_and_return_data(vmi, entry);
+        ret = validate_and_return_data(vmi, entry);
+        goto done_;
     }
     else {
         
-        dbprint(VMI_DEBUG_MEMCACHE, "TODO: tiny list(g_queue)");
+        dbprint(VMI_DEBUG_MEMCACHE, "TODO: tiny list(g_queue)\n");
         // if (g_queue_get_length(vmi->memory_cache_lru) >= vmi->memory_cache_size_max) {
         //     clean_cache(vmi);
         // }
@@ -228,25 +236,37 @@ memory_cache_insert(
         entry = create_new_entry(vmi, paddr, vmi->page_size);
         if (!entry) {
             errprint("create_new_entry failed\n");
-            return 0;
+            ret = NULL;
+            goto done_;
+
+            //return 0;
         }
 
         key = g_malloc0(sizeof(gint64));
-        if ( !key )
-            return 0;
-
+        if ( !key ){
+            ret = NULL;
+            goto done_;
+            // return 0;
+        }
         *key = paddr;
         g_hash_table_insert(vmi->memory_cache, key, entry);
 
         gint64 *key2 = g_malloc0(sizeof(gint64));
-        if ( !key2 )
-            return 0;
-
+        if ( !key2 ){
+            ret = NULL;
+            goto done_;
+            // return 0;
+        }
         *key2 = paddr;
         //g_queue_push_head(vmi->memory_cache_lru, key2);
         tiny_list_prepend(vmi->memory_cache_lru, key2);
 
-        return entry->data;
+        ret = entry->data;
+
+done_:
+        DBG_DONE;
+        
+        return ret;
     }
 }
 
