@@ -69,11 +69,11 @@ vmi_read(
 
     switch (ctx->translate_mechanism) {
         case VMI_TM_NONE:
-            DBG_LINE;
+            // DBG_LINE;
             start_addr = ctx->addr;
             break;
         case VMI_TM_KERNEL_SYMBOL:
-            DBG_LINE;
+            // DBG_LINE;
             if (!vmi->arch_interface || !vmi->os_interface || !vmi->kpgd)
                 goto done;
 
@@ -83,7 +83,7 @@ vmi_read(
             break;
         case VMI_TM_PROCESS_PID:
 
-            DBG_LINE;
+            // DBG_LINE;
             dbprint(VMI_DEBUG_READ, "%s: VMI_TM_PROCESS_PID\n", __FUNCTION__);
           
             if (!vmi->arch_interface){
@@ -114,7 +114,7 @@ vmi_read(
             start_addr = ctx->addr;
             break;
         case VMI_TM_PROCESS_DTB:
-            DBG_LINE;
+            // DBG_LINE;
             if (!vmi->arch_interface)
                 goto done;
 
@@ -130,8 +130,8 @@ vmi_read(
             
     while (count > 0) {
         
-        DBG_LINE;
-        dbprint(VMI_DEBUG_TEST, "\tcount: %d\n", count);
+        // DBG_LINE;
+        // dbprint(VMI_DEBUG_TEST, "\tcount: %d\n", count);
 
         size_t read_len = 0;
 
@@ -169,7 +169,7 @@ vmi_read(
         buf_offset += read_len;
     }
 
-    ret = VMI_SUCCESS;
+    // ret = VMI_SUCCESS;
 
 done:
     if ( bytes_read )

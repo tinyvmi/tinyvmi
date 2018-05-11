@@ -207,7 +207,7 @@ static status_t linux_filemode_init(vmi_instance_t vmi)
 
         if (boundary) {
 
-            DBG_LINE;
+            // DBG_LINE;
 
             vmi->page_mode = VMI_PM_IA32E;
             if (VMI_SUCCESS == arch_init(vmi)) {
@@ -320,7 +320,7 @@ status_t init_kaslr(vmi_instance_t vmi) {
     if ( VMI_SUCCESS == vmi_read_32(vmi, &ctx, &test) )
         return VMI_SUCCESS;
 
-    DBG_LINE;
+    // DBG_LINE;
 
     status_t ret = VMI_FAILURE;
     linux_instance_t linux_instance = vmi->os_data;
@@ -329,19 +329,19 @@ status_t init_kaslr(vmi_instance_t vmi) {
     while (loop) {
         page_info_t *info = loop->data;
         
-        DBG_LINE;
+        // DBG_LINE;
 
         if ( !linux_instance->kaslr_offset ) {
             switch(vmi->page_mode) {
                 case VMI_PM_AARCH64:
-                    DBG_LINE;
+                    // DBG_LINE;
                 case VMI_PM_IA32E:
-                    DBG_LINE;
+                    // DBG_LINE;
                     if ( VMI_GET_BIT(info->vaddr, 47) )
                         ret = init_task_kaslr_test(vmi, info->vaddr);
                     break;
                 default:
-                    DBG_LINE;
+                    // DBG_LINE;
                     ret = init_task_kaslr_test(vmi, info->vaddr);
                     break;
             };
@@ -370,7 +370,7 @@ return VMI_FAILURE;
     status_t rc;
     os_interface_t os_interface = NULL;
 
-    DBG_START;
+    // DBG_START;
     
     
     if (!config) {
@@ -449,13 +449,14 @@ return VMI_FAILURE;
 
     vmi->os_interface = os_interface;
 
-    DBG_DONE;
+    // DBG_DONE;
 
     return VMI_SUCCESS;
 
     _exit:
     g_free(vmi->os_data);
     vmi->os_data = NULL;
+    // DBG_DONE;
     return VMI_FAILURE;
 #endif
 

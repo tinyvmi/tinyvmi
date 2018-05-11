@@ -100,7 +100,7 @@ validate_and_return_data(
 {
     time_t now = time(NULL);
     
-    DBG_LINE;
+    // DBG_LINE;
 
     if (vmi->memory_cache_age &&
         (now - entry->last_updated > vmi->memory_cache_age)) {
@@ -110,8 +110,8 @@ validate_and_return_data(
         entry->last_updated = now;
 
 
-        // TODO: fix me.
-        dbprint(VMI_DEBUG_MEMCACHE, "TODO: tiny list(g_queue), find custom, unlink and push head\n");
+        // TODO: do we need to implement a g_queue?
+        dbprint(VMI_DEBUG_MEMCACHE, "tiny list(not g_queue), find custom, unlink and push head\n");
         
         tiny_list_node_t node = tiny_list_find_custom(vmi->memory_cache_lru, &entry->paddr);
         

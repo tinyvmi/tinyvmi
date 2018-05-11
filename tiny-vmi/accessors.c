@@ -33,19 +33,19 @@
 uint8_t vmi_get_address_width(
     vmi_instance_t vmi)
 {
-    DBG_LINE;
+    // DBG_LINE;
     switch(vmi->page_mode) {
     case VMI_PM_AARCH64:
-        DBG_LINE;
+        // DBG_LINE;
     case VMI_PM_IA32E:
-        DBG_LINE;
+        // DBG_LINE;
         return 8;
     case VMI_PM_AARCH32:
-        DBG_LINE;
+        // DBG_LINE;
     case VMI_PM_LEGACY:
-        DBG_LINE;
+        // DBG_LINE;
     case VMI_PM_PAE:
-        DBG_LINE;
+        // DBG_LINE;
         return 4;
     default:
         return 0;
@@ -425,12 +425,6 @@ status_t vmi_dtb_to_pid (vmi_instance_t vmi, addr_t dtb, vmi_pid_t *pid)
     vmi_pid_t _pid = -1;
 
     DBG_START;
-
-    uint8_t width;
-    width = vmi_get_address_width(vmi);
-    
-    DBG_LINE;
-    dbprint(VMI_DEBUG_TEST, "%s: addr width: %d\n", __FUNCTION__, width);
 
     if (vmi->os_interface && vmi->os_interface->os_pgd_to_pid)
         ret = vmi->os_interface->os_pgd_to_pid(vmi, dtb, &_pid);

@@ -163,7 +163,7 @@ status_t v2p_ia32e (vmi_instance_t vmi,
 
     // determine what MAXPHYADDR is
     DBG_START;
-    DBG_LINE;
+    // DBG_LINE;
 
     dbprint(VMI_DEBUG_PTLOOKUP, "--PTLookup: lookup vaddr = 0x%.16"PRIx64"\n", vaddr);
     dbprint(VMI_DEBUG_PTLOOKUP, "--PTLookup: dtb = 0x%.16"PRIx64"\n", dtb);

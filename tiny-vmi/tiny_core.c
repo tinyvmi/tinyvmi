@@ -453,13 +453,13 @@ vmi_get_page_mode(
 
     if ( VMI_FILE == vmi->mode ){
 
-        DBG_LINE;
+        // DBG_LINE;
         return vmi->page_mode;
     }
 
     if (VMI_SUCCESS == find_page_mode_live(vmi, vcpu, &pm) )
     {
-        DBG_LINE;
+        // DBG_LINE;
         if ( vcpu == 0 && vmi->page_mode != pm )
             dbprint(VMI_DEBUG_CORE,
                     "WARNING: The page-mode we just identified doesn't match what LibVMI previously recorded! "

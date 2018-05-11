@@ -90,7 +90,7 @@ linux_get_taskstruct_addr_from_pgd(
     int pgd_offset = 0;
     linux_instance_t os = NULL;
 
-    DBG_LINE;
+    // DBG_LINE;
 
     if (vmi->os_data == NULL) {
         errprint("VMI_ERROR: No os_data initialized\n");
@@ -223,13 +223,6 @@ linux_pgd_to_pid(
     int pid_offset = 0;
 
     DBG_START;
-
-    uint8_t width;
-    width = vmi_get_address_width(vmi);
-    
-    DBG_LINE;
-    dbprint(VMI_DEBUG_TEST, "%s: addr width: %d\n", __FUNCTION__, width);
-
 
     if (!vmi->os_data) {
         errprint("VMI_ERROR: No os_data initialized\n");

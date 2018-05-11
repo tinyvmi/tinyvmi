@@ -211,7 +211,7 @@ find_page_mode(
     windows_instance_t windows = vmi->os_data;
     uint32_t mask = ~0;
 
-    DBG_LINE;
+    // DBG_LINE;
     if (!windows) {
         errprint("Windows functions not initialized in %s\n", __FUNCTION__);
         return VMI_FAILURE;
@@ -276,7 +276,7 @@ done:
 
     dbprint(VMI_DEBUG_TEST, "vmi page mode: %d\n", vmi->page_mode);
     
-    DBG_DONE;
+    // DBG_DONE;
     return ret;
 }
 
