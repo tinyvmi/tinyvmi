@@ -174,6 +174,20 @@ event_response_t cr3_one_task_callback(vmi_instance_t vmi, vmi_event_t *event){
 
     DBG_START;
 
+    page_mode_t pm = VMI_PM_UNKNOWN;
+    if (  VMI_SUCCESS == find_page_mode_live(vmi, event->vcpu_id, &pm)){
+        if ( vmi->page_mode != pm ){
+            dbprint(VMI_DEBUG_CORE,
+            "WARNING: The page-mode we just identified doesn't match what LibVMI previously recorded! "
+            "Now re-run vmi_init_paging. req->vcpu_id: %d\n", event->vcpu_id);
+            DBG_LINE;
+            vmi_init_paging(vmi, 0);
+        }
+    }else{
+        dbprint(VMI_DEBUG_CORE,
+            "failed to find page mode live. req->vcpu_id: %d\n", req->vcpu_id);
+    }
+
     vmi_dtb_to_pid(vmi, event->reg_event.value, &pid);
 
     ttprint(VMI_TEST_EVENTS, "%s: one_task callback\n", __FUNCTION__);
