@@ -659,7 +659,7 @@ page_mode_t vmi_init_paging(
     if ( VMI_FAILURE == vmi_arch_init(vmi) )
         return VMI_PM_UNKNOWN;
 
-    vmi->page_mode = VMI_PM_PAE;
+    //vmi->page_mode = VMI_PM_PAE;
 
     if ( flags )
     {
