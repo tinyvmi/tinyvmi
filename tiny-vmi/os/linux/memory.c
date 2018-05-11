@@ -90,6 +90,8 @@ linux_get_taskstruct_addr_from_pgd(
     int pgd_offset = 0;
     linux_instance_t os = NULL;
 
+    DBG_LINE;
+
     if (vmi->os_data == NULL) {
         errprint("VMI_ERROR: No os_data initialized\n");
         return 0;
@@ -109,6 +111,8 @@ linux_get_taskstruct_addr_from_pgd(
     list_head = next_process;
 
     width = vmi_get_address_width(vmi);
+
+    dbprint(VMI_DEBUG_TEST, "%s: addr width: %d\n", __FUNCTION__, width);
 
     do {
         addr_t ptr = 0;
@@ -228,8 +232,13 @@ linux_pgd_to_pid(
     linux_instance = vmi->os_data;
     pid_offset = linux_instance->pid_offset;
 
+    dbprint(VMI_DEBUG_TEST, "get pid offset from vmi: %d\n", pid_offset);
+
     /* first we the address of the task_struct with this PGD */
     ts_addr = linux_get_taskstruct_addr_from_pgd(vmi, pgd);
+
+    dbprint(VMI_DEBUG_TEST, "get ts_addr of linux: %p\n", ts_addr);
+
     if (!ts_addr) {
         errprint("Could not find task struct for pgd = 0x%"PRIx64".\n", pgd);
         return VMI_FAILURE;

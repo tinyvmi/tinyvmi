@@ -122,6 +122,7 @@ status_t probe_memory_layout_x86(vmi_instance_t vmi, unsigned long vcpu, page_mo
     if ( out_pm ) {
         *out_pm = pm;
     } else {
+        dbprint(VMI_DEBUG_CORE, "set vmi->page_mode and vmi->x86.pse\n");
         vmi->page_mode = pm;
         vmi->x86.pse = pse;
     }

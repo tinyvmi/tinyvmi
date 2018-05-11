@@ -61,6 +61,7 @@ OB_events += ./tiny-vmi/events.o
 SRC_CODE += ./tiny-vmi/events.c ./tiny-vmi/events.h
 
 OB_drivers = ./tiny-vmi/driver/driver_interface.o 
+SRC_CODE += ./tiny-vmi/driver/driver_interface.c
 
 OBJS += $(OB_events) $(OB_drivers) 
 
@@ -68,14 +69,24 @@ OBJS += $(OB_events) $(OB_drivers)
 OB_xc = ./tiny-vmi/driver/xen/libxc_wrapper.o
 OB_xs = ./tiny-vmi/driver/xen/libxs_wrapper.o
 
+SRC_CODE += ./tiny-vmi/driver/xen/libxc_wrapper.c
+SRC_CODE += ./tiny-vmi/driver/xen/libxs_wrapper.c
+
 OB_xen_events = ./tiny-vmi/driver/xen/xen_events_legacy.o
 OB_xen_events += ./tiny-vmi/driver/xen/xen_events_46.o
 OB_xen_events += ./tiny-vmi/driver/xen/xen_events_48.o
 OB_xen_events += ./tiny-vmi/driver/xen/xen_events.o
 
+SRC_CODE +=  ./tiny-vmi/driver/xen/xen_events_legacy.c
+SRC_CODE += ./tiny-vmi/driver/xen/xen_events_46.c 
+SRC_CODE += ./tiny-vmi/driver/xen/xen_events_48.c
+SRC_CODE += ./tiny-vmi/driver/xen/xen_events.c 
+
 OB_xen_altp2m = ./tiny-vmi/driver/xen/altp2m.o
+SRC_CODE += ./tiny-vmi/driver/xen/altp2m.c
 
 OB_xen = ./tiny-vmi/driver/xen/xen.o
+SRC_CODE += ./tiny-vmi/driver/xen/xen.c
 
 OB_arch = ./tiny-vmi/arch/arch_interface.o
 OB_arch += ./tiny-vmi/arch/amd64.o

@@ -38,13 +38,18 @@ static status_t linux_filemode_32bit_init(vmi_instance_t vmi,
                                           addr_t pa, addr_t va)
 {
     addr_t test = 0;
+    status_t ret = VMI_FAILURE;
+
+    DBG_START;
+    
     vmi->page_mode = VMI_PM_LEGACY;
     if (VMI_SUCCESS == arch_init(vmi)) {
         if ( VMI_SUCCESS == vmi_pagetable_lookup(vmi, swapper_pg_dir - boundary, va, &test) &&
              test == pa)
         {
             vmi->kpgd = swapper_pg_dir - boundary;
-            return VMI_SUCCESS;
+            ret = VMI_SUCCESS;
+            goto done_;
         }
     }
 
@@ -54,7 +59,8 @@ static status_t linux_filemode_32bit_init(vmi_instance_t vmi,
              test == pa)
         {
             vmi->kpgd = swapper_pg_dir - boundary;
-            return VMI_SUCCESS;
+            ret = VMI_SUCCESS;
+            goto done_;
         }
     }
 
@@ -64,18 +70,28 @@ static status_t linux_filemode_32bit_init(vmi_instance_t vmi,
              test == pa)
         {
             vmi->kpgd = swapper_pg_dir - boundary;
-            return VMI_SUCCESS;
+            ret = VMI_SUCCESS;
+            goto done_;
         }
     }
+done_:
 
-    return VMI_FAILURE;
+    dbprint(VMI_DEBUG_TEST, "vmi page mode: %d\n", vmi->page_mode);
+    
+    DBG_DONE;
+
+    return ret;
 }
 
 static status_t linux_filemode_init(vmi_instance_t vmi)
 {
     status_t rc;
+    status_t ret = VMI_FAILURE;
+    
     addr_t swapper_pg_dir = 0, init_level4_pgt = 0;
     addr_t boundary = 0, phys_start = 0, virt_start = 0;
+
+    DBG_START;
 
     switch (vmi->page_mode)
     {
@@ -134,7 +150,9 @@ static status_t linux_filemode_init(vmi_instance_t vmi)
         rc = linux_filemode_32bit_init(vmi, swapper_pg_dir, boundary,
                                        phys_start, virt_start);
         if (VMI_SUCCESS == rc)
-            return rc;
+            // return rc;
+            ret = rc;
+            goto done__;
         }
 
         /*
@@ -148,7 +166,8 @@ static status_t linux_filemode_init(vmi_instance_t vmi)
                                        swapper_pg_dir-boundary, swapper_pg_dir);
         if (VMI_SUCCESS == rc)
         {
-            return rc;
+            ret = rc;
+            goto done__;
         }
 
         boundary = 0x80000000;
@@ -158,7 +177,8 @@ static status_t linux_filemode_init(vmi_instance_t vmi)
                                        swapper_pg_dir-boundary, swapper_pg_dir);
         if (VMI_SUCCESS == rc)
         {
-        return rc;
+            ret = rc;
+            goto done__;
         }
 
         boundary = 0x40000000;
@@ -168,10 +188,13 @@ static status_t linux_filemode_init(vmi_instance_t vmi)
                                        swapper_pg_dir-boundary, swapper_pg_dir);
         if (VMI_SUCCESS == rc)
         {
-            return rc;
+            ret = rc;
+            goto done__;
         }
 
-        return VMI_FAILURE;
+        ret =  VMI_FAILURE;
+        goto done__;
+
     }
 
     rc = linux_symbol_to_address(vmi, "init_level4_pgt", NULL, &init_level4_pgt);
@@ -183,6 +206,9 @@ static status_t linux_filemode_init(vmi_instance_t vmi)
         init_level4_pgt = canonical_addr(init_level4_pgt);
 
         if (boundary) {
+
+            DBG_LINE;
+
             vmi->page_mode = VMI_PM_IA32E;
             if (VMI_SUCCESS == arch_init(vmi)) {
                 addr_t test = 0;
@@ -191,13 +217,18 @@ static status_t linux_filemode_init(vmi_instance_t vmi)
                      test == phys_start)
                 {
                     vmi->kpgd = init_level4_pgt - boundary;
-                    return VMI_SUCCESS;
+
+                    ret = VMI_SUCCESS;
+                    goto done__;
                 }
             }
         }
     }
 
-    return VMI_FAILURE;
+done__: 
+
+    DBG_DONE;
+    return ret;
 }
 
 static status_t init_from_rekall_profile(vmi_instance_t vmi) {
@@ -252,11 +283,15 @@ static status_t init_task_kaslr_test(vmi_instance_t vmi, addr_t page_vaddr) {
     };
 
     ctx.addr = init_task + linux_instance->pid_offset;
-    if ( VMI_FAILURE == vmi_read_32(vmi, &ctx, &pid) )
-        return ret;
 
-    if ( pid )
-        return ret;
+    DBG_START;
+
+    if ( VMI_FAILURE == vmi_read_32(vmi, &ctx, &pid) )
+        goto _done_;
+        // return ret;
+
+    if ( pid ) goto _done_;
+        // return ret;
 
     ctx.addr = init_task + linux_instance->name_offset;
     char* init_task_name = vmi_read_str(vmi, &ctx);
@@ -265,6 +300,7 @@ static status_t init_task_kaslr_test(vmi_instance_t vmi, addr_t page_vaddr) {
         ret = VMI_SUCCESS;
 
     free(init_task_name);
+_done_:
     return ret;
 }
 
@@ -279,8 +315,12 @@ status_t init_kaslr(vmi_instance_t vmi) {
         .addr = vmi->init_task
     };
 
+    DBG_START;
+
     if ( VMI_SUCCESS == vmi_read_32(vmi, &ctx, &test) )
         return VMI_SUCCESS;
+
+    DBG_LINE;
 
     status_t ret = VMI_FAILURE;
     linux_instance_t linux_instance = vmi->os_data;
@@ -288,15 +328,20 @@ status_t init_kaslr(vmi_instance_t vmi) {
     loop = pages;
     while (loop) {
         page_info_t *info = loop->data;
+        
+        DBG_LINE;
 
         if ( !linux_instance->kaslr_offset ) {
             switch(vmi->page_mode) {
                 case VMI_PM_AARCH64:
+                    DBG_LINE;
                 case VMI_PM_IA32E:
+                    DBG_LINE;
                     if ( VMI_GET_BIT(info->vaddr, 47) )
                         ret = init_task_kaslr_test(vmi, info->vaddr);
                     break;
                 default:
+                    DBG_LINE;
                     ret = init_task_kaslr_test(vmi, info->vaddr);
                     break;
             };
@@ -313,6 +358,7 @@ status_t init_kaslr(vmi_instance_t vmi) {
     }
 
     g_slist_free(pages);
+    DBG_DONE;
     return ret;
 }
 
@@ -370,9 +416,13 @@ return VMI_FAILURE;
      * As a fall-back, try to init using heuristics.
      * This path is taken in FILE mode as well.
      */
-    if (VMI_FAILURE == rc)
+    if (VMI_FAILURE == rc){
+        dbprint(VMI_DEBUG_TEST, "%s: driver_get_vcpureg failed, now call linux filemode init\n", __FUNCTION__);
         if (VMI_FAILURE == linux_filemode_init(vmi))
             goto _exit;
+    }else{
+        dbprint(VMI_DEBUG_TEST, "%s: driver_get_vcpureg success\n", __FUNCTION__);
+    }
 
     if ( VMI_FAILURE == init_kaslr(vmi) ) {
         dbprint(VMI_DEBUG_MISC, "**failed to determine KASLR offset\n");

@@ -33,13 +33,19 @@
 uint8_t vmi_get_address_width(
     vmi_instance_t vmi)
 {
+    DBG_LINE;
     switch(vmi->page_mode) {
     case VMI_PM_AARCH64:
+        DBG_LINE;
     case VMI_PM_IA32E:
+        DBG_LINE;
         return 8;
     case VMI_PM_AARCH32:
+        DBG_LINE;
     case VMI_PM_LEGACY:
+        DBG_LINE;
     case VMI_PM_PAE:
+        DBG_LINE;
         return 4;
     default:
         return 0;

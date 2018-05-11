@@ -114,7 +114,7 @@ if [ -z $mode ];then
 
 elif [ "$mode" == "$justMake" ];then
  
-  make tinyvmi-stubdom $options
+  make -j4 tinyvmi-stubdom $options
   res=$?
   if [ $res -ne 0 ]; then
     echo "error run make, return $res"
@@ -129,7 +129,7 @@ elif [ "$mode" == "$justMake" ];then
 
 elif [ "$mode" == "$makeRun" ];then
 
-  make tinyvmi-stubdom $options
+  make -j4 tinyvmi-stubdom $options
   res=$?
   if [ $res -ne 0 ]; then
     echo "error run make, return $res"
@@ -148,14 +148,14 @@ else
   make clean -C ../extras/mini-os $options
   make clean -C tinyvmi $options
 
-  make -C ../extras/mini-os $options
+  make -j4 -C ../extras/mini-os $options
   res=$?
   if [ $res -ne 0 ]; then
     echo "error run make, return $res"
     exit $res
   fi
 
-  make tinyvmi-stubdom $options
+  make -j4 tinyvmi-stubdom $options
   res=$?
   if [ $res -ne 0 ]; then
     echo "error run make, return $res"

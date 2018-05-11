@@ -83,8 +83,8 @@ int main(void) {
 	// result = map_addr(name,vaddr);
 	//result=module_list(name);
 
-	// result=event_example(name, 0);
-	result=interrupt_event_example(name);
+	result=event_example(name, 0);
+	// result=interrupt_event_example(name);
 	// result = map_symbol(name, "startup_32"); //"xen_entry"
 	sleep(1);
 

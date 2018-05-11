@@ -211,6 +211,7 @@ find_page_mode(
     windows_instance_t windows = vmi->os_data;
     uint32_t mask = ~0;
 
+    DBG_LINE;
     if (!windows) {
         errprint("Windows functions not initialized in %s\n", __FUNCTION__);
         return VMI_FAILURE;
@@ -271,7 +272,12 @@ find_page_mode(
     found_pm:
         ret = VMI_SUCCESS;
 
-    done: return ret;
+done: 
+
+    dbprint(VMI_DEBUG_TEST, "vmi page mode: %d\n", vmi->page_mode);
+    
+    DBG_DONE;
+    return ret;
 }
 
 /* Tries to find the kernel page directory by doing an exhaustive search
