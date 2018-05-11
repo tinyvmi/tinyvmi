@@ -188,6 +188,12 @@ event_response_t cr3_one_task_callback(vmi_instance_t vmi, vmi_event_t *event){
             "failed to find page mode live. event->vcpu_id: %d\n", event->vcpu_id);
     }
 
+    uint8_t width;
+    width = vmi_get_address_width(vmi);
+    
+    DBG_LINE;
+    dbprint(VMI_DEBUG_TEST, "%s: addr width: %d\n", __FUNCTION__, width);
+
     vmi_dtb_to_pid(vmi, event->reg_event.value, &pid);
 
     ttprint(VMI_TEST_EVENTS, "%s: one_task callback\n", __FUNCTION__);

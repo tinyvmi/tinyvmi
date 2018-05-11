@@ -426,6 +426,12 @@ status_t vmi_dtb_to_pid (vmi_instance_t vmi, addr_t dtb, vmi_pid_t *pid)
 
     DBG_START;
 
+    uint8_t width;
+    width = vmi_get_address_width(vmi);
+    
+    DBG_LINE;
+    dbprint(VMI_DEBUG_TEST, "%s: addr width: %d\n", __FUNCTION__, width);
+
     if (vmi->os_interface && vmi->os_interface->os_pgd_to_pid)
         ret = vmi->os_interface->os_pgd_to_pid(vmi, dtb, &_pid);
 

@@ -126,6 +126,12 @@ status_t probe_memory_layout_x86(vmi_instance_t vmi, unsigned long vcpu, page_mo
         vmi->page_mode = pm;
         vmi->x86.pse = pse;
     }
+    
+    uint8_t width;
+    width = vmi_get_address_width(vmi);
+    
+    DBG_LINE;
+    dbprint(VMI_DEBUG_TEST, "%s: addr width: %d\n", __FUNCTION__, width);
 
     ret = VMI_SUCCESS;
 

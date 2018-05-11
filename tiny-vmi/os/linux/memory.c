@@ -224,6 +224,13 @@ linux_pgd_to_pid(
 
     DBG_START;
 
+    uint8_t width;
+    width = vmi_get_address_width(vmi);
+    
+    DBG_LINE;
+    dbprint(VMI_DEBUG_TEST, "%s: addr width: %d\n", __FUNCTION__, width);
+
+
     if (!vmi->os_data) {
         errprint("VMI_ERROR: No os_data initialized\n");
         return VMI_FAILURE;
