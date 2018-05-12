@@ -29,7 +29,10 @@
 #include <signal.h>
 
 #include <tiny_libvmi.h>
-#include <libvmi/events.h>
+// #include <libvmi/events.h>
+#include <events.h>
+
+#include "examples.h"
 
 vmi_event_t single_event;
 
@@ -48,20 +51,23 @@ event_response_t single_step_callback(vmi_instance_t vmi, vmi_event_t *event)
     return 0;
 }
 
-int main (int argc, char **argv) {
+// int main (int argc, char **argv) {
+status_t singlestep_event_example(char *vm_name){
     vmi_instance_t vmi;
+
+    status_t ret = VMI_FAILURE;
 
     struct sigaction act;
 
-    char *name = NULL;
+    char *name = vm_name;
 
-    if(argc < 2){
-        fprintf(stderr, "Usage: single_step_example <name of VM> \n");
-        exit(1);
-    }
+    // if(argc < 2){
+    //     fprintf(stderr, "Usage: single_step_example <name of VM> \n");
+    //     exit(1);
+    // }
 
-    // Arg 1 is the VM name.
-    name = argv[1];
+    // // Arg 1 is the VM name.
+    // name = argv[1];
 
     /* for a clean exit */
     act.sa_handler = close_handler;
@@ -72,11 +78,19 @@ int main (int argc, char **argv) {
     sigaction(SIGINT,  &act, NULL);
     sigaction(SIGALRM, &act, NULL);
 
-    /* initialize the libvmi library */
-    if (VMI_FAILURE == vmi_init(&vmi, VMI_XEN, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL, NULL))
+    // /* initialize the libvmi library */
+    // if (VMI_FAILURE == vmi_init(&vmi, VMI_XEN, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL, NULL))
+    // {
+    //     ttprint(VMI_TEST_EVENTS, "Failed to init LibVMI library.\n");
+    //     return 1;
+    // }
+    if (VMI_FAILURE == 
+        // vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL,
+        //                   VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
+        vmi_init(&vmi, VMI_XEN, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL, NULL))
     {
         ttprint(VMI_TEST_EVENTS, "Failed to init LibVMI library.\n");
-        return 1;
+        goto _bail;
     }
 
     ttprint(VMI_TEST_EVENTS, "LibVMI init succeeded!\n");
@@ -91,12 +105,18 @@ int main (int argc, char **argv) {
     vmi_register_event(vmi, &single_event);
     while(!interrupted ){
         ttprint(VMI_TEST_EVENTS, "Waiting for events...\n");
-        vmi_events_listen(vmi,500);
+        ret = vmi_events_listen(vmi,500);
+        if (ret == VMI_FAILURE){
+            ttprint(VMI_TEST_EVENTS, "vmi events listen error\n");
+            break;
+        }
     }
     ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
 
     // cleanup any memory associated with the libvmi instance
     vmi_destroy(vmi);
 
-    return 0;
+_bail:
+
+    return ret;
 }

@@ -29,7 +29,10 @@
 #include <signal.h>
 
 #include <tiny_libvmi.h>
-#include <libvmi/events.h>
+// #include <libvmi/events.h>
+#include <events.h>
+
+#include "examples.h"
 
 vmi_event_t msr_event;
 
@@ -43,7 +46,9 @@ static void close_handler(int sig){
     interrupted = sig;
 }
 
-int main (int argc, char **argv) {
+// int main (int argc, char **argv) {
+status_t msr_event_example(char *vm_name){
+
     vmi_instance_t vmi;
     struct sigaction act;
     act.sa_handler = close_handler;
@@ -54,20 +59,22 @@ int main (int argc, char **argv) {
     sigaction(SIGINT,  &act, NULL);
     sigaction(SIGALRM, &act, NULL);
 
-    char *name = NULL;
+    char *name = vm_name;
 
-    if(argc < 2){
-        fprintf(stderr, "Usage: msr_events_example <name of VM>\n");
-        exit(1);
-    }
+    // if(argc < 2){
+    //     fprintf(stderr, "Usage: msr_events_example <name of VM>\n");
+    //     exit(1);
+    // }
 
     // Arg 1 is the VM name.
-    name = argv[1];
+    // name = argv[1];
 
     /* initialize the libvmi library */
     if (VMI_FAILURE ==
-        vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
-                          NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
+        // vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
+        //                   NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
+        vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL,
+                          VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
     {
         ttprint(VMI_TEST_EVENTS, "Failed to init LibVMI library.\n");
         return 1;

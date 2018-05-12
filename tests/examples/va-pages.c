@@ -27,15 +27,23 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <signal.h>
-#include <glib.h>
+// #include <glib.h>
+#include <tiny_glib.h>
+
+
+// #include <libvmi/libvmi.h>
+// #include <libvmi/libvmi_extra.h>
+// #include <libvmi/events.h>
 
 #include <tiny_libvmi.h>
-#include <libvmi/libvmi_extra.h>
-#include <libvmi/events.h>
+#include <libvmi_extra.h>
+#include <events.h>
+
+#include "examples.h"
 
 reg_t cr3;
 vmi_event_t cr3_event;
-GSList *va_pages;
+GSList *va_pages_;
 
 static int interrupted = 0;
 static void close_handler(int sig){
@@ -43,20 +51,20 @@ static void close_handler(int sig){
 }
 
 void free_va_pages() {
-    GSList *free_this = va_pages;
-    while(va_pages) {
-        g_free(va_pages->data);
-        va_pages=va_pages->next;
+    GSList *free_this = va_pages_;
+    while(va_pages_) {
+        g_free(va_pages_->data);
+        va_pages_=va_pages_->next;
     }
     g_slist_free(free_this);
-    va_pages = NULL;
+    va_pages_= NULL;
 }
 
 event_response_t cr3_callback(vmi_instance_t vmi, vmi_event_t *event) {
 
-    va_pages = vmi_get_va_pages(vmi, event->reg_event.value);
+    va_pages_= vmi_get_va_pages(vmi, event->reg_event.value);
 
-    GSList *loop = va_pages;
+    GSList *loop = va_pages_;
     while(loop) {
         page_info_t *page = loop->data;
 
@@ -80,23 +88,24 @@ event_response_t cr3_callback(vmi_instance_t vmi, vmi_event_t *event) {
     return 0;
 }
 
-int main (int argc, char **argv)
+// int main (int argc, char **argv)
+status_t va_pages(char *vm_name)
 {
     vmi_instance_t vmi = NULL;
     status_t status = VMI_SUCCESS;
 
     struct sigaction act;
 
-    char *name = NULL;
-    va_pages = NULL;
+    char *name = vm_name;
+    va_pages_= NULL;
 
-    if(argc < 2){
-        fprintf(stderr, "Usage: events_example <name of VM>\n");
-        exit(1);
-    }
+    // if(argc < 2){
+    //     fprintf(stderr, "Usage: events_example <name of VM>\n");
+    //     exit(1);
+    // }
 
     // Arg 1 is the VM name.
-    name = argv[1];
+    // name = argv[1];
 
     /* for a clean exit */
     act.sa_handler = close_handler;
@@ -109,11 +118,14 @@ int main (int argc, char **argv)
 
     // Initialize the libvmi library.
     if (VMI_FAILURE ==
-        vmi_init_complete(&vmi, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
-                          NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
+        // vmi_init_complete(&vmi, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
+        //                   NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
+        vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL,
+                          VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
     {
         ttprint(VMI_TEST_MISC, "Failed to init LibVMI library.\n");
-        return 1;
+        status = VMI_FAILURE;
+        goto bail_;
     }
 
     ttprint(VMI_TEST_MISC, "LibVMI init succeeded!\n");
@@ -139,5 +151,6 @@ int main (int argc, char **argv)
     // cleanup any memory associated with the libvmi instance
     vmi_destroy(vmi);
 
-    return 0;
+bail_:
+    return status;
 }

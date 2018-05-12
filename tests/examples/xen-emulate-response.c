@@ -29,7 +29,10 @@
 #include <signal.h>
 
 #include <tiny_libvmi.h>
-#include <libvmi/events.h>
+// #include <libvmi/events.h>
+#include <events.h>
+
+#include "examples.h"
 
 void print_event(vmi_event_t *event){
     ttprint(VMI_TEST_MISC, "PAGE ACCESS: %c%c%c for GFN %"PRIx64" (offset %06"PRIx64") gla %016"PRIx64" (vcpu %"PRIu32")\n",
@@ -53,24 +56,25 @@ static void close_handler(int sig){
     interrupted = sig;
 }
 
-int main (int argc, char **argv)
+// int main (int argc, char **argv)
+status_t xen_emulate_response(char *vm_name, addr_t kv_addr)
 {
     vmi_instance_t vmi = NULL;
     status_t status = VMI_SUCCESS;
     struct sigaction act;
 
-    if(argc < 3){
-        fprintf(stderr, "Usage: xen-emulate-response <name of VM> <kernel virtual address trap in hex>\n");
-        return 1;
-    }
+    // if(argc < 3){
+    //     fprintf(stderr, "Usage: xen-emulate-response <name of VM> <kernel virtual address trap in hex>\n");
+    //     return 1;
+    // }
 
-    addr_t addr;
+    addr_t addr = kv_addr;
 
-    char *name = NULL;
+    char *name = vm_name;
 
-    // Arg 1 is the VM name.
-    name = argv[1];
-    addr = (addr_t) strtoul(argv[2], NULL, 16);
+    // // Arg 1 is the VM name.
+    // name = argv[1];
+    // addr = (addr_t) strtoul(argv[2], NULL, 16);
 
     /* for a clean exit */
     act.sa_handler = close_handler;
@@ -83,11 +87,14 @@ int main (int argc, char **argv)
 
     // Initialize the libvmi library.
     if (VMI_FAILURE ==
-        vmi_init_complete(&vmi, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
-                          NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
+        // vmi_init_complete(&vmi, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
+        //                   NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
+        vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL,
+                          VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
     {
-        ttprint(VMI_TEST_MISC, "Failed to init LibVMI library.\n");
-        return 1;
+        ttprint(VMI_TEST_EVENTS, "Failed to init LibVMI library.\n");
+        status = VMI_FAILURE;
+        goto bail_;
     }
 
     ttprint(VMI_TEST_MISC, "LibVMI init succeeded!\n");
@@ -118,5 +125,7 @@ leave:
     // cleanup any memory associated with the libvmi instance
     vmi_destroy(vmi);
 
-    return 0;
+bail_:
+
+    return status;
 }

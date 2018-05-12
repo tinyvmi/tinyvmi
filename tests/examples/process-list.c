@@ -33,8 +33,10 @@
 
 #include <tiny_libvmi.h>
 
-int main (int argc, char **argv)
-{
+#include "examples.h"
+
+// int main (int argc, char **argv)
+status_t process_list (char *vm_name) {
     vmi_instance_t vmi;
     addr_t list_head = 0, cur_list_entry = 0, next_list_entry = 0;
     addr_t current_process = 0;
@@ -43,18 +45,21 @@ int main (int argc, char **argv)
     unsigned long tasks_offset = 0, pid_offset = 0, name_offset = 0;
     status_t status;
 
-    /* this is the VM or file that we are looking at */
-    if (argc != 2) {
-        ttprint(VMI_TEST_MISC, "Usage: %s <vmname>\n", argv[0]);
-        return 1;
-    } // if
+    // /* this is the VM or file that we are looking at */
+    // if (argc != 2) {
+    //     ttprint(VMI_TEST_MISC, "Usage: %s <vmname>\n", argv[0]);
+    //     return 1;
+    // } // if
 
-    char *name = argv[1];
+    // char *name = argv[1];
+    char *name = vm_name;
 
     /* initialize the libvmi library */
     if (VMI_FAILURE ==
+        // vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
+        //                   VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
-                          VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
+                          VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
     {
         ttprint(VMI_TEST_MISC, "Failed to init LibVMI library.\n");
         return 1;

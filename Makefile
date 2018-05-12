@@ -35,6 +35,15 @@ SRC_CODE += ./tests/examples/map-symbol.c
 
 OB_tests += $(OB_test_map_addr) $(OB_test_module_list) $(OB_test_event)
 
+OB_tests += ./tests/examples/dump-memory.o
+OB_tests += ./tests/examples/msr-event-example.o
+OB_tests += ./tests/examples/process-list.o
+# OB_tests += ./tests/examples/shm-snapshot-process-list.o
+OB_tests += ./tests/examples/singlestep-event-example.o
+OB_tests += ./tests/examples/step-event-example.o
+OB_tests += ./tests/examples/va-pages.o
+OB_tests += ./tests/examples/xen-emulate-response.o
+
 OBJS += $(OB_tests)
 
 # OBJS += ./tiny-vmi/tiny_cache.o ./tiny-vmi/mem_cache.o
