@@ -54,9 +54,7 @@ OBJS += ./tiny-vmi/driver/tiny_memory_cache_list.o
 OBJS += ./tiny-vmi/accessors.o  
 
 #OBJS += ./tiny-vmi/tiny_kv2p.o  
-
 # OBJS += ./tiny-vmi/tiny_vmi_init.o 
-
 # OBJS += ./tiny-vmi/tiny_read.o 
 
 OBJS += ./tiny-vmi/read.o 

@@ -329,19 +329,19 @@ status_t init_kaslr(vmi_instance_t vmi) {
     while (loop) {
         page_info_t *info = loop->data;
         
-        // DBG_LINE;
+        DBG_LINE;
 
         if ( !linux_instance->kaslr_offset ) {
             switch(vmi->page_mode) {
                 case VMI_PM_AARCH64:
-                    // DBG_LINE;
+                    DBG_LINE;
                 case VMI_PM_IA32E:
-                    // DBG_LINE;
+                    DBG_LINE;
                     if ( VMI_GET_BIT(info->vaddr, 47) )
                         ret = init_task_kaslr_test(vmi, info->vaddr);
                     break;
                 default:
-                    // DBG_LINE;
+                    DBG_LINE;
                     ret = init_task_kaslr_test(vmi, info->vaddr);
                     break;
             };

@@ -1,1 +1,1 @@
-../target_conf_examples/example_target_3.19.0.25_x64/target_libvmi_sysmap.c
+../target_conf_examples/example_target_u16_4.4.0-101_x64/target_libvmi_sysmap.c

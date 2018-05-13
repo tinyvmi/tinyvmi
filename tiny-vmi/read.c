@@ -169,7 +169,7 @@ vmi_read(
         buf_offset += read_len;
     }
 
-    // ret = VMI_SUCCESS;
+    ret = VMI_SUCCESS;
 
 done:
     if ( bytes_read )

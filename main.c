@@ -48,7 +48,7 @@ int main(void) {
 		// map_symbol(name, "startup_32"); //"xen_entry"
 		// module_list(name);
 
-		// event_example(name, 0);
+		event_example(name, 0);
 		// interrupt_event_example(name);
 
 		// 6 newly added, 05122018:
@@ -57,7 +57,7 @@ int main(void) {
 		// singlestep_event_example(name);
 		// step_event_example(name);
 		// va_pages(name);
-		xen_emulate_response(name, kvaddr);
+		// xen_emulate_response(name, kvaddr);
 		
 	
 	// gettimeofday(&tv_end,NULL);

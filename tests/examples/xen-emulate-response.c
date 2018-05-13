@@ -61,7 +61,7 @@ status_t xen_emulate_response(char *vm_name, addr_t kv_addr)
 {
     vmi_instance_t vmi = NULL;
     status_t status = VMI_SUCCESS;
-    struct sigaction act;
+    // struct sigaction act;
 
     // if(argc < 3){
     //     fprintf(stderr, "Usage: xen-emulate-response <name of VM> <kernel virtual address trap in hex>\n");
@@ -77,13 +77,14 @@ status_t xen_emulate_response(char *vm_name, addr_t kv_addr)
     // addr = (addr_t) strtoul(argv[2], NULL, 16);
 
     /* for a clean exit */
-    act.sa_handler = close_handler;
-    act.sa_flags = 0;
-    sigemptyset(&act.sa_mask);
-    sigaction(SIGHUP,  &act, NULL);
-    sigaction(SIGTERM, &act, NULL);
-    sigaction(SIGINT,  &act, NULL);
-    sigaction(SIGALRM, &act, NULL);
+    /* no longer effective in minios, any work around? */
+    // act.sa_handler = close_handler;
+    // act.sa_flags = 0;
+    // sigemptyset(&act.sa_mask);
+    // sigaction(SIGHUP,  &act, NULL);
+    // sigaction(SIGTERM, &act, NULL);
+    // sigaction(SIGINT,  &act, NULL);
+    // sigaction(SIGALRM, &act, NULL);
 
     // Initialize the libvmi library.
     if (VMI_FAILURE ==
