@@ -180,7 +180,7 @@ read_config_file(vmi_instance_t vmi, FILE* config_file,
     *config = vmi_get_config();
     if (*config) {
         dbprint(VMI_DEBUG_CORE, 
-            "%s: already has config hash table, no need to parse again.", __FUNCTION__);
+            "%s: already has config hash table, no need to parse again.\n", __FUNCTION__);
         ret = VMI_SUCCESS;
         goto error_exit;
     }
