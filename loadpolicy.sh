@@ -1,7 +1,7 @@
 #!/bin/bash
 
 policydir="tools/flask/policy"
-policyfile="tools/flask/policy/xenpolicy-4.9.1"
+policyfile="tools/flask/policy/xenpolicy-4.*"
 bootpolicydir="/boot/flask/"
 
 tinyDir=$(dirname $0)

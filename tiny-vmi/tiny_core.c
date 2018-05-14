@@ -786,6 +786,11 @@ os_t vmi_init_os(
     };
 
 error_exit:
+    // // Lele: destroy hashtable after use.
+    // if (_config){
+    //     g_hash_table_destroy(_config);
+    // }
+
     // DBG_DONE;
     return vmi->os_type;
 }
