@@ -78,14 +78,13 @@ status_t unit_test_vmi_init (char *vm_name){
     int count_max = UNIT_TEST_COUNT_LIMIT;
 
     struct timeval tv_begin,tv_end;
-	int duration,count=0,noise_ct=0;
+	long long duration;
+    int count=0,noise_ct=0;
 	long int sum=0;
-	double average=0.0;
+	long double average=0.0;
 	int sleep_interval=0;
 
 	gettimeofday(&tv_begin,NULL);
-    
-	ttprint(VMI_TEST_MISC, "%s: TimeStamp: %d s %d us\n", __FUNCTION__, (int)tv_begin.tv_sec,(int)tv_begin.tv_usec);
 
     ret = VMI_SUCCESS;
     while (count < count_max && ret == VMI_SUCCESS){
@@ -100,15 +99,17 @@ status_t unit_test_vmi_init (char *vm_name){
 
 	gettimeofday(&tv_end,NULL);
 
-	ttprint(VMI_TEST_MISC, "%s: TimeStamp: %d s %d us\n", __FUNCTION__, (int)tv_end.tv_sec,(int)tv_end.tv_usec);
+	ttprint(VMI_TEST_MISC, "%s: TimeStamp: %lld s %lld us\n", __FUNCTION__, (long long)tv_begin.tv_sec,(long long)tv_begin.tv_usec);
+    
+	ttprint(VMI_TEST_MISC, "%s: TimeStamp: %lld s %lld us\n", __FUNCTION__, (long long)tv_end.tv_sec,(long long)tv_end.tv_usec);
 
-	duration= (tv_end.tv_sec - tv_begin.tv_sec)*1000000 + (tv_end.tv_usec - tv_begin.tv_usec);
+	duration= (tv_end.tv_sec - tv_begin.tv_sec)*1000000LL + (tv_end.tv_usec - tv_begin.tv_usec);
 
-    average = (double) duration / (double) count_max;
+    average = (long double) duration / (long double) count_max;
 
-	ttprint(VMI_TEST_MISC, "%s: TotalTime: %d us------\n",__FUNCTION__, duration);
+	ttprint(VMI_TEST_MISC, "%s: TotalTime: %lld us------\n",__FUNCTION__, duration);
 
-	ttprint(VMI_TEST_MISC, "%s: Average: %f us------\n",__FUNCTION__, average);
+	ttprint(VMI_TEST_MISC, "%s: Average: %Lf us------\n",__FUNCTION__, average);
 
     return VMI_SUCCESS;
 

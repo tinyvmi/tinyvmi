@@ -20,7 +20,7 @@ int main(void) {
 
 	struct timeval tv_begin,tv_end;
 
-	int duration;
+	long long duration;
     ttprint(VMI_TEST_MAIN,  "Hello, world!\n");
   
 	//sleep(2);
@@ -52,8 +52,12 @@ int main(void) {
 	gettimeofday(&tv_end,NULL);
     // //sleep(2);
 
-	duration=(tv_end.tv_sec-tv_begin.tv_sec)*1000000+(tv_end.tv_usec-tv_begin.tv_usec);
-	ttprint(VMI_TEST_MAIN,  "%s: interval: (t2-t1): %dus(%dms)\n",__FUNCTION__, duration,duration/1000);
+	ttprint(VMI_TEST_MISC, "%s: TimeStamp: %lld s %lld us\n", __FUNCTION__, (long long)tv_begin.tv_sec,(long long)tv_begin.tv_usec);
+	
+	ttprint(VMI_TEST_MISC, "%s: TimeStamp: %lld s %lld us\n", __FUNCTION__, (long long)tv_end.tv_sec,(long long)tv_end.tv_usec);
+
+	duration=(tv_end.tv_sec-tv_begin.tv_sec)*1000000LL+(tv_end.tv_usec-tv_begin.tv_usec);
+	ttprint(VMI_TEST_MAIN,  "%s: interval: (t2-t1): %lldus(%lldms)\n",__FUNCTION__, duration,duration/1000LL);
 	
     return 0;
 
