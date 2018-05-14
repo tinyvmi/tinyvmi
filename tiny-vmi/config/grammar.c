@@ -304,11 +304,11 @@ void entry_done ()
 {
     if (strncmp(tmp_domain_name, target_domain, CONFIG_STR_LENGTH) == 0){
         if (entry != NULL) {
-            // fprintf(stderr, "Duplicate config for %s found, using most recent\n", target_domain);
-            fprintf(stderr, "Duplicate config for %s found, using old config\n", target_domain);
-            // g_hash_table_destroy(entry);
-            tmp_entry = entry;
-            goto exit_;
+           fprintf(stderr, "Duplicate config for %s found, using most recent\n", target_domain);
+           g_hash_table_destroy(entry);
+            // fprintf(stderr, "Duplicate config for %s found, using old config\n", target_domain);
+            // tmp_entry = entry;
+            // goto exit_;
         }
         entry = tmp_entry;
     } else {

@@ -177,6 +177,14 @@ read_config_file(vmi_instance_t vmi, FILE* config_file,
 
     yyin = config_file;
 
+    *config = vmi_get_config();
+    if (*config) {
+        dbprint(VMI_DEBUG_CORE, 
+            "already has config hash table, no need to parse again.", __FUNCTION__);
+        ret = VMI_SUCCESS;
+        goto error_exit;
+    }
+
     if (vmi_parse_config(vmi->image_type) != 0) {
         if ( error )
             *error = VMI_INIT_ERROR_NO_CONFIG;
