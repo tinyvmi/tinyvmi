@@ -29,18 +29,18 @@ int main(void) {
 
 	result = 
 		/* examples in libvmi */
-		map_addr(name,vaddr);
-		map_symbol(name, "xen_entry"); // "startup_32"); //"xen_entry"
-		module_list(name);
-		event_example(name, 0);
-		interrupt_event_example(name);
-		// 6 newly added, 05122018:
-		msr_event_example(name);
-		process_list(name);
-		singlestep_event_example(name);
-		step_event_example(name);
-		va_pages(name);
-		xen_emulate_response(name, kvaddr);
+		// map_addr(name,vaddr);
+		// map_symbol(name, "xen_entry"); // "startup_32"); //"xen_entry"
+		// module_list(name);
+		// event_example(name, 0);
+		// interrupt_event_example(name);
+		// // 6 newly added, 05122018:
+		// msr_event_example(name);
+		// process_list(name);
+		// singlestep_event_example(name);
+		// step_event_example(name);
+		// va_pages(name);
+		// xen_emulate_response(name, kvaddr);
 
 		/* unit tests*/
 		unit_test_vmi_init(name);
