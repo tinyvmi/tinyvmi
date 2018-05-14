@@ -33,6 +33,8 @@ function hasGuestDom(){
 
 }
 
+git log | head
+
 function checkAndCreateGuest(){
 
  hasGuestDom
