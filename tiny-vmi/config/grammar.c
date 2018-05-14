@@ -316,7 +316,7 @@ void entry_done ()
     }
     tmp_entry = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 exit_:
-
+    return;
 }
 
 GHashTable* vmi_get_config()
