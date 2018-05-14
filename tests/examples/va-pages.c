@@ -60,7 +60,7 @@ void free_va_pages() {
     va_pages_= NULL;
 }
 
-event_response_t cr3_callback(vmi_instance_t vmi, vmi_event_t *event) {
+event_response_t cr3_callback_va_pages(vmi_instance_t vmi, vmi_event_t *event) {
 
     va_pages_= vmi_get_va_pages(vmi, event->reg_event.value);
 
@@ -117,16 +117,21 @@ status_t va_pages(char *vm_name)
     sigaction(SIGALRM, &act, NULL);
 
     // Initialize the libvmi library.
+
+    char *config_str = get_config_from_file_string(name);
+
     if (VMI_FAILURE ==
         // vmi_init_complete(&vmi, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
         //                   NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL,
-                          VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
+                          VMI_CONFIG_STRING, config_str, NULL))
     {
         ttprint(VMI_TEST_MISC, "Failed to init LibVMI library.\n");
         status = VMI_FAILURE;
         goto bail_;
     }
+
+    free(config_str);
 
     ttprint(VMI_TEST_MISC, "LibVMI init succeeded!\n");
 
@@ -134,7 +139,7 @@ status_t va_pages(char *vm_name)
      * (The CR3 register is updated on task context switch, allowing
      *  us to follow as various tasks are scheduled and run upon the CPU)
      */
-    SETUP_REG_EVENT(&cr3_event, CR3, VMI_REGACCESS_W, 0, cr3_callback);
+    SETUP_REG_EVENT(&cr3_event, CR3, VMI_REGACCESS_W, 0, cr3_callback_va_pages);
     vmi_register_event(vmi, &cr3_event);
 
     while(!interrupted){

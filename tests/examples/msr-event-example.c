@@ -70,15 +70,20 @@ status_t msr_event_example(char *vm_name){
     // name = argv[1];
 
     /* initialize the libvmi library */
+
+    char *config_str = get_config_from_file_string(name);
+
     if (VMI_FAILURE ==
         // vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
         //                   NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL,
-                          VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
+                          VMI_CONFIG_STRING, config_str, NULL))
     {
         ttprint(VMI_TEST_EVENTS, "Failed to init LibVMI library.\n");
         return 1;
     }
+
+    free(config_str);
 
     ttprint(VMI_TEST_EVENTS, "LibVMI init succeeded!\n");
 

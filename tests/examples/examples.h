@@ -8,6 +8,14 @@
 
 #define TEST_TIME_LIMIT 105  // time in seconds
 
+/**
+ * accessories
+*/
+
+
+void print_event(vmi_event_t *event);
+
+
 // TODO: file work around for dump_memory
 status_t dump_memory (char* vm_name, char * filename);
 

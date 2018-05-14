@@ -38,7 +38,7 @@ char * get_config_from_file_string(char *vm_name){
         }
     }
     if (!found){
-        errprint("failed to find config entry");
+        errprint("%s: failed to find config entry\n", __FUNCTION__);
     }
     long start = pos + max_len;
     found = 0;
@@ -53,8 +53,9 @@ char * get_config_from_file_string(char *vm_name){
     }
     long end = pos + 1;
     long entry_length = end - start;
-    char *config = malloc(entry_length);
-    memcpy(config, buf + start, entry_length);
+    char *config = malloc(entry_length + 1);
+    // memcpy(config, buf + start, entry_length);
+    snprintf(config, entry_length + 1, "%s", buf+start);
  
     // free(buf);
 

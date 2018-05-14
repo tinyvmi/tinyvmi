@@ -39,16 +39,21 @@ status_t module_list( char *name)
     addr_t next_module, list_head;
 
     /* initialize the libvmi library */
+
+    char *config_str = get_config_from_file_string(name);
+
     if (VMI_FAILURE ==
         // vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
         //                   VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL)
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
-           VMI_CONFIG_STRING, get_config_from_file_string(name), NULL)
+           VMI_CONFIG_STRING, config_str, NULL)
        )
     {
         ttprint(VMI_TEST_MISC, "Failed to init LibVMI library.\n");
         return 1;
     }
+
+    free(config_str);
 
     /* pause the vm for consistent memory access */
     vmi_pause_vm(vmi);

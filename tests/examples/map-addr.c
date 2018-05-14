@@ -51,16 +51,21 @@ status_t map_addr(char *name, addr_t addr)
 
 
     /* initialize the libvmi library */
+
+    char *config_str = get_config_from_file_string(name);
+
     // if (VMI_FAILURE ==
     //     vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
     //                       VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
     if (VMI_FAILURE == 
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
-                          VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
+                          VMI_CONFIG_STRING, config_str, NULL))
     {
         ttprint(VMI_TEST_MISC, "Failed to init LibVMI library.\n");
         goto error_exit;
     }
+
+    free(config_str);
 
     /* get the symbol's memory page */
     if (VMI_FAILURE == vmi_read_va(vmi, addr, 0, PAGE_SIZE, memory, NULL)) {

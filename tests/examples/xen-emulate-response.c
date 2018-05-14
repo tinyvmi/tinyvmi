@@ -34,17 +34,17 @@
 
 #include "examples.h"
 
-void print_event(vmi_event_t *event){
-    ttprint(VMI_TEST_MISC, "PAGE ACCESS: %c%c%c for GFN %"PRIx64" (offset %06"PRIx64") gla %016"PRIx64" (vcpu %"PRIu32")\n",
-        (event->mem_event.out_access & VMI_MEMACCESS_R) ? 'r' : '-',
-        (event->mem_event.out_access & VMI_MEMACCESS_W) ? 'w' : '-',
-        (event->mem_event.out_access & VMI_MEMACCESS_X) ? 'x' : '-',
-        event->mem_event.gfn,
-        event->mem_event.offset,
-        event->mem_event.gla,
-        event->vcpu_id
-    );
-}
+// void print_event(vmi_event_t *event){
+//     ttprint(VMI_TEST_MISC, "PAGE ACCESS: %c%c%c for GFN %"PRIx64" (offset %06"PRIx64") gla %016"PRIx64" (vcpu %"PRIu32")\n",
+//         (event->mem_event.out_access & VMI_MEMACCESS_R) ? 'r' : '-',
+//         (event->mem_event.out_access & VMI_MEMACCESS_W) ? 'w' : '-',
+//         (event->mem_event.out_access & VMI_MEMACCESS_X) ? 'x' : '-',
+//         event->mem_event.gfn,
+//         event->mem_event.offset,
+//         event->mem_event.gla,
+//         event->vcpu_id
+//     );
+// }
 
 event_response_t cb(vmi_instance_t vmi, vmi_event_t *event) {
     print_event(event);
@@ -87,16 +87,21 @@ status_t xen_emulate_response(char *vm_name, addr_t kv_addr)
     // sigaction(SIGALRM, &act, NULL);
 
     // Initialize the libvmi library.
+
+    char *config_str = get_config_from_file_string(name);
+
     if (VMI_FAILURE ==
         // vmi_init_complete(&vmi, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
         //                   NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL,
-                          VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
+                          VMI_CONFIG_STRING, config_str, NULL))
     {
         ttprint(VMI_TEST_EVENTS, "Failed to init LibVMI library.\n");
         status = VMI_FAILURE;
         goto bail_;
     }
+
+    free(config_str);
 
     ttprint(VMI_TEST_MISC, "LibVMI init succeeded!\n");
 

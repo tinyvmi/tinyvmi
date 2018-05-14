@@ -48,17 +48,17 @@ static void close_handler(int sig){
     interrupted = sig;
 }
 
-void print_event(vmi_event_t *event){
-    ttprint(VMI_TEST_EVENTS, "\tPAGE ACCESS: %c%c%c for GFN %"PRIx64" (offset %06"PRIx64") gla %016"PRIx64" (vcpu %u)\n",
-        (event->mem_event.out_access & VMI_MEMACCESS_R) ? 'r' : '-',
-        (event->mem_event.out_access & VMI_MEMACCESS_W) ? 'w' : '-',
-        (event->mem_event.out_access & VMI_MEMACCESS_X) ? 'x' : '-',
-        event->mem_event.gfn,
-        event->mem_event.offset,
-        event->mem_event.gla,
-        event->vcpu_id
-    );
-}
+// void print_event(vmi_event_t *event){
+//     ttprint(VMI_TEST_EVENTS, "\tPAGE ACCESS: %c%c%c for GFN %"PRIx64" (offset %06"PRIx64") gla %016"PRIx64" (vcpu %u)\n",
+//         (event->mem_event.out_access & VMI_MEMACCESS_R) ? 'r' : '-',
+//         (event->mem_event.out_access & VMI_MEMACCESS_W) ? 'w' : '-',
+//         (event->mem_event.out_access & VMI_MEMACCESS_X) ? 'x' : '-',
+//         event->mem_event.gfn,
+//         event->mem_event.offset,
+//         event->mem_event.gla,
+//         event->vcpu_id
+//     );
+// }
 
 event_response_t step_callback(vmi_instance_t vmi, vmi_event_t *event) {
     ttprint(VMI_TEST_EVENTS, "Re-registering event\n");
@@ -96,7 +96,7 @@ event_response_t mm_callback(vmi_instance_t vmi, vmi_event_t *event) {
     return 0;
 }
 
-event_response_t cr3_callback(vmi_instance_t vmi, vmi_event_t *event){
+event_response_t cr3_callback_step_event(vmi_instance_t vmi, vmi_event_t *event){
     vmi_pid_t current_pid = -1;
     vmi_dtb_to_pid(vmi, event->reg_event.value, &current_pid);
     ttprint(VMI_TEST_EVENTS, "PID %i with CR3=%"PRIx64" executing on vcpu %u.\n", current_pid, event->reg_event.value, event->vcpu_id);
@@ -147,22 +147,27 @@ status_t step_event_example(char *vm_name)
     sigaction(SIGALRM, &act, NULL);
 
     // Initialize the libvmi library.
+
+    char *config_str = get_config_from_file_string(name);
+
     if (VMI_FAILURE ==
         // vmi_init_complete(&vmi, (void*)name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS,
         //                   NULL, VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME | VMI_INIT_EVENTS, NULL,
-                          VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
+                          VMI_CONFIG_STRING, config_str, NULL))
     {
         ttprint(VMI_TEST_EVENTS, "Failed to init LibVMI library.\n");
         status = VMI_FAILURE;
         goto bail_;
     }
 
+    free(config_str);
+
     ttprint(VMI_TEST_EVENTS, "LibVMI init succeeded!\n");
 
     vmi_pause_vm(vmi);
 
-    SETUP_REG_EVENT(&cr3_event, CR3, VMI_REGACCESS_W, 0, cr3_callback);
+    SETUP_REG_EVENT(&cr3_event, CR3, VMI_REGACCESS_W, 0, cr3_callback_step_event);
     vmi_register_event(vmi, &cr3_event);
 
     // Setup a mem event for tracking memory at the current instruction's page

@@ -24,6 +24,10 @@ SRC_CODE += ./tests/unit_tests/unit_tests.h
 OB_tests += ./tests/unit_tests/unit_test_vmi_init.o
 SRC_CODE += ./tests/unit_tests/unit_test_vmi_init.c
 
+OB_tests += ./tests/examples/examples.o
+SRC_CODE += ./tests/examples/examples.c
+SRC_CODE += ./tests/examples/examples.h
+
 OB_test_module_list += ./tests/examples/module-list.o
 SRC_CODE += ./tests/examples/module-list.c
 

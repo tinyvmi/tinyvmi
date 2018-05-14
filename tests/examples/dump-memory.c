@@ -76,14 +76,18 @@ status_t dump_memory (char* vm_name, char * filename)
     // }
 
     // Initialize the libvmi library.
+    char *config_str = get_config_from_file_string(name);
+
     if (VMI_FAILURE ==
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
-                          VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
+                          VMI_CONFIG_STRING, config_str, NULL))
     {
         ttprint(VMI_TEST_EVENTS, "Failed to init LibVMI library.\n");
         ret = VMI_FAILURE;
         goto bail_;
     }
+    
+    free(config_str);
 
     /* open the file for writing */
     /* TODO: no file system in minios, possible solutions?
