@@ -53,7 +53,7 @@ int main(void) {
     // //sleep(2);
 
 	duration=(tv_end.tv_sec-tv_begin.tv_sec)*1000000+(tv_end.tv_usec-tv_begin.tv_usec);
-	ttprint(VMI_TEST_MAIN,  "%s: interval: (t2-t1): %dus(%dms)\n",duration,duration/1000);
+	ttprint(VMI_TEST_MAIN,  "%s: interval: (t2-t1): %dus(%dms)\n",__FUNCTION__, duration,duration/1000);
 	
     return 0;
 

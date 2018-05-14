@@ -51,13 +51,14 @@ static inline status_t _unit_test_vmi_init_ (char* vm_name)
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
                           VMI_CONFIG_STRING, get_config_from_file_string(name), NULL))
     {
+        DBG_LINE;            
         ttprint(VMI_TEST_EVENTS, "Failed to init LibVMI library.\n");
         ret = VMI_FAILURE;
         goto bail_;
     }
 
     /* cleanup any memory associated with the libvmi instance */
-    vmi_destroy(vmi);
+    ret = vmi_destroy(vmi);
 
 bail_:
 
@@ -67,7 +68,7 @@ bail_:
 
 status_t unit_test_vmi_init (char *vm_name){
 
-    status_t ret = VMI_FAILURE;
+    status_t ret;
 
     int count_max = UNIT_TEST_COUNT_LIMIT;
 
@@ -81,10 +82,16 @@ status_t unit_test_vmi_init (char *vm_name){
     
 	ttprint(VMI_TEST_MISC, "%s: TimeStamp: %d s %d us\n", __FUNCTION__, (int)tv_begin.tv_sec,(int)tv_begin.tv_usec);
 
+    ret = VMI_SUCCESS;
     while (count < count_max && ret == VMI_SUCCESS){
         ret = _unit_test_vmi_init_(vm_name);
+        count ++;
     }
 
+    if (ret == VMI_FAILURE){
+		DBG_LINE;
+		errprint("%s: VMI INIT failed, count = %d\n", __FUNCTION__, count);
+    }
 
 	gettimeofday(&tv_end,NULL);
 
@@ -97,5 +104,7 @@ status_t unit_test_vmi_init (char *vm_name){
 	ttprint(VMI_TEST_MISC, "%s: TotalTime: %d us------\n",__FUNCTION__, duration);
 
 	ttprint(VMI_TEST_MISC, "%s: Average: %f us------\n",__FUNCTION__, average);
+
+    return VMI_SUCCESS;
 
 }
