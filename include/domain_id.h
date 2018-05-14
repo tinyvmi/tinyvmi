@@ -3,7 +3,7 @@
 
 //Lele: testing with constant values, all need replacement. 
 // default return value of xen_get_domainid_from_name
-#define DOMAIN_ID  15
+#define DOMAIN_ID  1
 
 
 /* The following values need to be set before run this:
