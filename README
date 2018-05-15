@@ -1,8 +1,8 @@
 To run tinyvmi:
 
-1, compile and install Xen from given source code of xen-4.4.0, with XSM enabled. (tested on Ubuntu 14.04 as dom0). 
+1, compile and install Xen from given source code of xen-4.10.0, with XSM enabled. (tested on Ubuntu 16.04 as dom0, other Linux dist should be fine). 
     Note: 
-    -- FLASK policy definition can be found in ./tools/flask/policy/policy/modules/xen/xen.te
+    -- FLASK policy definition can be found in ./tools/flask/policy/policy/modules/xen/xen.te [fixme]
     -- How to enable XSM and install policy: https://wiki.xenproject.org/wiki/Xen_Security_Modules_:_XSM-FLASK
     
     
