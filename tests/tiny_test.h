@@ -2,6 +2,10 @@
 #ifndef TINY_TEST_H
 #define TINY_TEST_H
 
+
+#include <tiny_libvmi.h>
+#include "config/libvmi_conf_file.h"
+
 // #include "tiny_private.h"
 
 

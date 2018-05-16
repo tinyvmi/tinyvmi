@@ -1,8 +1,17 @@
 
-#include "tiny_private.h"
+// #include "tiny_private.h"
+
+#define _GNU_SOURCE
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
+#include <tiny_config.h>
+#include <tiny_libvmi.h>
+
 #include "tiny_test.h"
 
-#define MAX_COUNT 1000
+#define MAX_COUNT 500
 #define NOISE_UP 100
 #define NOISE_DOWN 0
 #define SLEEP_INTERVAL 5
@@ -33,6 +42,9 @@ status_t test_map_addr(char *vm_name, addr_t vaddr){
     /* initialize the libvmi library */
 
     char *config_str = get_config_from_file_string(name);
+
+    dbprint(VMI_DEBUG_CORE, "%s: config string before call vmi_init_complete: %s\n", 
+        __FUNCTION__, config_str);
 
     // if (VMI_FAILURE ==
     //     vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,

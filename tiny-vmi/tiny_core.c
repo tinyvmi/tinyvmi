@@ -712,6 +712,10 @@ os_t vmi_init_os(
     switch(config_mode) {
         case VMI_CONFIG_STRING:
             /* read and parse the config string */
+            
+            dbprint(VMI_DEBUG_CORE, "%s: config string  before read_config_string: %s\n", 
+        __FUNCTION__, (char *)config);
+     
             if(VMI_FAILURE == read_config_string(vmi, (const char*)config, &_config, error)) {
                 goto error_exit;
             }
@@ -818,6 +822,9 @@ vmi_init_complete(
 
     // DBG_START; 
     
+    dbprint(VMI_DEBUG_CORE, "%s: config string before vmi_get_access_mode: %s\n", 
+        __FUNCTION__, (char *)config);
+
     if ( VMI_FAILURE == vmi_get_access_mode(_vmi, domain, init_flags, init_data, &mode) )
     {
         
@@ -828,12 +835,18 @@ vmi_init_complete(
         return VMI_FAILURE;
     }
 
+    dbprint(VMI_DEBUG_CORE, "%s: config string after vmi_get_access_mode: %s\n", 
+        __FUNCTION__, (char *)config);
+
     if ( VMI_FAILURE == vmi_init(&_vmi, mode, domain, init_flags, init_data, error) )
         return VMI_FAILURE;
     else{
         dbprint(VMI_DEBUG_TEST, "%s: vmi_init success\n", __FUNCTION__);
     }
 
+    dbprint(VMI_DEBUG_CORE, "%s: config string after vmi_init: %s\n", 
+        __FUNCTION__, (char *)config);
+        
     /*
      * For file-mode initialization OS specific heuristics are required,
      * which are being called in vmi_init_os.
@@ -849,6 +862,9 @@ vmi_init_complete(
         dbprint(VMI_DEBUG_TEST, "%s: vmi_init_paging success\n", __FUNCTION__);
     }
 
+    dbprint(VMI_DEBUG_CORE, "%s: config string after vmi_init_paging: %s\n", 
+        __FUNCTION__, (char *)config);
+     
     // dbprint(VMI_DEBUG_TEST, "** TODO: vmi_init_os need port\n", __FUNCTION__);
     if ( VMI_OS_UNKNOWN == vmi_init_os(_vmi, config_mode, config, error) ){
 
