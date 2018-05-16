@@ -817,7 +817,7 @@ vmi_init_complete(
     vmi_mode_t mode;
 
     // DBG_START; 
-
+    
     if ( VMI_FAILURE == vmi_get_access_mode(_vmi, domain, init_flags, init_data, &mode) )
     {
         

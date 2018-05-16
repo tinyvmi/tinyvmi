@@ -31,7 +31,7 @@ int main(void) {
 	gettimeofday(&tv_begin,NULL);
 
 	result = 
-		test_module_list(name);
+		// test_module_list(name);
 		test_map_addr(name, vaddr);
 		
 		/* examples in libvmi */

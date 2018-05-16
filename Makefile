@@ -18,6 +18,7 @@ SRC_CODE += main.c
 
 OB_tests += ./tests/tiny_test.o
 SRC_CODE += ./tests/tiny_test.c
+SRC_CODE += ./tests/tiny_test.h
 
 SRC_CODE += ./tests/unit_tests/unit_tests.h
 

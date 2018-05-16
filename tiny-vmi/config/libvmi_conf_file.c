@@ -17,6 +17,8 @@ char * get_config_from_file_string(char *vm_name){
     const char *ptr = NULL;
     vmi_instance_t vmi = NULL;
 
+    dbprint(VMI_DEBUG_TEST, "%s: vm name: %s\n", __FUNCTION__, vm_name);
+    
    // /* strip path for memory image files */
     if ((ptr = strrchr(vm_name, '/')) == NULL) {
         ptr = vm_name;

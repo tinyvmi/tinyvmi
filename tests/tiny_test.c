@@ -13,7 +13,7 @@
 // status_t test_map_addr(vmi_instance_t vmi, addr_t vaddr){
 status_t test_map_addr(char *vm_name, addr_t vaddr){
 
-	vmi_instance_t vmi;
+	vmi_instance_t vmi=NULL;
 
 	status_t result;
 	// int IndexInIDT=1;//83;//22;
@@ -26,7 +26,7 @@ status_t test_map_addr(char *vm_name, addr_t vaddr){
 	long long *intervals;
 	int i;
 
-	unsigned char *memory=malloc(PAGE_SIZE);
+	unsigned char *memory;
 
 	char *name = vm_name;
 
@@ -38,6 +38,8 @@ status_t test_map_addr(char *vm_name, addr_t vaddr){
     //     vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
     //                       VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
     if (VMI_FAILURE == 
+        // vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
+                        //   VMI_CONFIG_STRING, config_str, NULL))
         vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
                           VMI_CONFIG_STRING, config_str, NULL))
     {
@@ -48,6 +50,8 @@ status_t test_map_addr(char *vm_name, addr_t vaddr){
     free(config_str);
 
 	intervals=malloc(MAX_COUNT*sizeof(long long));
+
+	memory=malloc(PAGE_SIZE);
 	
 
 	for (;count<MAX_COUNT;count++){
