@@ -12,7 +12,10 @@ int main(void) {
 	// DOMAIN_NAME is defined in include/domain_id.h
 	char *name = DOMAIN_NAME;
 
-	addr_t vaddr=0xc1c3a000;
+	addr_t vaddr = 
+		// 0xc1c3a000;
+		0xffffffff81058ff0; // randomly choosen: System.map-4.4.0-101-generic: ht_set_affinity
+
 
 	addr_t kvaddr = vaddr;
 
@@ -28,6 +31,9 @@ int main(void) {
 	gettimeofday(&tv_begin,NULL);
 
 	result = 
+		test_module_list(name);
+		test_map_addr(name, vaddr);
+		
 		/* examples in libvmi */
 		// map_addr(name,vaddr);
 		// map_symbol(name, "xen_entry"); // "startup_32"); //"xen_entry"
@@ -43,7 +49,7 @@ int main(void) {
 		// xen_emulate_response(name, kvaddr);
 
 		/* unit tests*/
-		unit_test_vmi_init(name);
+		// unit_test_vmi_init(name);
 	
 	if (result == VMI_FAILURE){
 		DBG_LINE;

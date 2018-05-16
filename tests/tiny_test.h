@@ -22,8 +22,10 @@
  *
 */
 
-status_t test_map_addr(vmi_instance_t vmi, addr_t vaddr);
-status_t test_module_list(vmi_instance_t vmi, addr_t vaddr);
+// status_t test_map_addr(vmi_instance_t vmi, addr_t vaddr);
+// status_t test_module_list(vmi_instance_t vmi, addr_t vaddr);
+status_t test_map_addr(char *vm_name, addr_t vaddr);
+status_t test_module_list(char *vm_name);
 
 
 #endif //TINY_TEST_H
