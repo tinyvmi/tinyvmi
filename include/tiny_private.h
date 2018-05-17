@@ -47,7 +47,8 @@
 // #include "libvmi_extra.h"
 // #include "cache.h"
 #include "tiny_libvmi.h"
-#include "tiny_cache.h"
+// #include "tiny_cache.h"
+#include "cache.h"
 #include "driver/tiny_memory_cache.h"
 
 #include <events.h>
@@ -282,16 +283,16 @@ struct vmi_instance {
 
     void* os_data; /**< Guest OS specific data */
 
-    // GHashTable *pid_cache;  /**< hash table to hold the PID cache data */
+    GHashTable *pid_cache;  /**< hash table to hold the PID cache data */
 
-    // GHashTable *sym_cache;  /**< hash table to hold the sym cache data */
+    GHashTable *sym_cache;  /**< hash table to hold the sym cache data */
 
-    // GHashTable *rva_cache;  /**< hash table to hold the rva cache data */
+    GHashTable *rva_cache;  /**< hash table to hold the rva cache data */
 
 
-    // GHashTable *v2p_cache;  /**< hash table to hold the v2p cache data */
-    v2p_cache_t v2p_cache;  /**< v2p cache data */ //lele
-	int v2p_cache_count;
+    GHashTable *v2p_cache;  /**< hash table to hold the v2p cache data */
+    // v2p_cache_t v2p_cache;  /**< v2p cache data */ //lele
+	// int v2p_cache_count;
 
 #if ENABLE_SHM_SNAPSHOT == 1
     GHashTable *v2m_cache;  /**< hash table to hold the v2m cache data */

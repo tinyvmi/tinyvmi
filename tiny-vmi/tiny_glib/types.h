@@ -104,6 +104,27 @@ typedef const gchar *   (*GTranslateFunc)       (const gchar   *str,
 #define G_MAXINT64	G_GINT64_CONSTANT(0x7fffffffffffffff)
 #define G_MAXUINT64	G_GUINT64_CONSTANT(0xffffffffffffffff)
 
+#define GPOINTER_TO_INT(p)	((gint) (p))
+#define GPOINTER_TO_UINT(p)	((guint) (p))
+
+
+#define GINT_TO_POINTER(i)	((gpointer) (i))
+#define GUINT_TO_POINTER(u)	((gpointer) (u))
+
+
+gpointer
+g_malloc_n (gsize n_blocks,
+	    gsize n_block_bytes);
+
+
+#define _G_NEW(struct_type, n_structs, func) \
+        ((struct_type *) g_##func##_n ((n_structs), sizeof (struct_type)))
+
+#define g_new(struct_type, n_structs)			_G_NEW (struct_type, n_structs, malloc)
+
+// GLIB_AVAILABLE_IN_ALL
+gchar*	              g_strndup	       (const gchar *str,
+					gsize        n) ;  
 
 
 // #undef	MAX

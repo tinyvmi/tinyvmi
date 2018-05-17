@@ -58,7 +58,10 @@ OB_tests += ./tests/examples/xen-emulate-response.o
 OBJS += $(OB_tests)
 
 # OBJS += ./tiny-vmi/tiny_cache.o ./tiny-vmi/mem_cache.o
-OBJS += ./tiny-vmi/tiny_cache.o 
+# OBJS += ./tiny-vmi/tiny_cache.o 
+OBJS += ./tiny-vmi/cache.o
+SRC_CODE += ./tiny-vmi/cache.c
+SRC_CODE += ./tiny-vmi/cache.h
 OBJS += ./tiny-vmi/driver/tiny_memory_cache.o
 OBJS += ./tiny-vmi/driver/tiny_memory_cache_list.o
 

@@ -941,3 +941,98 @@ gpointer g_hash_table_lookup (GHashTable *hash_table, gconstpointer key){
 
   return ret;
 }
+
+
+
+void g_hash_table_destroy (GHashTable     *hash_table){
+  hashtable_destroy(hash_table, HASH_TABLE_FREE_VALUES);
+}
+
+
+
+/**
+ * g_direct_hash:
+ * @v: (nullable): a #gpointer key
+ *
+ * Converts a gpointer to a hash value.
+ * It can be passed to g_hash_table_new() as the @hash_func parameter,
+ * when using opaque pointers compared by pointer value as keys in a
+ * #GHashTable.
+ *
+ * This hash function is also appropriate for keys that are integers
+ * stored in pointers, such as `GINT_TO_POINTER (n)`.
+ *
+ * Returns: a hash value corresponding to the key.
+ */
+guint
+g_direct_hash (gconstpointer v)
+{
+  return GPOINTER_TO_UINT (v);
+}
+
+/**
+ * g_direct_equal:
+ * @v1: (nullable): a key
+ * @v2: (nullable): a key to compare with @v1
+ *
+ * Compares two #gpointer arguments and returns %TRUE if they are equal.
+ * It can be passed to g_hash_table_new() as the @key_equal_func
+ * parameter, when using opaque pointers compared by pointer value as
+ * keys in a #GHashTable.
+ *
+ * This equality function is also appropriate for keys that are integers
+ * stored in pointers, such as `GINT_TO_POINTER (n)`.
+ *
+ * Returns: %TRUE if the two keys match.
+ */
+gboolean
+g_direct_equal (gconstpointer v1,
+                gconstpointer v2)
+{
+  return v1 == v2;
+}
+
+
+
+/*
+ * g_hash_table_remove_all_nodes:
+ * @hash_table: our #GHashTable
+ * @notify: %TRUE if the destroy notify handlers are to be called
+ *
+ * Removes all nodes from the table.  Since this may be a precursor to
+ * freeing the table entirely, no resize is performed.
+ *
+ * If @notify is %TRUE then the destroy notify functions are called
+ * for the key and value of the hash node.
+ */
+static void
+g_hash_table_remove_all_nodes (GHashTable *hash_table,
+                               gboolean    notify,
+                               gboolean    destruction)
+{
+  hashtable_remove_all_nodes(hash_table, notify, destruction);
+}
+
+
+/**
+ * g_hash_table_remove_all:
+ * @hash_table: a #GHashTable
+ *
+ * Removes all keys and their associated values from a #GHashTable.
+ *
+ * If the #GHashTable was created using g_hash_table_new_full(),
+ * the keys and values are freed using the supplied destroy functions,
+ * otherwise you have to make sure that any dynamically allocated
+ * values are freed yourself.
+ *
+ * Since: 2.12
+ */
+void
+g_hash_table_remove_all (GHashTable *hash_table)
+{
+  g_return_if_fail (hash_table != NULL);
+
+  g_hash_table_remove_all_nodes (hash_table, TRUE, FALSE);
+  g_hash_table_maybe_resize (hash_table);
+}
+

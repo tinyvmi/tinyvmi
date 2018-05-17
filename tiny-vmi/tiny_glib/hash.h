@@ -91,8 +91,9 @@ create_hashtable(HASH_TABLE_MINI_SIZE,hash_func, key_equal_func, key_destroy_fun
 // void        g_hash_table_destroy           (GHashTable     *hash_table);
 
 
-#define g_hash_table_destroy(hash_table) \
-hashtable_destroy(hash_table, HASH_TABLE_FREE_VALUES) 
+// #define g_hash_table_destroy(hash_table) \
+// hashtable_destroy(hash_table, HASH_TABLE_FREE_VALUES) 
+void g_hash_table_destroy (GHashTable     *hash_table);
 
 
 // GLIB_AVAILABLE_IN_ALL
@@ -114,7 +115,7 @@ gboolean    g_hash_table_replace           (GHashTable     *hash_table,
 gboolean    g_hash_table_remove            (GHashTable     *hash_table,
                                             gconstpointer   key);
 // GLIB_AVAILABLE_IN_ALL
-// void        g_hash_table_remove_all        (GHashTable     *hash_table);
+void        g_hash_table_remove_all        (GHashTable     *hash_table);
 // GLIB_AVAILABLE_IN_ALL
 // gboolean    g_hash_table_steal             (GHashTable     *hash_table,
 //                                             gconstpointer   key);
@@ -186,6 +187,12 @@ gboolean    g_hash_table_iter_next         (GHashTableIter *iter,
 // #ifndef G_DISABLE_DEPRECATED
 // #define g_hash_table_freeze(hash_table) ((void)0)
 // #define g_hash_table_thaw(hash_table) ((void)0)
+
+// GLIB_AVAILABLE_IN_ALL
+guint    g_direct_hash  (gconstpointer  v) ;
+// GLIB_AVAILABLE_IN_ALL
+gboolean g_direct_equal (gconstpointer  v1,
+                         gconstpointer  v2) ;
 
 
 

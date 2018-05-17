@@ -11,8 +11,8 @@
 /* #undef ARM64 */
 
 /* Enable or disable the address cache (v2p, pid, etc) */
-// #define ENABLE_ADDRESS_CACHE 1
-#define ENABLE_ADDRESS_CACHE 0
+#define ENABLE_ADDRESS_CACHE 1
+// #define ENABLE_ADDRESS_CACHE 0
 
 #define ENABLE_V2P_CACHE 1
 

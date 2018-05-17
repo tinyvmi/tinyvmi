@@ -79,7 +79,6 @@ err0:
     DBG_DONE;
    return NULL;
 }
-
 /*****************************************************************************/
 unsigned int
 hash(struct hashtable *h, void *k)
@@ -505,6 +504,61 @@ hashtable_destroy(struct hashtable *h, int free_values)
     }
     free(h->table);
     free(h);
+}
+
+
+void hashtable_remove_all_nodes( struct hashtable *h,
+                               int    free_values,
+                               int    destruction){
+
+    unsigned int i;
+    struct entry *e, *f;
+    struct entry **table = h->table;
+    if (free_values)
+    {
+        for (i = 0; i < h->size; i++)
+        {
+            e = table[i];
+            table[i] = NULL;
+            while (NULL != e)
+            { 
+                f = e; 
+                e = e->next; 
+                // freekey(f->k); 
+                // free(f->v); 
+                // free(f); 
+                if (h->key_destroy_func)
+                    h->key_destroy_func(f->k);
+                if (h->value_destroy_func)
+                    h->value_destroy_func(f->v);
+                free(f);
+            }
+        }
+    }
+    else
+    {
+        for (i = 0; i < h->size; i++)
+        {
+            e = table[i];
+            table[i] = NULL;
+            while (NULL != e)
+            { 
+                f = e;
+                e = e->next; 
+                // freekey(f->k); 
+                // free(f); 
+                if (h->key_destroy_func)
+                    h->key_destroy_func(f->k);
+                // h->value_destroy_func(f->v);
+                free(f);
+            }
+        }
+    }
+    
+    h->size  = 0;
+    h->entrycount   = 0;
+    h->noccupied = 0;
+
 }
 
 /*
