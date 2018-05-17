@@ -24,7 +24,7 @@ status_t test_map_addr(char *vm_name, addr_t vaddr){
 
 	vmi_instance_t vmi=NULL;
 
-	status_t result;
+	status_t result = VMI_FAILURE;
 	// int IndexInIDT=1;//83;//22;
 
 	struct timeval tv_begin,tv_end;
@@ -69,10 +69,12 @@ status_t test_map_addr(char *vm_name, addr_t vaddr){
 	for (;count<MAX_COUNT;count++){
 
 		vaddr+=0x1000;
+        // vaddr += 0x4;
 	
 		ttprint(VMI_TEST_MISC, 
 			"\n%s:-------- vaddress: %p ---------\n"
 			,__FUNCTION__, vaddr);
+
 		gettimeofday(&tv_begin,NULL);
 
 		//if (PAGE_SIZE != vmi_read_va(vmi, vaddr, 0, memory, PAGE_SIZE)) {
@@ -85,9 +87,11 @@ status_t test_map_addr(char *vm_name, addr_t vaddr){
 				return VMI_FAILURE;
 			}
 
+		vmi_print_hex(memory, PAGE_SIZE);
+		
 		gettimeofday(&tv_end,NULL);
 
-		ttprint(VMI_TEST_MISC, "%s: TimeStamp T1.%lld: %lld\n",
+		ttprint(VMI_TEST_MISC, "\n%s: TimeStamp T1.%lld: %lld\n",
 			__FUNCTION__, count,(long long)tv_begin.tv_usec);
 		ttprint(VMI_TEST_MISC, "%s: TimeStamp T2.%lld: %lld\n",
 			__FUNCTION__, count,(long long)tv_end.tv_usec);
@@ -103,9 +107,8 @@ status_t test_map_addr(char *vm_name, addr_t vaddr){
 		ttprint(VMI_TEST_MISC, 
 		"------LELE: read_va interval: (t4-t3.%lld): %lldus(average:%Lf)------\n",
 		count,duration,average);
-
-		//vmi_print_hex(memory, PAGE_SIZE);
-		if(sleep_interval>SLEEP_INTERVAL) {
+        
+        if(sleep_interval>SLEEP_INTERVAL) {
 			//sleep(1); 
 			sleep_interval=0;
 		}else{
@@ -128,12 +131,23 @@ status_t test_map_addr(char *vm_name, addr_t vaddr){
 		"\n------TEST MAP_ADDRESS: average time: %Lf, total count: %lld, noise count:%lld------\n",
 		average,count,noise_ct);
 
+	ttprint(VMI_TEST_MISC, 
+		"\n------TEST MAP_ADDRESS: total time elapsed: %lld\n",
+		sum);
+
     //sleep(1);
 
-	return VMI_SUCCESS;
+    result = VMI_SUCCESS;
 
 error_exit:
-	return VMI_FAILURE;
+    if (memory)
+        free(memory);
+
+    /* cleanup any memory associated with the libvmi instance */
+    vmi_destroy(vmi);
+
+	return result;
+
 
 }
 
