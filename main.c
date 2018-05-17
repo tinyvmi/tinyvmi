@@ -39,7 +39,7 @@ int main(void) {
 		// map_symbol(name, "xen_entry"); // "startup_32"); //"xen_entry"
 		// module_list(name);
 		// event_example(name, 0);
-		// interrupt_event_example(name);
+		// intverrupt_event_example(name);
 		// // 6 newly added, 05122018:
 		// msr_event_example(name);
 		// process_list(name);

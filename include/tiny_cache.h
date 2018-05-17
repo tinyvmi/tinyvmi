@@ -14,8 +14,8 @@
 
 #define NOOP
 
-#define MAX_V2P_CACHE 1280
-#define MAX_MEM_CACHE 1280
+#define MAX_V2P_CACHE 5120
+#define MAX_MEM_CACHE 5120
 
 #define INIT_SIZE_MEM_CACHE_LRU 512
 

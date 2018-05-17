@@ -11,7 +11,7 @@
 
 #include "tiny_test.h"
 
-#define MAX_COUNT 500
+#define MAX_COUNT 5000
 #define NOISE_UP 100
 #define NOISE_DOWN 0
 #define SLEEP_INTERVAL 5
