@@ -11,7 +11,7 @@
 
 #include "tiny_test.h"
 
-#define MAX_COUNT 5000
+#define MAX_COUNT 500
 #define NOISE_UP 100
 #define NOISE_DOWN 0
 #define SLEEP_INTERVAL 5
@@ -71,9 +71,9 @@ status_t test_map_addr(char *vm_name, addr_t vaddr){
 		vaddr+=0x1000;
         // vaddr += 0x4;
 	
-		ttprint(VMI_TEST_MISC, 
-			"\n%s:-------- vaddress: %p ---------\n"
-			,__FUNCTION__, vaddr);
+		// ttprint(VMI_TEST_MISC, 
+		// 	"\n%s:-------- vaddress: %p ---------\n"
+		// 	,__FUNCTION__, vaddr);
 
 		gettimeofday(&tv_begin,NULL);
 
@@ -87,14 +87,14 @@ status_t test_map_addr(char *vm_name, addr_t vaddr){
 				return VMI_FAILURE;
 			}
 
-		vmi_print_hex(memory, PAGE_SIZE);
+		// vmi_print_hex(memory, PAGE_SIZE);
 		
 		gettimeofday(&tv_end,NULL);
 
-		ttprint(VMI_TEST_MISC, "\n%s: TimeStamp T1.%lld: %lld\n",
-			__FUNCTION__, count,(long long)tv_begin.tv_usec);
-		ttprint(VMI_TEST_MISC, "%s: TimeStamp T2.%lld: %lld\n",
-			__FUNCTION__, count,(long long)tv_end.tv_usec);
+		// ttprint(VMI_TEST_MISC, "\n%s: TimeStamp T1.%lld: %lld\n",
+		// 	__FUNCTION__, count,(long long)tv_begin.tv_usec);
+		// ttprint(VMI_TEST_MISC, "%s: TimeStamp T2.%lld: %lld\n",
+			// __FUNCTION__, count,(long long)tv_end.tv_usec);
 
 		duration= (tv_end.tv_sec - tv_begin.tv_sec)*1000000 + (tv_end.tv_usec - tv_begin.tv_usec);
 
@@ -104,9 +104,9 @@ status_t test_map_addr(char *vm_name, addr_t vaddr){
 		if(duration>NOISE_UP||duration<NOISE_DOWN) noise_ct++;
 
 		average=((double)sum)/(count+1);
-		ttprint(VMI_TEST_MISC, 
-		"------LELE: read_va interval: (t4-t3.%lld): %lldus(average:%Lf)------\n",
-		count,duration,average);
+		// ttprint(VMI_TEST_MISC, 
+		// "------LELE: read_va interval: (t4-t3.%lld): %lldus(average:%Lf)------\n",
+		// count,duration,average);
         
         if(sleep_interval>SLEEP_INTERVAL) {
 			//sleep(1); 

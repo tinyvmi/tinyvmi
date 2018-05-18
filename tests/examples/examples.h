@@ -6,7 +6,9 @@
 #include "config/libvmi_conf_file.h"
 
 
-#define TEST_TIME_LIMIT 105  // time in seconds
+#define TEST_TIME_LIMIT 0  // time in seconds
+
+#define MAX_COUNT_TEST 5 //
 
 /**
  * accessories
@@ -19,8 +21,11 @@ void print_event(vmi_event_t *event);
 // TODO: file work around for dump_memory
 status_t dump_memory (char* vm_name, char * filename);
 
+
+status_t test_event_example(char *vm_name, vmi_pid_t pid);
 status_t event_example (char *name, vmi_pid_t pid );
 
+status_t test_interrupt_event_example(char *vm_name);
 status_t interrupt_event_example (char *vm_name);
 
 /*

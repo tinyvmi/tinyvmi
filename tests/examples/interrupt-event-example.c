@@ -121,9 +121,9 @@ status_t interrupt_event_example (char *vm_name) {
     /* second way of clean exit */
     gettimeofday(&tv_begin,NULL);
 
-    while(!interrupted){
+    // while(!interrupted){
 
-        count ++;
+        // count ++;
 
         vmi_events_listen(vmi,500);
 
@@ -132,18 +132,103 @@ status_t interrupt_event_example (char *vm_name) {
             interrupted = -1;
         }
 
-		gettimeofday(&tv_end,NULL);
-		duration= (tv_end.tv_sec - tv_begin.tv_sec);
-        if (duration > TEST_TIME_LIMIT){
-            ttprint(VMI_TEST_EVENTS, "Waiting for events... timeout (%d seconds)\n", TEST_TIME_LIMIT);
-            break;
-        }
-    }
+		// gettimeofday(&tv_end,NULL);
+		// duration= (tv_end.tv_sec - tv_begin.tv_sec);
 
-    ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
+    //     if (duration > TEST_TIME_LIMIT){
+    //         ttprint(VMI_TEST_EVENTS, "Waiting for events... timeout (%d seconds)\n", TEST_TIME_LIMIT);
+    //         break;
+    //     }
+    // }
+
+    // ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
 
     // cleanup any memory associated with the libvmi instance
     vmi_destroy(vmi);
 
     return VMI_SUCCESS;
 }
+
+
+// status_t test_map_addr(vmi_instance_t vmi, addr_t vaddr){
+status_t test_interrupt_event_example(char *vm_name){
+
+	vmi_instance_t vmi=NULL;
+
+	status_t result = VMI_FAILURE;
+	// int IndexInIDT=1;//83;//22;
+
+	struct timeval tv_begin,tv_end;
+	long long duration, count=0, noise_ct=0;
+	long int sum=0;
+	long double average=0;
+	int sleep_interval=0;
+	long long *intervals;
+	int i;
+
+    /* initialize the libvmi library */
+
+	intervals=malloc(MAX_COUNT_TEST*sizeof(long long));
+
+
+	for (;count<MAX_COUNT_TEST;count++){
+
+		gettimeofday(&tv_begin,NULL);
+	
+		if (VMI_FAILURE == interrupt_event_example(vm_name)){
+				return VMI_FAILURE;
+			}
+
+		gettimeofday(&tv_end,NULL);
+
+		// ttprint(VMI_TEST_MISC, "\n%s: TimeStamp T1.%lld: %lld\n",
+		// 	__FUNCTION__, count,(long long)tv_begin.tv_usec);
+		// ttprint(VMI_TEST_MISC, "%s: TimeStamp T2.%lld: %lld\n",
+			// __FUNCTION__, count,(long long)tv_end.tv_usec);
+
+		duration= (tv_end.tv_sec - tv_begin.tv_sec)*1000000 + (tv_end.tv_usec - tv_begin.tv_usec);
+
+		sum+=duration;
+		intervals[count]=duration;
+
+		if(duration>0||duration<20000000LL) noise_ct++;
+
+		average=((double)sum)/(count+1);
+		// ttprint(VMI_TEST_MISC, 
+		// "------LELE: read_va interval: (t4-t3.%lld): %lldus(average:%Lf)------\n",
+		// count,duration,average);
+        
+	}
+
+	sleep(1);
+	printf("all the results of %lld times:\n",count);
+	for(i=0;i<MAX_COUNT_TEST;i++){
+		//printf("%ld(%d)\t\t",intervals[i],i);
+		//printf("%ld\t",intervals[i]);
+		printf("%lld\t%lld\n",i,intervals[i]);
+	}
+	printf("\n");
+
+	average=((long double)sum)/((long double)count);
+
+	ttprint(VMI_TEST_MISC, 
+		"\n------TEST MAP_ADDRESS: average time: %Lf, total count: %lld, noise count:%lld------\n",
+		average,count,noise_ct);
+
+	ttprint(VMI_TEST_MISC, 
+		"\n------TEST MAP_ADDRESS: total time elapsed: %lld\n",
+		sum);
+
+    //sleep(1);
+
+    result = VMI_SUCCESS;
+
+error_exit:
+
+    /* cleanup any memory associated with the libvmi instance */
+    // vmi_destroy(vmi);
+
+	return result;
+
+}
+

@@ -415,7 +415,7 @@ status_t event_example (char *name, vmi_pid_t pid )
     int inter_duration = 0;
     int last_duration_start = 0;
     int count = 0;
-    while(!interrupted){
+    // while(!interrupted){
 
         ttprint(VMI_TEST_EVENTS, "Waiting for events...(500ms) %d\n", count);
         count ++;
@@ -431,22 +431,22 @@ status_t event_example (char *name, vmi_pid_t pid )
 
         inter_duration = duration - last_duration_start;
         
-        if (duration > TEST_TIME_LIMIT){
-            break;
-        }else if (duration > 100 && inter_duration > 100){
-            last_duration_start = duration;
-		    //gettimeofday(&tv_begin,NULL);
-            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
-            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
-            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
-            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
-            ttprint(VMI_TEST_EVENTS, "\n another 100s passed ...\n");
-            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
-            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
-            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+        // if (duration > TEST_TIME_LIMIT){
+        //     break;
+        // }else if (duration > 100 && inter_duration > 100){
+        //     last_duration_start = duration;
+		//     //gettimeofday(&tv_begin,NULL);
+        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+        //     ttprint(VMI_TEST_EVENTS, "\n another 100s passed ...\n");
+        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
             
-        }
-    }
+        // }
+    // }
 
     ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
 
@@ -454,4 +454,88 @@ status_t event_example (char *name, vmi_pid_t pid )
     vmi_destroy(vmi);
 
     return status;
+}
+
+
+// status_t test_map_addr(vmi_instance_t vmi, addr_t vaddr){
+status_t test_event_example(char *vm_name, vmi_pid_t pid){
+
+	vmi_instance_t vmi=NULL;
+
+	status_t result = VMI_FAILURE;
+	// int IndexInIDT=1;//83;//22;
+
+	struct timeval tv_begin,tv_end;
+	long long duration, count=0, noise_ct=0;
+	long int sum=0;
+	long double average=0;
+	int sleep_interval=0;
+	long long *intervals;
+	int i;
+
+    /* initialize the libvmi library */
+
+	intervals=malloc(MAX_COUNT_TEST*sizeof(long long));
+
+
+	for (;count<MAX_COUNT_TEST;count++){
+
+		gettimeofday(&tv_begin,NULL);
+	
+		if (VMI_FAILURE == event_example(vm_name, pid)){
+				goto error_exit_;
+			}
+
+		gettimeofday(&tv_end,NULL);
+
+		// ttprint(VMI_TEST_MISC, "\n%s: TimeStamp T1.%lld: %lld\n",
+		// 	__FUNCTION__, count,(long long)tv_begin.tv_usec);
+		// ttprint(VMI_TEST_MISC, "%s: TimeStamp T2.%lld: %lld\n",
+			// __FUNCTION__, count,(long long)tv_end.tv_usec);
+
+		duration= (tv_end.tv_sec - tv_begin.tv_sec)*1000000 + (tv_end.tv_usec - tv_begin.tv_usec);
+
+		sum+=duration;
+		intervals[count]=duration;
+
+		if(duration>0||duration<2000000000000LL) noise_ct++;
+
+		average=((double)sum)/(count+1);
+		// ttprint(VMI_TEST_MISC, 
+		// "------LELE: read_va interval: (t4-t3.%lld): %lldus(average:%Lf)------\n",
+		// count,duration,average);
+        
+	}
+
+error_exit_:
+
+	sleep(1);
+	printf("all the results of %lld times:\n",count);
+	for(i=0;i<count;i++){
+		//printf("%ld(%d)\t\t",intervals[i],i);
+		//printf("%ld\t",intervals[i]);
+		printf("%lld\t%lld\n",i,intervals[i]);
+	}
+	printf("\n");
+
+	average=((long double)sum)/((long double)count);
+
+	ttprint(VMI_TEST_MISC, 
+		"\n------TEST MAP_ADDRESS: average time: %Lf, total count: %lld, noise count:%lld------\n",
+		average,count,noise_ct);
+
+	ttprint(VMI_TEST_MISC, 
+		"\n------TEST MAP_ADDRESS: total time elapsed: %lld\n",
+		sum);
+
+    //sleep(1);
+
+    result = VMI_SUCCESS;
+
+error_exit:
+
+    /* cleanup any memory associated with the libvmi instance */
+    // vmi_destroy(vmi);
+
+	return result;
 }
