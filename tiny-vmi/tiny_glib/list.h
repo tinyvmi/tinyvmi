@@ -36,6 +36,7 @@ struct _GList
  GList *prev;
 };
 
+
 /* Doubly linked lists
  */
 GList* g_list_alloc(void) ;
@@ -71,7 +72,7 @@ GList* g_list_delete_link (GList *list, GList *link_) ;
 
 GList* g_list_reverse (GList *list) ;
 
-GList* g_list_copy (GList *list) ;
+// GList* g_list_copy (GList *list) ;
 
 
 // GList* g_list_copy_deep (GList *list,// GCopyFunc func,// gpointer user_data) ;

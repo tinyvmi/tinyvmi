@@ -70,22 +70,23 @@ static void
 clean_cache(
     vmi_instance_t vmi)
 {
-    // while (g_queue_get_length(vmi->memory_cache_lru) > vmi->memory_cache_size_max / 2) {
-    //     gint64 *paddr = g_queue_pop_tail(vmi->memory_cache_lru);
-
-    //     g_hash_table_remove(vmi->memory_cache, paddr);
-    //     g_free(paddr);
-    // }
     DBG_START;
+ 
+    while (g_queue_get_length(vmi->memory_cache_lru) > vmi->memory_cache_size_max / 2) {
 
-    
-    while (vmi->memory_cache_lru -> size > vmi->memory_cache_size_max / 2) {
-
-        gint64 *paddr = tiny_list_pop_last(vmi->memory_cache_lru);
-        dbprint(VMI_DEBUG_MEMCACHE,"%s, LRU removing key: %p (ptr: %p) \n", __FUNCTION__, *paddr, paddr);
+        gint64 *paddr = g_queue_pop_tail(vmi->memory_cache_lru);
         g_hash_table_remove(vmi->memory_cache, paddr);
         g_free(paddr);
     }
+    
+    
+    // while (vmi->memory_cache_lru -> size > vmi->memory_cache_size_max / 2) {
+
+    //     gint64 *paddr = tiny_list_pop_last(vmi->memory_cache_lru);
+    //     dbprint(VMI_DEBUG_MEMCACHE,"%s, LRU removing key: %p (ptr: %p) \n", __FUNCTION__, *paddr, paddr);
+    //     g_hash_table_remove(vmi->memory_cache, paddr);
+    //     g_free(paddr);
+    // }
 
     dbprint(VMI_DEBUG_MEMCACHE, "--MEMORY cache cleanup round complete (cache size = %u)\n",
             g_hash_table_size(vmi->memory_cache));
@@ -111,22 +112,19 @@ validate_and_return_data(
 
 
         // TODO: do we need to implement a g_queue?
-        dbprint(VMI_DEBUG_MEMCACHE, "tiny list(not g_queue), find custom, unlink and push head\n");
+        dbprint(VMI_DEBUG_MEMCACHE, "Now using Queue instead of tiny list, find custom, unlink and push head\n");
         
-        tiny_list_node_t node = tiny_list_find_custom(vmi->memory_cache_lru, &entry->paddr);
-        
-        if (node != NULL){
+        // tiny_list_node_t node = tiny_list_find_custom(vmi->memory_cache_lru, &entry->paddr);
+        // if (node != NULL){
+        //     tiny_list_unlink(vmi->memory_cache_lru, node);
+        //     tiny_list_push_head_link(vmi->memory_cache_lru, node);
+        // }
 
-            tiny_list_unlink(vmi->memory_cache_lru, node);
-
-            tiny_list_push_head_link(vmi->memory_cache_lru, node);
-        }
-
-        // GList* lru_entry = g_queue_find_custom(vmi->memory_cache_lru,
-        //         &entry->paddr, g_int64_equal);
-        // g_queue_unlink(vmi->memory_cache_lru,
-        //         lru_entry);
-        // g_queue_push_head_link(vmi->memory_cache_lru, lru_entry);
+        GList* lru_entry = g_queue_find_custom(vmi->memory_cache_lru,
+                &entry->paddr, g_int64_equal);
+        g_queue_unlink(vmi->memory_cache_lru,
+                lru_entry);
+        g_queue_push_head_link(vmi->memory_cache_lru, lru_entry);
 
     }
     entry->last_used = now;
@@ -187,9 +185,13 @@ void memory_cache_init(
                               g_free,
                               memory_cache_entry_free);
     
-    dbprint(VMI_DEBUG_MEMCACHE, "TODO: tiny list(g_queue)\n");
-    //vmi->memory_cache_lru = g_queue_new();
-    vmi->memory_cache_lru = create_new_list(MAX_PAGE_CACHE_SIZE);
+    dbprint(VMI_DEBUG_MEMCACHE, "%s: TODOING: tiny list(g_queue)\n", __FUNCTION__);
+    vmi->memory_cache_lru = (GQueue *)g_queue_new();
+
+    dbprint(VMI_DEBUG_TEST, "%s: queue size: %u\n",
+        __FUNCTION__, g_queue_get_length(vmi->memory_cache_lru));
+
+    // vmi->memory_cache_lru = create_new_list(MAX_PAGE_CACHE_SIZE);
 
     vmi->memory_cache_age = age_limit;
     vmi->memory_cache_size_max = MAX_PAGE_CACHE_SIZE;
@@ -223,13 +225,13 @@ memory_cache_insert(
     }
     else {
         
-        dbprint(VMI_DEBUG_MEMCACHE, "TODO: tiny list(g_queue)\n");
-        // if (g_queue_get_length(vmi->memory_cache_lru) >= vmi->memory_cache_size_max) {
-        //     clean_cache(vmi);
-        // }
-        if (vmi->memory_cache_lru -> size >= vmi->memory_cache_size_max) {
+        dbprint(VMI_DEBUG_MEMCACHE, "%s: TODOING: tiny list(g_queue)\n", __FUNCTION__);
+        if (g_queue_get_length(vmi->memory_cache_lru) >= vmi->memory_cache_size_max) {
             clean_cache(vmi);
         }
+        // if (vmi->memory_cache_lru -> size >= vmi->memory_cache_size_max) {
+        //     clean_cache(vmi);
+        // }
 
         dbprint(VMI_DEBUG_MEMCACHE, "--MEMORY cache set 0x%"PRIx64"\n", paddr);
 
@@ -258,8 +260,8 @@ memory_cache_insert(
             // return 0;
         }
         *key2 = paddr;
-        //g_queue_push_head(vmi->memory_cache_lru, key2);
-        tiny_list_prepend(vmi->memory_cache_lru, key2);
+        g_queue_push_head(vmi->memory_cache_lru, key2);
+        // tiny_list_prepend(vmi->memory_cache_lru, key2);
 
         ret = entry->data;
 
@@ -290,17 +292,26 @@ void
 memory_cache_destroy(
     vmi_instance_t vmi)
 {
+    DBG_START;
+
     vmi->memory_cache_size_max = 0;
 
-    if (vmi->memory_cache_lru) {
-        // g_queue_foreach(vmi->memory_cache_lru, (GFunc)g_free, NULL);
-        // g_queue_free(vmi->memory_cache_lru);
-        tiny_list_free(vmi->memory_cache_lru);
+    if (vmi->memory_cache_lru) {   
+        dbprint(VMI_DEBUG_MEMCACHE, "%s: free LRU queue: size %u\n", 
+            __FUNCTION__, g_queue_get_length(vmi->memory_cache_lru));
+
+        g_queue_foreach(vmi->memory_cache_lru, (GFunc)g_free, NULL);
+        dbprint(VMI_DEBUG_MEMCACHE, "%s: each queue ele freed\n", __FUNCTION__);
+
+        g_queue_free(vmi->memory_cache_lru);
+        dbprint(VMI_DEBUG_MEMCACHE, "%s: entire queue freed\n", __FUNCTION__);
+        // tiny_list_free(vmi->memory_cache_lru);
         
         vmi->memory_cache_lru = NULL;
     }
 
     if (vmi->memory_cache) {
+        dbprint(VMI_DEBUG_MEMCACHE, "%s: free hashtable cache\n", __FUNCTION__);
         g_hash_table_destroy(vmi->memory_cache);
         vmi->memory_cache = NULL;
     }
@@ -309,6 +320,8 @@ memory_cache_destroy(
     vmi->memory_cache_size_max = 0;
     vmi->get_data_callback = NULL;
     vmi->release_data_callback = NULL;
+
+    DBG_DONE;
 }
  
 #else // ENABLE_PAGE_CACHE == 1

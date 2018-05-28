@@ -116,6 +116,7 @@ OB_arch += ./tiny-vmi/arch/arm_aarch64.o
 OB_arch += ./tiny-vmi/arch/intel.o
 
 
+OB_arch += ./tiny-vmi/os/os_interface.o
 OB_arch += ./tiny-vmi/os/linux/core.o
 OB_arch += ./tiny-vmi/os/linux/memory.o
 OB_arch += ./tiny-vmi/os/linux/symbols.o
@@ -148,10 +149,12 @@ OBJS += ./tiny-vmi/tiny_core.o
 OBJS += ./tiny-vmi/convenience.o
 
 OB_glib += ./tiny-vmi/tiny_glib/types.o
+OB_glib += ./tiny-vmi/tiny_glib/slice.o
 OB_glib += ./tiny-vmi/tiny_glib/hash.o
 OB_glib += ./tiny-vmi/tiny_glib/list.o
 OB_glib += ./tiny-vmi/tiny_glib/slist.o
 OB_glib += ./tiny-vmi/tiny_glib/hashtable.o
+OB_glib += ./tiny-vmi/tiny_glib/queue.o
 # OB_glib += ./tiny-vmi/tiny_glib.o
 
 OBJS += $(OB_glib)

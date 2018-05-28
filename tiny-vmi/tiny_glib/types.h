@@ -152,5 +152,6 @@ return value;\
 gpointer tiny_malloc0 (gsize n_bytes);
 
 
+#define g_warning(...)  printf ("[%s:%d]: %s", __FILE__, __LINE__, __VA_ARGS__)
 
 #endif //TINY_GLIB_TYPES_H

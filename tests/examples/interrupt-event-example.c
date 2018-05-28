@@ -141,7 +141,7 @@ status_t interrupt_event_example (char *vm_name) {
     //     }
     // }
 
-    // ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
+    ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
 
     // cleanup any memory associated with the libvmi instance
     vmi_destroy(vmi);

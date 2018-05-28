@@ -4,6 +4,10 @@
 
 // #include "tiny_glib.h"
 
+#define _g_list_alloc()         tiny_slice_new (sizeof (GList))
+#define _g_list_alloc0()        tiny_slice_new0 (sizeof (GList))
+#define _g_list_free1(list)     tiny_slice_free (sizeof (GList), list)
+
 /**
  * g_list_alloc:
  *
@@ -59,11 +63,11 @@ g_list_free (GList *list)
  *
  * Another name for g_list_free_1().
  **/
-// void
-// g_list_free_1 (GList *list)
-// {
-//   _g_list_free1 (list);
-// }
+void
+g_list_free_1 (GList *list)
+{
+  _g_list_free1 (list);
+}
 
 /**
  * g_list_free_full:
@@ -479,24 +483,24 @@ g_list_delete_link (GList *list,
   return list;
 }
 
-/**
- * g_list_copy:
- * @list: a #GList, this must point to the top of the list
- *
- * Copies a #GList.
- *
- * Note that this is a "shallow" copy. If the list elements 
- * consist of pointers to data, the pointers are copied but 
- * the actual data is not. See g_list_copy_deep() if you need
- * to copy the data as well.
- *
- * Returns: the start of the new list that holds the same data as @list
- */
-GList *
-g_list_copy (GList *list)
-{
-  return g_list_copy_deep (list, NULL, NULL);
-}
+// /**
+//  * g_list_copy:
+//  * @list: a #GList, this must point to the top of the list
+//  *
+//  * Copies a #GList.
+//  *
+//  * Note that this is a "shallow" copy. If the list elements 
+//  * consist of pointers to data, the pointers are copied but 
+//  * the actual data is not. See g_list_copy_deep() if you need
+//  * to copy the data as well.
+//  *
+//  * Returns: the start of the new list that holds the same data as @list
+//  */
+// GList *
+// g_list_copy (GList *list)
+// {
+//   return g_list_copy_deep (list, NULL, NULL);
+// }
 
 /**
  * g_list_copy_deep:

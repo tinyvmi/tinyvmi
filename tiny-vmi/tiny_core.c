@@ -884,15 +884,16 @@ status_t
 vmi_destroy(
     vmi_instance_t vmi)
 {
+    DBG_START;
     if (!vmi)
         return VMI_FAILURE;
 
     vmi->shutting_down = TRUE;
     driver_destroy(vmi);
-    // events_destroy(vmi);
-    // if (vmi->os_interface) {
-    //     os_destroy(vmi);
-    // }
+    events_destroy(vmi);
+    if (vmi->os_interface) {
+        os_destroy(vmi);
+    }
     if (vmi->os_data) {
         free(vmi->os_data);
     }
@@ -900,9 +901,9 @@ vmi_destroy(
         free(vmi->arch_interface);
     }
     vmi->os_data = NULL;
-    // pid_cache_destroy(vmi);
-    // sym_cache_destroy(vmi);
-    // rva_cache_destroy(vmi);
+    pid_cache_destroy(vmi);
+    sym_cache_destroy(vmi);
+    rva_cache_destroy(vmi);
     v2p_cache_destroy(vmi);
 
 #if ENABLE_SHM_SNAPSHOT == 1
@@ -913,6 +914,7 @@ vmi_destroy(
     if (vmi->image_type)
         free(vmi->image_type);
     free(vmi);
+    DBG_DONE;
     return VMI_SUCCESS;
 }
 

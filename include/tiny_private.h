@@ -303,9 +303,9 @@ struct vmi_instance {
 
 	// mem_cache_t memory_cache;  /**LELE changed: <memory cache */
 
-	tiny_list_t memory_cache_lru;  /**LELE changed: double linked list holding the most recently used pages */
+	// tiny_list_t memory_cache_lru;  /**LELE changed: double linked list holding the most recently used pages */
 
-    // GQueue *memory_cache_lru;  /**< queue holding the most recently used pages */
+    GQueue *memory_cache_lru;  /**< queue holding the most recently used pages */
 
     uint32_t memory_cache_age; /**< max age of memory cache entry */
 
