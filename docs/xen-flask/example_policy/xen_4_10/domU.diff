@@ -1,0 +1,47 @@
+--- tools/flask/policy/modules/domU_old.te	2017-12-13 06:37:59.000000000 -0500
++++ tools/flask/policy/modules/domU.te	2018-05-10 16:46:13.056085445 -0400
+@@ -13,6 +13,44 @@
+ migrate_domain_out(dom0_t, domU_t)
+ domain_self_comms(domU_t)
+ 
++
++###########################################
++#added 2014.11.13
++allow domU_t xen_t:xen writeconsole;
++##########################################
++# added by lele, 20180218
++#
++# tinyvmi security label: system_u:system_r:domU_t
++# with guest(target) the same label.
++
++# --------------
++# domU -> xen_t
++# --------------
++
++# -------------
++# domU -> domU
++# -------------
++allow domU_t domU_t:hvm {gethvmc getparam} ;
++
++allow domU_t domU_t:domain {
++    pause unpause getdomaininfo getaddrsize setdebugging
++};
++
++allow domU_t domU_t:domain2 {
++    mem_access vm_event 
++};
++
++allow domU_t domU_t_self:domain {
++    pause unpause getdomaininfo getaddrsize
++};
++
++allow domU_t domU_t:mmu {map_read stat pageinfo adjust map_write };
++
++##########################################
++# end. 20180218
++##########################################
++
++
+ # Device model for domU_t.  You can define distinct types for device models for
+ # domains of other types, or add more make_device_model lines for this type.
+ declare_domain(dm_dom_t)

@@ -1,0 +1,25 @@
+--- tools/flask/policy/modules/dom0_old.te	2018-05-12 22:27:04.486522773 -0400
++++ tools/flask/policy/modules/dom0.te	2018-05-12 22:37:53.612642295 -0400
+@@ -72,3 +72,22 @@
+ admin_device(dom0_t, iomem_t)
+ 
+ domain_comms(dom0_t, dom0_t)
++
++
++#####################################
++# enable libvmi when flask enforced
++# added to dom0.te
++# 05-12-2018, Lele
++##
++
++allow dom0_t xen_t:resource { setup };
++
++allow dom0_t domU_t:domain { setdebugging };
++
++allow dom0_t domU_t:domain2 { vm_event mem_access };
++
++# end adding to dom0.te
++#####################################
++
++
++
