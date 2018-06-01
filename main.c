@@ -32,7 +32,7 @@ int main(void) {
 
 	result = 
 		// test_module_list(name);
-		// test_map_addr(name, vaddr);
+		test_map_addr(name, vaddr);
 		
 		/* examples in libvmi */
 		// map_addr(name,vaddr);
@@ -41,7 +41,7 @@ int main(void) {
 		// event_example(name, 0);
 		// test_event_example(name, 0);
 		// interrupt_event_example(name);
-		test_interrupt_event_example(name);
+		// test_interrupt_event_example(name);
 		// // 6 newly added, 05122018:
 		// msr_event_example(name);
 		// process_list(name);

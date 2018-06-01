@@ -1,6 +1,6 @@
 #!/bin/bash
 
-guestXLconfig="/home/tupipa/extdisk/lab/vmi/vmidocker/xenGuests/u1432bhvm.cfg"
+guestXLconfig="/home/smeller/extdisk/lab/vmi/vmidocker/xenGuests/aubu16.cfg"
 
 tinyDir=$(dirname $0)
 
