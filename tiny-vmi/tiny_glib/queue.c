@@ -34,6 +34,8 @@
 
 #include "types.h"
 #include "queue.h"
+#include "slice.h"
+
 #include "tiny_private.h"  // for debug printings
 
 
