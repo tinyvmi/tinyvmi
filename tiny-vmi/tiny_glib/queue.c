@@ -49,30 +49,11 @@
 GQueue *
 g_queue_new (void)
 {
-    DBG_START;
+    // DBG_START;
 //   return g_slice_new0 (GQueue);
     GQueue *q = (GQueue *) tiny_slice_new0 (sizeof(GQueue));
 
-    dbprint(VMI_DEBUG_TEST, "%s: TODO: BUG: tiny_slice_new0 cannot init memory to 0**\n"
-        "queue init length (should be 0): %u\n",
-          __FUNCTION__, q->length);
-
-    q->length = 0;
-
-    dbprint(VMI_DEBUG_TEST, "%s: queue init size: %u\n",
-        __FUNCTION__, q->length);
-    // g_queue_init(q);
-    q->head = NULL;
-
-    dbprint(VMI_DEBUG_TEST, "%s: queue head is set NULL\n",
-        __FUNCTION__);
-
-    q->tail = NULL;
-
-    dbprint(VMI_DEBUG_TEST, "%s: queue tail is set NULL\n",
-        __FUNCTION__);
-
-    DBG_DONE;
+    // DBG_DONE;
     return q;
 }
 
@@ -267,15 +248,15 @@ g_queue_foreach (GQueue   *queue,
   DBG_START;
   g_return_if_fail (queue != NULL);
   g_return_if_fail (func != NULL);
-  dbprint(VMI_DEBUG_TEST, "%s: queue and func not null\n", __FUNCTION__);
+  // dbprint(VMI_DEBUG_TEST, "%s: queue and func not null\n", __FUNCTION__);
 
   list = queue->head;
 
-  dbprint(VMI_DEBUG_TEST, "%s: got head list\n", __FUNCTION__);
+  // dbprint(VMI_DEBUG_TEST, "%s: got head list\n", __FUNCTION__);
   while (list)
     {
       GList *next = list->next;
-      dbprint(VMI_DEBUG_TEST, "%s: call func\n", __FUNCTION__);
+      // dbprint(VMI_DEBUG_TEST, "%s: call func\n", __FUNCTION__);
       func (list->data, user_data);
       list = next;
     }

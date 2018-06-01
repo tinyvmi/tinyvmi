@@ -297,8 +297,8 @@ memory_cache_destroy(
     vmi->memory_cache_size_max = 0;
 
     if (vmi->memory_cache_lru) {   
-        dbprint(VMI_DEBUG_MEMCACHE, "%s: free LRU queue: size %u\n", 
-            __FUNCTION__, g_queue_get_length(vmi->memory_cache_lru));
+        // dbprint(VMI_DEBUG_MEMCACHE, "%s: free LRU queue: size %u\n", 
+        //     __FUNCTION__, g_queue_get_length(vmi->memory_cache_lru));
 
         g_queue_foreach(vmi->memory_cache_lru, (GFunc)g_free, NULL);
         dbprint(VMI_DEBUG_MEMCACHE, "%s: each queue ele freed\n", __FUNCTION__);
