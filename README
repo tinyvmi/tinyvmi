@@ -1,4 +1,14 @@
-To run tinyvmi:
+
+# TinyVMI
+
+---
+
++ Website: https://tinyvmi.github.io 
++ Blog: https://tinyvmi.github.io/gsoc-blog 
+
+---
+
+## Quick Start
 
 1, compile and install Xen from given source code of xen-4.10.0, with XSM enabled. (tested on Ubuntu 16.04 as dom0, other Linux dist should be fine). 
     Note: 
