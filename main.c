@@ -7,10 +7,17 @@
 
 #include "config/libvmi_conf_file.h"
 
+#define PRINTTIMESTAMP \
+	{ struct timeval tv_begin; \
+		gettimeofday(&tv_begin,NULL); \
+		ttprint(VMI_TEST_MISC, "%s: TimeStamp: %lld s %lld us\n", __FUNCTION__, (long long)tv_begin.tv_sec,(long long)tv_begin.tv_usec); \
+	}
+
 int main(void) {
 
 	// DOMAIN_NAME is defined in include/domain_id.h
 	char *name = DOMAIN_NAME;
+	// char inputStr[10]; //TODO: cannot get input from console of MiniOS.
 
 	addr_t vaddr = 
 		// 0xc1c3a000;
@@ -25,20 +32,27 @@ int main(void) {
 
 	long long duration;
     ttprint(VMI_TEST_MAIN,  "Hello, world!\n");
-  
-	//sleep(2);
+
+	PRINTTIMESTAMP;
 	
+	sleep(2); //let TinyVMI paused here; allows outside 'xenstore-chmod' to grant permissions.
+	
+	PRINTTIMESTAMP;
+
+	// scanf("%s", &inputStr);
+	// ttprint(VMI_TEST_MAIN, "got input str: %s", inputStr);
+
 	gettimeofday(&tv_begin,NULL);
 
 	result = 
 		// test_module_list(name);
-		test_map_addr(name, vaddr);
+		// test_map_addr(name, vaddr);
 		
 		/* examples in libvmi */
 		// map_addr(name,vaddr);
 		// map_symbol(name, "xen_entry"); // "startup_32"); //"xen_entry"
 		// module_list(name);
-		// event_example(name, 0);
+		event_example(name, 0);
 		// test_event_example(name, 0);
 		// interrupt_event_example(name);
 		// test_interrupt_event_example(name);

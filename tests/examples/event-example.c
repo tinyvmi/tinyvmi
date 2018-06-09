@@ -415,7 +415,7 @@ status_t event_example (char *name, vmi_pid_t pid )
     int inter_duration = 0;
     int last_duration_start = 0;
     int count = 0;
-    // while(!interrupted){
+    while(!interrupted){
 
         ttprint(VMI_TEST_EVENTS, "Waiting for events...(500ms) %d\n", count);
         count ++;
@@ -431,22 +431,22 @@ status_t event_example (char *name, vmi_pid_t pid )
 
         inter_duration = duration - last_duration_start;
         
-        // if (duration > TEST_TIME_LIMIT){
-        //     break;
-        // }else if (duration > 100 && inter_duration > 100){
-        //     last_duration_start = duration;
-		//     //gettimeofday(&tv_begin,NULL);
-        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
-        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
-        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
-        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
-        //     ttprint(VMI_TEST_EVENTS, "\n another 100s passed ...\n");
-        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
-        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
-        //     ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+        if (duration > TEST_TIME_LIMIT){
+            break;
+        }else if (duration > 100 && inter_duration > 100){
+            last_duration_start = duration;
+		    //gettimeofday(&tv_begin,NULL);
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+            ttprint(VMI_TEST_EVENTS, "\n another 100s passed ...\n");
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
+            ttprint(VMI_TEST_EVENTS, "\n ---------------\n");
             
-        // }
-    // }
+        }
+    }
 
     ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
 

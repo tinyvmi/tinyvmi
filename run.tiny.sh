@@ -4,6 +4,9 @@ guestXLconfig="/home/smeller/extdisk/lab/vmi/vmidocker/xenGuests/aubu16.cfg"
 
 tinyDir=$(dirname $0)
 
+tinyVM="TinyVMI"
+tinyID="0"
+
 waitTime="1"
 WAITBOOT="60"
 
@@ -77,6 +80,45 @@ function checkAndCreateGuest(){
 }
 
 
+# create TinyVMI VM and run it.
+# this will also set xenstore permissions after knowing its domain ID.
+# It achieve this by the following tricks:
+#   1. create TinyVMI as a guest VM;
+#   2. pause TinyVMI and get its ID by 'xl domid TinyVMI';
+#   3. change xenstore permission by 'xenstore-chmod';
+#   4. resume TinyVMI.
+function createTinyVMI(){
+
+  echo "wait for $waitTime seconds before start tinyVMI"
+  sleep $waitTime
+  cd mini-os-x86_64-tinyvmi
+  xl create -c ../tinyvmi/domain_config &
+  echo "$tinyVM started"
+  sleep 1
+  xl pause $tinyVM
+  
+  echo "$tinyVM paused"
+  xl list
+  
+  tinyID=$(xl domid $tinyVM)
+  echo "get tinyID: $tinyID"
+  
+  # now change the permission of xenstore directory.
+  # this will allow TinyVMI to convert a VM's string name into its 
+  # domain ID.
+
+  xenstore-chmod -r '/local/domain' r$tinyID
+
+  echo "DONE: xenstore-chmod -r '/local/domain' r$tinyID"
+  xenstore-ls -p '/local/domain'
+  # unpause TinyVMI to resume normal run
+  xl unpause $tinyVM
+  echo "$tinyVM ($tinyID) unpaused"
+
+  cd -
+
+}
+
 checkAndCreateGuest
 success="$?" # return 0 if failed, return 1 if success.
 
@@ -108,11 +150,7 @@ if [ -z $mode ];then
   #	exit $res
   #fi
 
-  echo "wait for $waitTime seconds before start tinyVMI"
-  sleep $waitTime
-  cd mini-os-x86_64-tinyvmi
-  xl create -c ../../extras/mini-os/domain_config
-  cd -
+  createTinyVMI
 
 elif [ "$mode" == "$justMake" ];then
  
@@ -138,11 +176,7 @@ elif [ "$mode" == "$makeRun" ];then
     exit $res
   fi
 
-  echo "wait for $waitTime seconds before start tinyVMI"
-  sleep $waitTime
-  cd mini-os-x86_64-tinyvmi
-  xl create -c ../../extras/mini-os/domain_config
-  cd -
+  createTinyVMI
 
 else
 
@@ -164,10 +198,6 @@ else
     exit $res
   fi
 
-  echo "wait for $waitTime seconds before start tinyVMI"
-  sleep $waitTime
-  cd mini-os-x86_64-tinyvmi
-  xl create -c ../../extras/mini-os/domain_config
-  cd -
+  createTinyVMI
 
 fi

@@ -121,9 +121,9 @@ status_t interrupt_event_example (char *vm_name) {
     /* second way of clean exit */
     gettimeofday(&tv_begin,NULL);
 
-    // while(!interrupted){
+    while(!interrupted){
 
-        // count ++;
+        count ++;
 
         vmi_events_listen(vmi,500);
 
@@ -132,14 +132,14 @@ status_t interrupt_event_example (char *vm_name) {
             interrupted = -1;
         }
 
-		// gettimeofday(&tv_end,NULL);
-		// duration= (tv_end.tv_sec - tv_begin.tv_sec);
+		gettimeofday(&tv_end,NULL);
+		duration= (tv_end.tv_sec - tv_begin.tv_sec);
 
-    //     if (duration > TEST_TIME_LIMIT){
-    //         ttprint(VMI_TEST_EVENTS, "Waiting for events... timeout (%d seconds)\n", TEST_TIME_LIMIT);
-    //         break;
-    //     }
-    // }
+        if (duration > TEST_TIME_LIMIT){
+            ttprint(VMI_TEST_EVENTS, "Waiting for events... timeout (%d seconds)\n", TEST_TIME_LIMIT);
+            break;
+        }
+    }
 
     ttprint(VMI_TEST_EVENTS, "Finished with test.\n");
 

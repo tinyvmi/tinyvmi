@@ -281,9 +281,9 @@ _bail:
     dbprint(VMI_DEBUG_XEN, "%s: get domainid: %d\n",__FUNCTION__, domainid);
 
     if (domainid == VMI_INVALID_DOMID){
-        dbprint(VMI_DEBUG_XEN, "** failed to get domain id from name **\n"); 
-        dbprint(VMI_DEBUG_XEN, "** TODO: write flask policy for libxenstore event channel **\n"); 
-        dbprint(VMI_DEBUG_XEN, "** use default domain id: %d\n", DOMAIN_ID); 
+        errprint("** failed to get domain id from name **\n"); 
+        errprint("** fix: can use xenstore-chmod to grant permission -- thanks to Tamas\n"); 
+        errprint("** use default domain id: %d\n", DOMAIN_ID); 
         domainid = DOMAIN_ID;
     }
            

@@ -6,9 +6,9 @@
 #include "config/libvmi_conf_file.h"
 
 
-#define TEST_TIME_LIMIT 0  // time in seconds
+#define TEST_TIME_LIMIT 60  // time in seconds, used for ending while , such as in event_example.
 
-#define MAX_COUNT_TEST 5 //
+#define MAX_COUNT_TEST 100 // iterations when testing functions iteratively, such as in test_event_example.
 
 /**
  * accessories
