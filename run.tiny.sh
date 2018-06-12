@@ -1,6 +1,6 @@
 #!/bin/bash
 
-guestXLconfig="/home/smeller/extdisk/lab/vmi/vmidocker/xenGuests/aubu16.cfg"
+#guestXLconfig="/home/smeller/extdisk/lab/vmi/vmidocker/xenGuests/aubu16.cfg"
 
 tinyDir=$(dirname $0)
 
@@ -10,6 +10,21 @@ tinyID="0"
 waitTime="1"
 WAITBOOT="60"
 
+function Usage(){
+  echo "--------------------------------------"
+  echo "Usage: $0 [option [GNU make option]]"
+  echo "Available options:"
+  echo "'': if no option, it will just run TinyVMI without re-build."
+  echo "'$0 make': just build TinyVMI, same as make -C stubdom/ tinyvmi-stubdom."
+  echo "'$0 makerun': build TinyVMI and run it."
+  echo "'$0 build': make clean and rebuild TinyVMI."
+  echo "With last three options, you can also pass additional options to GNU make as following:"
+  echo "'$0 make -j4'"
+  echo "'$0 makerun -j4'"
+  echo "'$0 build -j4'"
+  echo "--------------------------------------"
+  echo ""
+}
 function hasGuestDom(){
 
  lists="$(xl list)"
@@ -46,7 +61,7 @@ function checkAndCreateGuest(){
 
  if [ "$hasGuest" -ne 0 ]
  then
-   echo "no need to create guest"
+   echo "[OK]: A potential Target VM is running."
    return 1
  fi
 
@@ -58,9 +73,16 @@ function checkAndCreateGuest(){
   if [ "$try" -gt $maxtry ];then
      break
   fi
-  echo "has no guest, now try to create one"
-  echo "create guest using $guestXLconfig"
-  xl create $guestXLconfig
+
+  echo "--------------------------------------"
+  echo "[WARNING] Has no guest VM. Please create guest VM as the introspection target before run this."
+  echo "[WARNING] Please create the Target VM and try again."
+  echo "--------------------------------------"
+
+  exit 1
+  #echo "create guest using $guestXLconfig"
+  #xl create $guestXLconfig
+
   hasGuestDom
   hasGuest="$?"
   ((try++))
@@ -68,7 +90,8 @@ function checkAndCreateGuest(){
 
  if [ "$hasGuest" -eq 0 ]
  then
-   echo "failed to create guest"
+   # echo "failed to create guest"
+   Usage
    return 0
  fi
 
@@ -128,7 +151,7 @@ fi
 
 
 
-
+# go to dir of xen-src/stubdom/
 cd $tinyDir
 cd ..
 
@@ -139,6 +162,7 @@ fi
 
 justMake="make"
 makeRun="makerun"
+opBuild="build"
 mode=$1
 
 if [ -z $mode ];then
@@ -154,7 +178,7 @@ if [ -z $mode ];then
 
 elif [ "$mode" == "$justMake" ];then
  
-  make -j4 tinyvmi-stubdom $options
+  make tinyvmi-stubdom $options
   res=$?
   if [ $res -ne 0 ]; then
     echo "error run make, return $res"
@@ -169,7 +193,7 @@ elif [ "$mode" == "$justMake" ];then
 
 elif [ "$mode" == "$makeRun" ];then
 
-  make -j4 tinyvmi-stubdom $options
+  make tinyvmi-stubdom $options
   res=$?
   if [ $res -ne 0 ]; then
     echo "error run make, return $res"
@@ -178,9 +202,8 @@ elif [ "$mode" == "$makeRun" ];then
 
   createTinyVMI
 
-else
+elif [ "$mode" == "$opBuild" ];then
 
-  # exit 1
   make clean -C ../extras/mini-os $options
   make clean -C tinyvmi $options
 
@@ -200,4 +223,8 @@ else
 
   createTinyVMI
 
+else
+
+  Usage
+  
 fi
