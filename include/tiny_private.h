@@ -65,14 +65,11 @@
 
 #include "domain_id.h"
 
-// default enable hvm
-// #define HVM 1
-// default 32-bit guest system
-//#define WIDTH 4
 //#define OS_DISABLED
 // #define OS_DISABLED_Linux
 
 #define SYM_FILE_FROM_STRING
+#define REKALL_FILE_FROM_STRING
 
 /* * Legacy from LibVMI 0.10.1
 */

@@ -24,6 +24,11 @@
 #include <stdio.h>
 #include <json-c/json.h>
 
+
+// add declaration of linux_rekall_string and linux_rekall_string_len
+#include "config/libvmi_conf_file.h"
+
+
 status_t
 rekall_profile_symbol_to_rva(
     const char *rekall_profile,
@@ -32,15 +37,34 @@ rekall_profile_symbol_to_rva(
     addr_t *rva )
 {
     status_t ret = VMI_FAILURE;
+    DBG_START;
     if (!rekall_profile || !symbol) {
         return ret;
     }
 
+#ifdef REKALL_FILE_FROM_STRING
+
+
+    //char *rekall_str = g_malloc0(linux_rekall_string_len + 1);
+
+    //sprintf(rekall_str, "%s", linux_rekall_string);
+    DBG_LINE;
+
+    json_object *root = json_tokener_parse(linux_rekall_string);
+    
+    //free(rekall_str);
+
+#else
+    DBG_LINE;
     json_object *root = json_object_from_file(rekall_profile);
+#endif
+
     if (!root) {
         errprint("Rekall profile couldn't be opened!\n");
         return ret;
     }
+
+    DBG_LINE;
 
     if (!subsymbol) {
         json_object *constants = NULL, *functions = NULL, *jsymbol = NULL;
@@ -103,5 +127,8 @@ rekall_profile_symbol_to_rva(
 
 exit:
     json_object_put(root);
+
+    DBG_LINE;
+
     return ret;
 }

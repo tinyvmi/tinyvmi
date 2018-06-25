@@ -232,7 +232,7 @@ status_t read_config_string(vmi_instance_t vmi,
 
     dbprint(VMI_DEBUG_CORE, "->-> now in %s\n", __FUNCTION__);
 
-    dbprint(VMI_DEBUG_CORE, "%s: config string: %s\n", __FUNCTION__, config);
+    dbprint(VMI_DEBUG_CORE, "%s: main config string: %s\n", __FUNCTION__, config);
 
     if (config == NULL) {
         if ( error )
@@ -246,6 +246,8 @@ status_t read_config_string(vmi_instance_t vmi,
     char *config_str = g_malloc0(length);
 
     sprintf(config_str, "%s %s", vmi->image_type, config);
+
+    dbprint(VMI_DEBUG_CORE, "%s: full config string: %s\n", __FUNCTION__, config_str);
 
     config_file = fmemopen(config_str, length, "r");
     ret = read_config_file(vmi, config_file, _config, error);

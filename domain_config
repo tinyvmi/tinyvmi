@@ -11,7 +11,7 @@
 kernel = "mini-os.gz"
 
 # Initial memory allocation (in megabytes) for the new domain.
-memory = 32
+memory = 64
 
 # A name for your domain. All domains must have different names.
 name = "TinyVMI"

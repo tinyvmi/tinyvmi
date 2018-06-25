@@ -136,7 +136,7 @@ linux_system_map_symbol_to_address(
         goto done;
     }
 
-#else
+#else 
     if ((f = fopen(linux_instance->sysmap, "r")) == NULL) {
         fprintf(stderr,
                 "ERROR: could not find System.map file after checking:\n");

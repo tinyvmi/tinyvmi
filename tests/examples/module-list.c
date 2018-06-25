@@ -38,6 +38,7 @@ status_t module_list( char *name)
     vmi_instance_t vmi;
     addr_t next_module, list_head;
 
+    DBG_START;
     /* initialize the libvmi library */
 
     char *config_str = get_config_from_file_string(name);

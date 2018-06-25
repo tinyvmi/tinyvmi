@@ -235,32 +235,39 @@ static status_t init_from_rekall_profile(vmi_instance_t vmi) {
 
     status_t ret = VMI_FAILURE;
     linux_instance_t linux_instance = vmi->os_data;
-
+    
+    DBG_START;
+    
     if(!linux_instance->tasks_offset) {
         if (VMI_FAILURE == rekall_profile_symbol_to_rva(linux_instance->rekall_profile, "task_struct", "tasks", &linux_instance->tasks_offset)) {
             goto done;
         }
     }
+    DBG_LINE;
     if(!linux_instance->mm_offset) {
         if (VMI_FAILURE == rekall_profile_symbol_to_rva(linux_instance->rekall_profile, "task_struct", "mm", &linux_instance->mm_offset)) {
             goto done;
         }
     }
+    DBG_LINE;
     if(!linux_instance->pid_offset) {
         if (VMI_FAILURE == rekall_profile_symbol_to_rva(linux_instance->rekall_profile, "task_struct", "pid", &linux_instance->pid_offset)) {
             goto done;
         }
     }
+    DBG_LINE;
     if(!linux_instance->name_offset) {
         if (VMI_FAILURE == rekall_profile_symbol_to_rva(linux_instance->rekall_profile, "task_struct", "comm", &linux_instance->name_offset)) {
             goto done;
         }
     }
+    DBG_LINE;
     if(!linux_instance->pgd_offset) {
         if (VMI_FAILURE == rekall_profile_symbol_to_rva(linux_instance->rekall_profile, "mm_struct", "pgd", &linux_instance->pgd_offset)) {
             goto done;
         }
     }
+    DBG_LINE;
     if(!vmi->init_task) {
         if (VMI_FAILURE == rekall_profile_symbol_to_rva(linux_instance->rekall_profile, "init_task", NULL, &vmi->init_task)) {
             goto done;
@@ -269,7 +276,9 @@ static status_t init_from_rekall_profile(vmi_instance_t vmi) {
 
     ret = VMI_SUCCESS;
 
-done: return ret;
+done: 
+    DBG_DONE; 
+    return ret;
 }
 
 static status_t init_task_kaslr_test(vmi_instance_t vmi, addr_t page_vaddr) {
@@ -370,7 +379,7 @@ return VMI_FAILURE;
     status_t rc;
     os_interface_t os_interface = NULL;
 
-    // DBG_START;
+    DBG_START;
     
     
     if (!config) {

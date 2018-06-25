@@ -137,11 +137,14 @@ OB_config += ./tiny-vmi/config/lexicon.o
 OB_config += ./tiny-vmi/config/grammar.o
 
 OB_config += ./tiny-vmi/config/libvmi_conf_file.o
+
+OB_CONFIG_FILE = ./tiny-vmi/config/target_conf/target_libvmi_conf_file.o
 OB_config += ./tiny-vmi/config/target_conf/target_libvmi_conf_file.o
-OB_config += ./tiny-vmi/config/target_conf/target_libvmi_sysmap.o
+# get_config_string:
+# 	cd ./tiny-vmi/config/target_conf && \
+# 	xxd -i libvmi.conf > target_libvmi_conf_file.c
 
-#OB_config += ./tiny-vmi/config/libvmi_conf_file_sysmap_4_4_0_32.o
-
+OB_config += ./tiny-vmi/config/target_conf/target_libvmi_sym.o
 
 OBJS += $(OB_xc) $(OB_xs) $(OB_xen_events) $(OB_xen_altp2m) $(OB_xen) $(OB_arch) $(OB_config)
 
@@ -207,6 +210,7 @@ $(OB_test_event): $(OB_events)
 
 tiny_read.o: $(OB_xen)
 
+# $(OBJS): get_config_string $(SRC_CODE)
 $(OBJS): $(SRC_CODE)
 
 #main.a: main.o ./tiny-vmi/tiny_test.o ./tiny-vmi/driver/xen/tiny_xen.o ./tiny-vmi/tiny_cache.o ./tiny-vmi/mem_cache.o ./tiny-vmi/tiny_kv2p.o  ./tiny-vmi/tiny_vmi_init.o ./tiny-vmi/tiny_read.o ./tiny-vmi/tiny_GetVaOfVetorInIDT.o
