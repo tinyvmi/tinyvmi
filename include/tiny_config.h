@@ -152,7 +152,7 @@
 
 /* Defined to 1 when working JSON-C library was found to parse Rekall
    profiles. */
-//#define REKALL_PROFILES 1
+#define REKALL_PROFILES 1
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1

@@ -81,10 +81,13 @@ SRC_CODE += ./tiny-vmi/pretty_print.c
 OB_events += ./tiny-vmi/events.o
 SRC_CODE += ./tiny-vmi/events.c ./tiny-vmi/events.h
 
+OB_REKALL += ./tiny-vmi/rekall.o
+SRC_CODE += ./tiny-vmi/rekall.c ./tiny-vmi/rekall.h
+
 OB_drivers = ./tiny-vmi/driver/driver_interface.o 
 SRC_CODE += ./tiny-vmi/driver/driver_interface.c
 
-OBJS += $(OB_events) $(OB_drivers) 
+OBJS += $(OB_events) $(OB_REKALL) $(OB_drivers) 
 
 
 OB_xc = ./tiny-vmi/driver/xen/libxc_wrapper.o
@@ -187,6 +190,12 @@ CFLAGS += -I$(CURDIR)/tiny-vmi
 
 # LDFLAGS += -nostdlib -L$(CROSS_PREFIX)/$(GNU_TARGET_ARCH)-xen-elf/lib -L$(CURDIR)/xenstore -lxenstore
 
+# Add libjson-c
+# JSON_C_DIR=$(CROSS_ROOT)/$(GNU_TARGET_ARCH)-xen-elf
+# CFLAGS += -I$(JSON_C_DIR)/include/json-c
+
+LDFLAGS += -ljson-c
+TARGET_LDFLAGS += -ljson-c
 
 all: main.a 
 
