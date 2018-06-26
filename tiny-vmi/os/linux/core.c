@@ -315,6 +315,8 @@ status_t init_kaslr(vmi_instance_t vmi) {
         .addr = vmi->init_task
     };
 
+    long lp_cnt = 0; 
+
     DBG_START;
 
     if ( VMI_SUCCESS == vmi_read_32(vmi, &ctx, &test) )
@@ -329,7 +331,9 @@ status_t init_kaslr(vmi_instance_t vmi) {
     while (loop) {
         page_info_t *info = loop->data;
         
-        DBG_LINE;
+        lp_cnt ++;
+
+        dbprint(VMI_DEBUG_CORE, "%s: loop %d start\n", __FUNCTION__, lp_cnt);
 
         if ( !linux_instance->kaslr_offset ) {
             switch(vmi->page_mode) {
@@ -355,6 +359,8 @@ status_t init_kaslr(vmi_instance_t vmi) {
 
         g_free(info);
         loop = loop->next;
+        dbprint(VMI_DEBUG_CORE, "%s: loop %d done\n", __FUNCTION__, lp_cnt);
+
     }
 
     g_slist_free(pages);
