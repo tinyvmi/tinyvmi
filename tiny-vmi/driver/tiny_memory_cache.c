@@ -185,10 +185,9 @@ void memory_cache_init(
                               g_free,
                               memory_cache_entry_free);
     
-    dbprint(VMI_DEBUG_MEMCACHE, "%s: TODOING: tiny list(g_queue)\n", __FUNCTION__);
     vmi->memory_cache_lru = (GQueue *)g_queue_new();
 
-    dbprint(VMI_DEBUG_TEST, "%s: queue size: %u\n",
+    dbprint(VMI_DEBUG_MEMCACHE, "%s: queue size: %u\n",
         __FUNCTION__, g_queue_get_length(vmi->memory_cache_lru));
 
     // vmi->memory_cache_lru = create_new_list(MAX_PAGE_CACHE_SIZE);
@@ -225,13 +224,9 @@ memory_cache_insert(
     }
     else {
         
-        dbprint(VMI_DEBUG_MEMCACHE, "%s: TODOING: tiny list(g_queue)\n", __FUNCTION__);
         if (g_queue_get_length(vmi->memory_cache_lru) >= vmi->memory_cache_size_max) {
             clean_cache(vmi);
         }
-        // if (vmi->memory_cache_lru -> size >= vmi->memory_cache_size_max) {
-        //     clean_cache(vmi);
-        // }
 
         dbprint(VMI_DEBUG_MEMCACHE, "--MEMORY cache set 0x%"PRIx64"\n", paddr);
 

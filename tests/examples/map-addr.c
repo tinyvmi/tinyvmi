@@ -56,7 +56,6 @@ status_t map_addr(char *name, addr_t addr)
     char *config_str = get_config_from_file_string(name);
 
     DBG_LINE;
-    exit(1);
     // if (VMI_FAILURE ==
     //     vmi_init_complete(&vmi, name, VMI_INIT_DOMAINNAME, NULL,
     //                       VMI_CONFIG_GLOBAL_FILE_ENTRY, NULL, NULL))
@@ -67,6 +66,8 @@ status_t map_addr(char *name, addr_t addr)
         ttprint(VMI_TEST_MISC, "Failed to init LibVMI library.\n");
         goto error_exit;
     }
+
+    exit(1);
 
     free(config_str);
 

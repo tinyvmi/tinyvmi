@@ -51,7 +51,7 @@ vmi_read(
     size_t buf_offset = 0;
     size_t count_o = count;
 
-    dbprint(VMI_DEBUG_READ, "->-> now in %s:%d\n", __FUNCTION__, __LINE__);
+    dbprint(VMI_DEBUG_READ, "->-> now in %s\n", __FUNCTION__);
 
     if (NULL == ctx) {
         dbprint(VMI_DEBUG_READ, 
@@ -126,7 +126,7 @@ vmi_read(
             goto done;
     }
 
-    dbprint(VMI_DEBUG_READ, "%s: get dtb: %lx\n", __FUNCTION__, dtb);
+    dbprint(VMI_DEBUG_READ, "%s: get dtb: %lx, start addr: %p\n", __FUNCTION__, dtb, start_addr);
             
     while (count > 0) {
         

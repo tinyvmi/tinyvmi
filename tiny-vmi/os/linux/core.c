@@ -76,7 +76,7 @@ static status_t linux_filemode_32bit_init(vmi_instance_t vmi,
     }
 done_:
 
-    dbprint(VMI_DEBUG_TEST, "vmi page mode: %d\n", vmi->page_mode);
+    dbprint(VMI_DEBUG_CORE, "vmi page mode: %d\n", vmi->page_mode);
     
     DBG_DONE;
 
@@ -98,7 +98,7 @@ static status_t linux_filemode_init(vmi_instance_t vmi)
     case VMI_PM_AARCH64:
     case VMI_PM_IA32E:
 
-        dbprint(VMI_DEBUG_TEST, "%s: vmi page mode 64\n", __FUNCTION__);
+        dbprint(VMI_DEBUG_CORE, "%s: vmi page mode 64\n", __FUNCTION__);
     
         linux_symbol_to_address(vmi, "phys_startup_64", NULL, &phys_start);
         linux_symbol_to_address(vmi, "startup_64", NULL, &virt_start);
@@ -107,14 +107,14 @@ static status_t linux_filemode_init(vmi_instance_t vmi)
     case VMI_PM_LEGACY:
     case VMI_PM_PAE:
 
-        dbprint(VMI_DEBUG_TEST, "%s: vmi page mode 32\n", __FUNCTION__);
+        dbprint(VMI_DEBUG_CORE, "%s: vmi page mode 32\n", __FUNCTION__);
     
         linux_symbol_to_address(vmi, "phys_startup_32", NULL, &phys_start);
         linux_symbol_to_address(vmi, "startup_32", NULL, &virt_start);
         break;
     case VMI_PM_UNKNOWN:
         
-        dbprint(VMI_DEBUG_TEST, "%s: vmi page mode unknown\n", __FUNCTION__);
+        dbprint(VMI_DEBUG_CORE, "%s: vmi page mode unknown\n", __FUNCTION__);
 
         linux_symbol_to_address(vmi, "phys_startup_64", NULL, &phys_start);
         linux_symbol_to_address(vmi, "startup_64", NULL, &virt_start);
@@ -310,6 +310,7 @@ static status_t init_task_kaslr_test(vmi_instance_t vmi, addr_t page_vaddr) {
 
     free(init_task_name);
 _done_:
+    DBG_DONE;
     return ret;
 }
 
@@ -324,10 +325,13 @@ status_t init_kaslr(vmi_instance_t vmi) {
         .addr = vmi->init_task
     };
 
+    long lp_cnt = 0;
     DBG_START;
 
-    if ( VMI_SUCCESS == vmi_read_32(vmi, &ctx, &test) )
+    if ( VMI_SUCCESS == vmi_read_32(vmi, &ctx, &test) ){
+        DBG_DONE;
         return VMI_SUCCESS;
+    }
 
     // DBG_LINE;
 
@@ -335,10 +339,13 @@ status_t init_kaslr(vmi_instance_t vmi) {
     linux_instance_t linux_instance = vmi->os_data;
     GSList *loop, *pages = vmi_get_va_pages(vmi, vmi->kpgd);
     loop = pages;
+
     while (loop) {
         page_info_t *info = loop->data;
         
-        DBG_LINE;
+        lp_cnt ++;
+        
+        dbprint(VMI_DEBUG_CORE, "%s: loop %d starts\n", __FUNCTION__, lp_cnt);
 
         if ( !linux_instance->kaslr_offset ) {
             switch(vmi->page_mode) {
@@ -364,6 +371,7 @@ status_t init_kaslr(vmi_instance_t vmi) {
 
         g_free(info);
         loop = loop->next;
+        dbprint(VMI_DEBUG_CORE, "%s: loop %d done\n", __FUNCTION__, lp_cnt);
     }
 
     g_slist_free(pages);
@@ -380,7 +388,7 @@ return VMI_FAILURE;
     os_interface_t os_interface = NULL;
 
     DBG_START;
-    
+
     
     if (!config) {
         errprint("No config table found\n");
@@ -426,11 +434,11 @@ return VMI_FAILURE;
      * This path is taken in FILE mode as well.
      */
     if (VMI_FAILURE == rc){
-        dbprint(VMI_DEBUG_TEST, "%s: driver_get_vcpureg failed, now call linux filemode init\n", __FUNCTION__);
+        dbprint(VMI_DEBUG_CORE, "%s: driver_get_vcpureg failed, now call linux filemode init\n", __FUNCTION__);
         if (VMI_FAILURE == linux_filemode_init(vmi))
             goto _exit;
     }else{
-        dbprint(VMI_DEBUG_TEST, "%s: driver_get_vcpureg success\n", __FUNCTION__);
+        dbprint(VMI_DEBUG_CORE, "%s: driver_get_vcpureg success\n", __FUNCTION__);
     }
 
     if ( VMI_FAILURE == init_kaslr(vmi) ) {
@@ -458,14 +466,14 @@ return VMI_FAILURE;
 
     vmi->os_interface = os_interface;
 
-    // DBG_DONE;
+    DBG_DONE;
 
     return VMI_SUCCESS;
 
     _exit:
     g_free(vmi->os_data);
     vmi->os_data = NULL;
-    // DBG_DONE;
+    DBG_DONE;
     return VMI_FAILURE;
 #endif
 

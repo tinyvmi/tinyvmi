@@ -254,6 +254,8 @@ status_t read_config_string(vmi_instance_t vmi,
 
     free(config_str);
 
+    DBG_DONE;
+    
     return ret;
 }
 
@@ -721,6 +723,7 @@ os_t vmi_init_os(
             if(VMI_FAILURE == read_config_string(vmi, (const char*)config, &_config, error)) {
                 goto error_exit;
             }
+            DBG_LINE;
             break;
         case VMI_CONFIG_GLOBAL_FILE_ENTRY:
             /* read and parse the config file */
@@ -805,7 +808,7 @@ error_exit:
     //     g_hash_table_destroy(_config);
     // }
 
-    // DBG_DONE;
+    DBG_DONE;
     return vmi->os_type;
 }
 
@@ -822,7 +825,7 @@ vmi_init_complete(
     vmi_instance_t _vmi = NULL;
     vmi_mode_t mode;
 
-    // DBG_START; 
+    DBG_START; 
     
     dbprint(VMI_DEBUG_CORE, "%s: config string before vmi_get_access_mode: %s\n", 
         __FUNCTION__, (char *)config);
@@ -878,7 +881,7 @@ vmi_init_complete(
     }
     *vmi = _vmi;
 
-    // DBG_DONE;
+    DBG_DONE;
     return VMI_SUCCESS;
 }
 
