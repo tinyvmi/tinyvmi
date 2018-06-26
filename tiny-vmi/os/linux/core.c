@@ -243,37 +243,39 @@ static status_t init_from_rekall_profile(vmi_instance_t vmi) {
             goto done;
         }
     }
-    DBG_LINE;
+    dbprint(VMI_DEBUG_CORE, "%s: linux tasks_offsets: 0x%lx\n", __FUNCTION__, linux_instance->tasks_offset);
     if(!linux_instance->mm_offset) {
         if (VMI_FAILURE == rekall_profile_symbol_to_rva(linux_instance->rekall_profile, "task_struct", "mm", &linux_instance->mm_offset)) {
             goto done;
         }
     }
-    DBG_LINE;
+
+    dbprint(VMI_DEBUG_CORE, "%s: linux mm_offsets: 0x%lx\n", __FUNCTION__,  linux_instance->mm_offset);
     if(!linux_instance->pid_offset) {
         if (VMI_FAILURE == rekall_profile_symbol_to_rva(linux_instance->rekall_profile, "task_struct", "pid", &linux_instance->pid_offset)) {
             goto done;
         }
     }
-    DBG_LINE;
+    dbprint(VMI_DEBUG_CORE, "%s: linux pid_offsets: 0x%lx\n", __FUNCTION__,  linux_instance->pid_offset);
     if(!linux_instance->name_offset) {
         if (VMI_FAILURE == rekall_profile_symbol_to_rva(linux_instance->rekall_profile, "task_struct", "comm", &linux_instance->name_offset)) {
             goto done;
         }
     }
-    DBG_LINE;
+    dbprint(VMI_DEBUG_CORE, "%s: linux name_offsets: 0x%lx\n", __FUNCTION__,  linux_instance->name_offset);
     if(!linux_instance->pgd_offset) {
         if (VMI_FAILURE == rekall_profile_symbol_to_rva(linux_instance->rekall_profile, "mm_struct", "pgd", &linux_instance->pgd_offset)) {
             goto done;
         }
     }
-    DBG_LINE;
+    dbprint(VMI_DEBUG_CORE, "%s: linux pgd_offsets: 0x%lx\n", __FUNCTION__,  linux_instance->pgd_offset);
     if(!vmi->init_task) {
         if (VMI_FAILURE == rekall_profile_symbol_to_rva(linux_instance->rekall_profile, "init_task", NULL, &vmi->init_task)) {
             goto done;
         }
     }
 
+    dbprint(VMI_DEBUG_CORE, "%s: vmi init_task: %p\n", __FUNCTION__,  vmi->init_task);
     ret = VMI_SUCCESS;
 
 done: 
@@ -421,6 +423,8 @@ return VMI_FAILURE;
     }
 
     vmi->init_task = canonical_addr(vmi->init_task);
+
+    dbprint(VMI_DEBUG_CORE, "%s: vmi init_task: %p\n", __FUNCTION__, vmi->init_task);
 
 #if defined(ARM32) || defined(ARM64)
     rc = driver_get_vcpureg(vmi, &vmi->kpgd, TTBR1, 0);
