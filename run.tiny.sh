@@ -15,9 +15,10 @@ function Usage(){
   echo "Usage: $0 [option [GNU make option]]"
   echo "Available options:"
   echo "'': if no option, it will just run TinyVMI without re-build."
-  echo "'$0 make': just build TinyVMI, same as make -C stubdom/ tinyvmi-stubdom."
-  echo "'$0 makerun': build TinyVMI and run it."
-  echo "'$0 build': make clean and rebuild TinyVMI."
+  echo "'$0 make, m': just build TinyVMI, same as make -C stubdom/ tinyvmi-stubdom."
+  echo "'$0 makerun, mr': build TinyVMI and run it."
+  echo "'$0 build, b': make clean and rebuild TinyVMI."
+  echo "'$0 buildrun, br': make clean and rebuild TinyVMI."
   echo "With last three options, you can also pass additional options to GNU make as following:"
   echo "'$0 make -j4'"
   echo "'$0 makerun -j4'"
@@ -160,23 +161,18 @@ if [ ! -z $2 ]; then
 options="$2"
 fi
 
-justMake="make"
-makeRun="makerun"
+opRun="run"
+opMake="make"
+opMakeRun="makerun"
 opBuild="build"
+opBuildRun="buildrun"
 mode=$1
 
-if [ -z $mode ];then
-
-  #make tinyvmi-stubdom
-  #res=$?
-  #if [ $res -ne 0 ]; then
-  #	echo "error run make, return $res"
-  #	exit $res
-  #fi
+if [ -z "$mode" -o "$mode" == "$opRun" -o "$mode" == "r" ];then
 
   createTinyVMI
 
-elif [ "$mode" == "$justMake" ];then
+elif [ "$mode" == "$opMake" -o "$mode" == "m" -o "$mode" == "$opMakeRun" -o "$mode" == "mr" ];then
  
   make tinyvmi-stubdom $options
   res=$?
@@ -185,24 +181,11 @@ elif [ "$mode" == "$justMake" ];then
     exit $res
   fi
 
-  # echo "wait for $waitTime seconds before start tinyVMI"
-  # sleep $waitTime
-  # cd mini-os-x86_64-tinyvmi
-  # xl create -c ../../extras/mini-os/domain_config
-  # cd -
-
-elif [ "$mode" == "$makeRun" ];then
-
-  make tinyvmi-stubdom $options
-  res=$?
-  if [ $res -ne 0 ]; then
-    echo "error run make, return $res"
-    exit $res
+  if [ "$mode" == "$opMakeRun" -o "$mode" == "mr" ];then
+    createTinyVMI
   fi
 
-  createTinyVMI
-
-elif [ "$mode" == "$opBuild" ];then
+elif [ "$mode" == "$opBuild" -o "$mode" == "b" -o "$mode" == "$opBuildRun" -o "$mode" == "br" ];then
 
   make clean -C ../extras/mini-os $options
   make clean -C tinyvmi $options
@@ -221,7 +204,9 @@ elif [ "$mode" == "$opBuild" ];then
     exit $res
   fi
 
-  createTinyVMI
+  if [ "$mode" == "$opBuildRun" -o "$mode" == "br" ];then
+    createTinyVMI
+  fi
 
 else
 
