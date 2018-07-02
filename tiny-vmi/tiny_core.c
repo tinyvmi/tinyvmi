@@ -612,9 +612,9 @@ status_t vmi_init(
 
     /* setup the caches */
     dbprint(VMI_DEBUG_TEST, "%s: ** TODO: implement pid, sym, rva caches\n", __FUNCTION__);
-    // pid_cache_init(_vmi);
-    // sym_cache_init(_vmi);
-    // rva_cache_init(_vmi);
+    pid_cache_init(_vmi);
+    sym_cache_init(_vmi);
+    rva_cache_init(_vmi);
     v2p_cache_init(_vmi);
 
     status = VMI_SUCCESS;

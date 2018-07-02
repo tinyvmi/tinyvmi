@@ -126,6 +126,7 @@ status_t process_list (char *vm_name) {
     }
     else if (VMI_OS_WINDOWS == os) {
 
+        ttprint(VMI_TEST_MISC, "%s: read windows ksym\n", __FUNCTION__);
         // find PEPROCESS PsInitialSystemProcess
         if(VMI_FAILURE == vmi_read_addr_ksym(vmi, "PsActiveProcessHead", &list_head)) {
             ttprint(VMI_TEST_MISC, "Failed to find PsActiveProcessHead\n");

@@ -636,15 +636,18 @@ vmi_read_addr_ksym(
 {
     status_t ret = VMI_FAILURE;
 
+    // DBG_START;
     switch(vmi->page_mode) {
         case VMI_PM_AARCH64:// intentional fall-through
         case VMI_PM_IA32E:
+            // DBG_LINE;
             ret = vmi_read_ksym(vmi, sym, 8, value, NULL);
             break;
         case VMI_PM_AARCH32:// intentional fall-through
         case VMI_PM_LEGACY: // intentional fall-through
         case VMI_PM_PAE: {
             uint32_t tmp = 0;
+            // DBG_LINE;
             ret = vmi_read_ksym(vmi, sym, 4, &tmp, NULL);
             *value = 0;
             *value = (addr_t) tmp;
@@ -657,6 +660,7 @@ vmi_read_addr_ksym(
             break;
     }
 
+    // DBG_DONE;
     return ret;
 }
 

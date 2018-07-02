@@ -274,6 +274,7 @@ status_t vmi_translate_ksym2v (vmi_instance_t vmi, const char *symbol, addr_t *v
     status_t status = VMI_FAILURE;
     addr_t address = 0;
 
+    // DBG_START;
     status = sym_cache_get(vmi, 0, 0, symbol, &address);
 
     if ( VMI_FAILURE == status ) {
@@ -288,6 +289,7 @@ status_t vmi_translate_ksym2v (vmi_instance_t vmi, const char *symbol, addr_t *v
     }
 
     *vaddr = address;
+    // DBG_DONE;
     return status;
 }
 
