@@ -25,11 +25,13 @@
  */
 
 #define _GNU_SOURCE
+
+#include "tiny_private.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include <sys/mman.h>
 
-#include "tiny_private.h"
 
 char *
 windows_get_eprocess_name(

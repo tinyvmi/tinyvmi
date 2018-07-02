@@ -7,7 +7,8 @@
 
 //#define DOMAIN_NAME "u1432hvm" 
 // #define DOMAIN_NAME "ubu14hvm"
-#define DOMAIN_NAME "xen16a"
+//#define DOMAIN_NAME "xen16a"
+#define DOMAIN_NAME "win7"
 
 // default return value of xen_get_domainid_from_name
 // only used when fail to convert a string domain name to domain ID.

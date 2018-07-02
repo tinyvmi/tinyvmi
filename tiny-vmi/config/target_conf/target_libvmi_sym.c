@@ -1,1 +1,1 @@
-../target_conf_examples/example_target_u16_4.4.0-101_x64-rekall/target_libvmi_sym.c
+../target_conf_examples/example_target_windows7_sp1_x64/target_libvmi_sym.c

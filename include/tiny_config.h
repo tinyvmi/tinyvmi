@@ -40,7 +40,7 @@
 #define ENABLE_VMIFS 0
 
 /* Define to 1 to Windows support. */
-// #define ENABLE_WINDOWS 1 //TODO: add windows support
+#define ENABLE_WINDOWS 1 //TODOING: add windows support
 // #define ENABLE_WINDOWS 0
 
 /* Define to 1 to enable Xen support. */

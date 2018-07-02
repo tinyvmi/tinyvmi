@@ -125,13 +125,13 @@ OB_arch += ./tiny-vmi/os/linux/memory.o
 OB_arch += ./tiny-vmi/os/linux/symbols.o
 
 
-# OB_arch += ./tiny-vmi/os/windows/core.o
-# OB_arch += ./tiny-vmi/os/windows/kdbg.o
-# OB_arch += ./tiny-vmi/os/windows/memory.o
-# OB_arch += ./tiny-vmi/os/windows/preparse.o
-# OB_arch += ./tiny-vmi/os/windows/process.o
-# OB_arch += ./tiny-vmi/os/windows/symbols.o
-# OB_arch += ./tiny-vmi/os/windows/unicode.o
+OB_arch += ./tiny-vmi/os/windows/core.o
+OB_arch += ./tiny-vmi/os/windows/kdbg.o
+OB_arch += ./tiny-vmi/os/windows/memory.o
+OB_arch += ./tiny-vmi/os/windows/preparse.o
+OB_arch += ./tiny-vmi/os/windows/process.o
+OB_arch += ./tiny-vmi/os/windows/symbols.o
+OB_arch += ./tiny-vmi/os/windows/unicode.o
 
 OB_config += ./tiny-vmi/config/lexicon.o
 OB_config += ./tiny-vmi/config/grammar.o

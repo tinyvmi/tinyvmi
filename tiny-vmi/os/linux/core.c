@@ -275,7 +275,7 @@ static status_t init_from_rekall_profile(vmi_instance_t vmi) {
         }
     }
 
-    dbprint(VMI_DEBUG_CORE, "%s: vmi init_task: %p\n", __FUNCTION__,  vmi->init_task);
+    dbprint(VMI_DEBUG_CORE, "%s: vmi init_task: (0x%.16"PRIx64").\n", __FUNCTION__,  vmi->init_task);
     ret = VMI_SUCCESS;
 
 done: 
@@ -424,7 +424,7 @@ return VMI_FAILURE;
 
     vmi->init_task = canonical_addr(vmi->init_task);
 
-    dbprint(VMI_DEBUG_CORE, "%s: vmi init_task: %p\n", __FUNCTION__, vmi->init_task);
+    dbprint(VMI_DEBUG_CORE, "%s: vmi init_task: (0x%.16"PRIx64").\n", __FUNCTION__, vmi->init_task);
 
 #if defined(ARM32) || defined(ARM64)
     rc = driver_get_vcpureg(vmi, &vmi->kpgd, TTBR1, 0);
