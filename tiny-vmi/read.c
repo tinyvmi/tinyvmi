@@ -175,7 +175,7 @@ done:
     if ( bytes_read )
         *bytes_read = buf_offset;
 
-    dbprint(VMI_DEBUG_READ, "%s: Done. Bytes read: %d\n\n", __FUNCTION__, count_o);
+    dbprint(VMI_DEBUG_READ, "%s: Done. Bytes read: %d\n\n", __FUNCTION__, count_o-count);
     return ret;
 }
 

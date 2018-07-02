@@ -20,8 +20,8 @@ int main(void) {
 	// char inputStr[10]; //TODO: cannot get input from console of MiniOS.
 
 	addr_t vaddr = 
-		// 0xc1c3a000;
-		0xffffffff81058ff0; // randomly choosen: System.map-4.4.0-101-generic: ht_set_affinity
+		0xc1c3a000;
+		// 0xffffffff81058ff0; // randomly choosen: System.map-4.4.0-101-generic: ht_set_affinity
 
 
 	addr_t kvaddr = vaddr;
@@ -49,7 +49,7 @@ int main(void) {
 		// test_map_addr(name, vaddr);
 		
 		/* examples in libvmi */
-		map_addr(name,vaddr);
+		// map_addr(name,vaddr);
 		// map_symbol(name, "xen_entry"); // "startup_32"); //"xen_entry"
 		// module_list(name);
 		//event_example(name, 0);
@@ -58,7 +58,7 @@ int main(void) {
 		// test_interrupt_event_example(name);
 		// // 6 newly added, 05122018:
 		// msr_event_example(name);
-		// process_list(name);
+		process_list(name);
 		// singlestep_event_example(name);
 		// step_event_example(name);
 		// va_pages(name);

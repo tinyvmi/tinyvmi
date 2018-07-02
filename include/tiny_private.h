@@ -513,75 +513,75 @@ int boyer_moore(
     int n);
 
 
-/********************************
-* tiny_read.c
-*
-*/
+// /********************************
+// * tiny_read.c
+// *
+// */
 
-status_t vmi_read_va(
-    vmi_instance_t vmi,
-    addr_t vaddr,
-    vmi_pid_t pid,
-    size_t count,
-    void *buf,
-    size_t *bytes_read
-);
+// status_t vmi_read_va(
+//     vmi_instance_t vmi,
+//     addr_t vaddr,
+//     vmi_pid_t pid,
+//     size_t count,
+//     void *buf,
+//     size_t *bytes_read
+// );
 
-status_t vmi_read_ksym(
-    vmi_instance_t vmi,
-    const char *sym,
-    size_t count,
-    void *buf,
-    size_t *bytes_read
-);
+// status_t vmi_read_ksym(
+//     vmi_instance_t vmi,
+//     const char *sym,
+//     size_t count,
+//     void *buf,
+//     size_t *bytes_read
+// );
 
-status_t
-vmi_read_X_ksym(
-    vmi_instance_t vmi,
-    char *sym,
-    void *value,
-    int size);
+// status_t
+// vmi_read_X_ksym(
+//     vmi_instance_t vmi,
+//     char *sym,
+//     void *value,
+//     int size);
 
-status_t
-vmi_read_8_ksym(
-    vmi_instance_t vmi,
-    char *sym,
-    uint8_t * value);
+// status_t
+// vmi_read_8_ksym(
+//     vmi_instance_t vmi,
+//     char *sym,
+//     uint8_t * value);
 
-status_t
-vmi_read_16_ksym(
-    vmi_instance_t vmi,
-    char *sym,
-    uint16_t * value);
+// status_t
+// vmi_read_16_ksym(
+//     vmi_instance_t vmi,
+//     char *sym,
+//     uint16_t * value);
 
-status_t
-vmi_read_32_ksym(
-    vmi_instance_t vmi,
-    char *sym,
-    uint32_t * value);
+// status_t
+// vmi_read_32_ksym(
+//     vmi_instance_t vmi,
+//     char *sym,
+//     uint32_t * value);
 
-status_t
-vmi_read_64_ksym(
-    vmi_instance_t vmi,
-    char *sym,
-    uint64_t * value);
+// status_t
+// vmi_read_64_ksym(
+//     vmi_instance_t vmi,
+//     char *sym,
+//     uint64_t * value);
 
-status_t
-vmi_read_addr_ksym(
-    vmi_instance_t vmi,
-    char *sym,
-    addr_t *value);
+// status_t
+// vmi_read_addr_ksym(
+//     vmi_instance_t vmi,
+//     char *sym,
+//     addr_t *value);
 
-//char *
-//vmi_read_str_ksym(
-//    vmi_instance_t vmi,
-//    char *sym);
+// //char *
+// //vmi_read_str_ksym(
+// //    vmi_instance_t vmi,
+// //    char *sym);
 
-char *
-vmi_read_str_va(
-    vmi_instance_t vmi,
-    addr_t vaddr,
-    int pid);
+// char *
+// vmi_read_str_va(
+//     vmi_instance_t vmi,
+//     addr_t vaddr,
+//     int pid);
 
 // status_t
 // tiny_get_vcpureg_pv64(

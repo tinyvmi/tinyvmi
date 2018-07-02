@@ -67,7 +67,6 @@ status_t map_addr(char *name, addr_t addr)
         goto error_exit;
     }
 
-    exit(1);
 
     free(config_str);
 
