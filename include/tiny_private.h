@@ -492,6 +492,25 @@ status_t find_page_mode_live(
     unsigned long vcpu,
     page_mode_t *out_pm);
 
+/*-----------------------------------------
+ * strmatch.c
+ */
+
+void *boyer_moore_init(
+    unsigned char *x,
+    int m);
+int boyer_moore2(
+    void *bm,
+    unsigned char *y,
+    int n);
+void boyer_moore_fini(
+    void *bm);
+
+int boyer_moore(
+    unsigned char *x,
+    int m,
+    unsigned char *y,
+    int n);
 
 
 /********************************

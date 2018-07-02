@@ -78,6 +78,9 @@ OBJS += ./tiny-vmi/read.o
 OBJS += ./tiny-vmi/pretty_print.o
 SRC_CODE += ./tiny-vmi/pretty_print.c
 
+OBJS += ./tiny-vmi/strmatch.o
+SRC_CODE += ./tiny-vmi/strmatch.c
+
 OB_events += ./tiny-vmi/events.o
 SRC_CODE += ./tiny-vmi/events.c ./tiny-vmi/events.h
 
@@ -128,7 +131,7 @@ OB_arch += ./tiny-vmi/os/linux/symbols.o
 OB_arch += ./tiny-vmi/os/windows/core.o
 OB_arch += ./tiny-vmi/os/windows/kdbg.o
 OB_arch += ./tiny-vmi/os/windows/memory.o
-OB_arch += ./tiny-vmi/os/windows/preparse.o
+OB_arch += ./tiny-vmi/os/windows/peparse.o
 OB_arch += ./tiny-vmi/os/windows/process.o
 OB_arch += ./tiny-vmi/os/windows/symbols.o
 OB_arch += ./tiny-vmi/os/windows/unicode.o

@@ -154,4 +154,7 @@ gpointer tiny_malloc0 (gsize n_bytes);
 
 #define g_warning(...)  printf ("[%s:%d]: %s", __FILE__, __LINE__, __VA_ARGS__)
 
+
+#define g_strdup strdup // windows support
+
 #endif //TINY_GLIB_TYPES_H
