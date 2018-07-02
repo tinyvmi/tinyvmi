@@ -228,8 +228,6 @@ uint64_t xen_get_domainid_from_name(
 
     struct xs_handle *xsh = xen->libxsw.xs_open(0);
 
-    xen->xshandle = xsh;
-    
     if (!xsh)
         goto _bail;
 
@@ -272,10 +270,7 @@ _bail:
         dbprint(VMI_DEBUG_XEN, "%s: close xsh\n",__FUNCTION__);
 
         xen->libxsw.xs_close(xsh);
-        if (xen->xshandle){
-            xen->xshandle = 0; // Lele: keep consistency
-            // dbprint(VMI_DEBUG_XEN, "%s: reset xen->xshandle to NULL(0)\n",__FUNCTION__);
-        }
+       
     }
 
     dbprint(VMI_DEBUG_XEN, "%s: get domainid: %d\n",__FUNCTION__, domainid);
@@ -289,6 +284,7 @@ _bail:
            
 
     return domainid;
+
 }
 #endif
 
@@ -319,6 +315,8 @@ status_t xen_get_name_from_domainid(
 
     struct xs_handle *xsh = xen->libxsw.xs_open(0);
 
+    dbprint(VMI_DEBUG_XEN, "%s: xsh handle opened\n",__FUNCTION__);
+
     if (!xsh)
         goto _bail;
 
@@ -333,15 +331,9 @@ status_t xen_get_name_from_domainid(
     }
 
 _bail:
-    // if (xsh)
-    //     xen->libxsw.xs_close(xsh);
     if (xsh) {
-        dbprint(VMI_DEBUG_XEN, "%s: close xsh\n",__FUNCTION__);
         xen->libxsw.xs_close(xsh);
-        if (xen->xshandle){
-            xen->xshandle = 0; // Lele: keep consistency
-            // dbprint(VMI_DEBUG_XEN, "%s: reset xen->xshandle to NULL(0)\n",__FUNCTION__);
-        }
+        dbprint(VMI_DEBUG_XEN, "%s: xsh handle closed\n",__FUNCTION__);
     }
     return ret;
 }
@@ -484,13 +476,13 @@ xen_init(
         g_free(xen);
         return VMI_FAILURE;
     }
-    // else{
-    //     dbprint(VMI_DEBUG_XEN, "\tlibxc wrapper created\n");
-    // }
+    else{
+        dbprint(VMI_DEBUG_XEN, "\tlibxc wrapper created\n");
+    }
 
     /* initialize other xen-specific values */
 #ifdef HAVE_LIBXENSTORE
-    //dbprint (VMI_DEBUG_XEN, "---------- HAVE_LIBXENSTORE ----- \n");
+    // dbprint (VMI_DEBUG_XEN, "---------- HAVE_LIBXENSTORE ----- \n");
     if ( VMI_FAILURE == create_libxs_wrapper(xen) )
     {
         dbprint(VMI_DEBUG_XEN, "Failed to find a suitable xenstore.so!\n");
@@ -510,13 +502,8 @@ xen_init(
         xen->xchandle=0;
         g_free(xen);
         return VMI_FAILURE;
-    }else{
-        xen->libxsw.xs_close(xen->xshandle);
-        if (xen->xshandle){
-            xen->xshandle = 0; // Lele: keep consistency
-            // dbprint(VMI_DEBUG_XEN, "%s: reset xen->xshandle to NULL(0)\n",__FUNCTION__);
-        }
     }
+
 #endif
 
     vmi->driver.driver_data = (void *)xen;
@@ -2432,10 +2419,11 @@ xen_test(
         return VMI_FAILURE;
     }
 
-    if ( VMI_FAILURE == xen_init(vmi, 0, NULL) )
+    if ( VMI_FAILURE == xen_init(vmi, 0, NULL) ){
+        errprint("VMI_ERROR: xen init failed\n");
         return VMI_FAILURE;
+    }
 
-    dbprint(VMI_DEBUG_XEN, "now get id from name...\n" );
     if (domainid == VMI_INVALID_DOMID) { /* name != NULL */
         domainid = xen_get_domainid_from_name(vmi, name);
         if (domainid == VMI_INVALID_DOMID) {
@@ -2446,6 +2434,8 @@ xen_test(
  
         }
 
+    }else{
+        dbprint(VMI_DEBUG_XEN, "%s: now get id from name '%s': %d...\n", __FUNCTION__, name, domainid);
     }
 
     if ( VMI_FAILURE == xen_check_domainid(vmi, domainid) ) {
