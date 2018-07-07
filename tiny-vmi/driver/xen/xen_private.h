@@ -52,6 +52,8 @@ typedef struct xen_instance {
 
     xc_interface* xchandle; /**< handle to xenctrl library (libxc) */
 
+    xendevicemodel_handle* xendevice_handle; /**< Lele: handle to xendevice model */
+
     struct xs_handle *xshandle;  /**< handle to xenstore daemon (libxs) */
 
     libxc_wrapper_t libxcw; /**< wrapper for libxc for cross-compatibility */
@@ -100,6 +102,13 @@ xc_interface* xen_get_xchandle(
     vmi_instance_t vmi)
 {
     return xen_get_instance(vmi)->xchandle;
+}
+
+static inline
+xc_interface* xen_get_xendevice_handle(
+    vmi_instance_t vmi)
+{
+    return xen_get_instance(vmi)->xendevice_handle;
 }
 
 #if ENABLE_XEN_EVENTS == 1 //tiny-VMI: events enabled

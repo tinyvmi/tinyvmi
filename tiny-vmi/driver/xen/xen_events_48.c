@@ -68,6 +68,8 @@ void get_request(xen_vm_event_t *mem_event,
     vm_event_48_back_ring_t *back_ring;
     RING_IDX req_cons;
 
+    DBG_LINE;
+
     back_ring = &mem_event->back_ring_48;
     req_cons = back_ring->req_cons;
 
@@ -78,6 +80,9 @@ void get_request(xen_vm_event_t *mem_event,
     // Update ring
     back_ring->req_cons = req_cons;
     back_ring->sring->req_event = req_cons + 1;
+
+    DBG_LINE;
+
 }
 
 static inline
@@ -86,6 +91,8 @@ void put_response(xen_vm_event_t *mem_event,
 {
     vm_event_48_back_ring_t *back_ring;
     RING_IDX rsp_prod;
+
+    DBG_LINE;
 
     back_ring = &mem_event->back_ring_48;
     rsp_prod = back_ring->rsp_prod_pvt;
@@ -97,6 +104,9 @@ void put_response(xen_vm_event_t *mem_event,
     // Update ring
     back_ring->rsp_prod_pvt = rsp_prod;
     RING_PUSH_RESPONSES(back_ring);
+
+    DBG_LINE;
+
 }
 
 /*
@@ -170,6 +180,9 @@ status_t process_interrupt_event(vmi_instance_t vmi,
 {
     int rc              = -1;
     gint lookup         = intr;
+
+    DBG_START;
+
     vmi_event_t * event = g_hash_table_lookup(vmi->interrupt_events, &lookup);
 
     if ( !event )
@@ -207,6 +220,9 @@ status_t process_interrupt_event(vmi_instance_t vmi,
     switch(intr) {
     case INT3:
     {
+
+         DBG_LINE;
+         
         /* Reinject (callback may decide) */
         if ( !event->interrupt_event.reinject )
             return VMI_SUCCESS;
@@ -239,7 +255,24 @@ status_t process_interrupt_event(vmi_instance_t vmi,
          */
          #define TRAP_int3              3
          xen_instance_t *xen = xen_get_instance(vmi);
-         rc = xen->libxcw.xc_hvm_inject_trap(xen_get_xchandle(vmi),
+
+         DBG_LINE;
+         
+        //  dbprint(VMI_DEBUG_XEN, "%s: now call libxc xc_hvm_inject_trap:\n", __FUNCTION__);
+        //  rc = xen->libxcw.xc_hvm_inject_trap(xen_get_xchandle(vmi),
+        //                 xen_get_domainid(vmi),
+        //                 req->vcpu_id,
+        //                 TRAP_int3,         /* Vector 3 for INT3 */
+        //                 X86_TRAP_sw_exc,   /* Trap type, here a software intr */
+        //                 ~0u, /* error code. ~0u means 'ignore' */
+        //                 event->interrupt_event.insn_length,
+        //                 0    /* cr2 need not be preserved */
+        //             );
+
+         dbprint(VMI_DEBUG_XEN, "%s: now call libxc devicemodel inject event:\n", __FUNCTION__);
+         xendevicemodel_handle *domd = xen_get_xendevice_handle(vmi);
+
+         rc = xen->libxcw.xendevicemodel_inject_event(domd,
                         xen_get_domainid(vmi),
                         req->vcpu_id,
                         TRAP_int3,         /* Vector 3 for INT3 */
@@ -248,7 +281,10 @@ status_t process_interrupt_event(vmi_instance_t vmi,
                         event->interrupt_event.insn_length,
                         0    /* cr2 need not be preserved */
                     );
+        
 
+         DBG_LINE;
+         
         /* NOTE: Inability to re-inject constitutes a serious error.
          *  (E.g., some program like a debugger in the guest is
          *  awaiting SIGTRAP in order to trigger to re-write/emulation
@@ -277,6 +313,8 @@ status_t process_interrupt_event(vmi_instance_t vmi,
             return VMI_FAILURE;
         }
 
+        DBG_LINE;
+         
         return VMI_SUCCESS;
     }
     case INT_NEXT:
@@ -628,6 +666,8 @@ status_t process_requests(vmi_instance_t vmi, vm_event_48_request_t *req,
     xen_events_t * xe = xen_get_events(vmi);
     status_t vrc = VMI_SUCCESS;
 
+    DBG_START;
+
     while ( RING_HAS_UNCONSUMED_REQUESTS(&xe->vm_event.back_ring_48) ) {
         memset( req, 0, sizeof (vm_event_48_request_t) );
         memset( rsp, 0, sizeof (vm_event_48_response_t) );
@@ -738,6 +778,8 @@ status_t process_requests(vmi_instance_t vmi, vm_event_48_request_t *req,
         put_response(&xe->vm_event, rsp);
         dbprint(VMI_DEBUG_XEN, "--Finished handling event.\n");
     }
+
+    DBG_DONE;
 
     return vrc;
 }
@@ -1271,6 +1313,7 @@ status_t xen_events_listen_48(vmi_instance_t vmi, uint32_t timeout)
 
     vrc = process_requests(vmi, &req, &rsp);
 
+    dbprint(VMI_DEBUG_EVENTS, "%s: done process_request\n", __FUNCTION__);
     /*
      * The only way to gracefully handle vmi_swap_events and vmi_clear_event requests
      * that were issued in a callback is to ensure no more requests

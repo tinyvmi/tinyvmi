@@ -22,11 +22,29 @@
 
 #include <string.h>
 
-// #include <xenctrl.h>    //Lele
-// #include <xenevtchn.h>
-
 #include "xen_private.h"
+
+// #define XC_WANT_COMPAT_MAP_FOREIGN_API
+// #define XC_INTERNAL_COMPAT_MAP_FOREIGN_API
+// #include <xenctrl.h>
+
 #include "libxc_wrapper.h"
+
+/**
+ * xc_hvm_inject_trap: is replaced by xendevicemodel function
+ * 
+ * Lele: definition derived from xen-4.10.0/tools/libxc/xc_devicemodel_compat.c:123
+ * 
+ */
+
+// int xc_hvm_inject_trap(
+//     xc_interface *xch, uint32_t domid, int vcpu, uint8_t vector,
+//     uint8_t type, uint32_t error_code, uint8_t insn_len, uint64_t cr2)
+// {
+//     return xendevicemodel_inject_event(xch->dmod, domid, vcpu, vector,
+//                                        type, error_code, insn_len, cr2);
+// }
+
 
 void xc_interface_close_wrapper(struct xc_handle *xch){
 
@@ -60,9 +78,6 @@ static status_t sanity_check(xen_instance_t *xen)
 
     // dbprint(VMI_DEBUG_XEN, "test xc_interface_open, func addr: 0x%lx\n", (uint64_t)&xc_interface_open);
 
-
-    // xen->xchandle = xen->libxcw.xc_interface_open(NULL, NULL, 0);
-    
     // dbprint(VMI_DEBUG_XEN, "xchandle: 0x%lx\n", xen->xchandle);
 
     if ( !xen->xchandle ){
@@ -70,16 +85,26 @@ static status_t sanity_check(xen_instance_t *xen)
         xen->xchandle = xen->libxcw.xc_interface_open(NULL, NULL, 0);
     
         // dbprint(VMI_DEBUG_XEN, "test xc_interface_open, success: xchandle addr: 0x%lx\n", xen->xchandle);
-
     }
-    // else{
-    //     dbprint(VMI_DEBUG_XEN, "%s: WARNING: xc_interface already opened, xchandle: 0x%lx\n", __FUNCTION__, xen->xchandle);
-    // }
-
     if ( !xen->xchandle ) {
         errprint("%s: Failed to open libxc interface.\n", __FUNCTION__);
         return ret;
     }
+
+
+    if ( !xen->xendevice_handle ){
+    
+        xen->xendevice_handle = xen->libxcw.xendevicemodel_open(NULL, 0);
+    
+        dbprint(VMI_DEBUG_XEN, "xen device handle oepn, success: xendevice_handle addr: 0x%lx\n", xen->xendevice_handle);
+
+    }
+    
+    if ( !xen->xendevice_handle ) {
+        errprint("%s: Failed to open xendevicemodel handle.\n", __FUNCTION__);
+        return ret;
+    }
+
 
     /* get the Xen version */
     version = w->xc_version(xen->xchandle, XENVER_version, NULL);
@@ -112,9 +137,9 @@ static status_t sanity_check(xen_instance_t *xen)
                  !w->xc_hvm_get_mem_access || !w->xc_domain_debug_control ||
                  !w->xc_domain_set_access_required || !w->xc_hvm_inject_trap ||
                  !w->xc_domain_decrease_reservation_exact || !w->xc_domain_populate_physmap_exact ||
-                //  !w->xc_evtchn_open || !w->xc_evtchn_close || !w->xc_evtchn_fd ||
-                //  !w->xc_evtchn_notify || !w->xc_evtchn_pending || !w->xc_evtchn_unmask ||
-                //  !w->xc_evtchn_unbind || !w->xc_evtchn_bind_interdomain ||
+                 !w->xc_evtchn_open || !w->xc_evtchn_close || !w->xc_evtchn_fd ||
+                 !w->xc_evtchn_notify || !w->xc_evtchn_pending || !w->xc_evtchn_unmask ||
+                 !w->xc_evtchn_unbind || !w->xc_evtchn_bind_interdomain ||
                  !w->xc_set_hvm_param || !w->xc_get_hvm_param || !w->xc_domain_cacheflush)
                 break;
 
@@ -206,6 +231,8 @@ status_t create_libxc_wrapper(xen_instance_t *xen)
 
     wrapper->xc_interface_open = &xc_interface_open;
     wrapper->xc_interface_close = &xc_interface_close_wrapper;
+    wrapper->xendevicemodel_open = &xendevicemodel_open;
+    wrapper->xendevicemodel_close = &xendevicemodel_close;
     wrapper->xc_version = &xc_version;
     wrapper->xc_map_foreign_range = &xc_map_foreign_range;
     wrapper->xc_vcpu_getcontext = &xc_vcpu_getcontext;
@@ -228,6 +255,7 @@ status_t create_libxc_wrapper(xen_instance_t *xen)
     wrapper->xc_domain_set_access_required = &xc_domain_set_access_required;
     wrapper->xc_domain_decrease_reservation_exact = &xc_domain_decrease_reservation_exact;
     // wrapper->xc_hvm_inject_trap = &xc_hvm_inject_trap;
+    wrapper->xendevicemodel_inject_event = &xendevicemodel_inject_event;
     wrapper->xc_domain_populate_physmap_exact = &xc_domain_populate_physmap_exact;
     wrapper->xc_evtchn_open = &xenevtchn_open;
     wrapper->xc_evtchn_close = &xenevtchn_close;
@@ -241,8 +269,8 @@ status_t create_libxc_wrapper(xen_instance_t *xen)
     // wrapper->xc_hvm_get_mem_access = &xc_hvm_get_mem_access;
     wrapper->xc_set_mem_access = &xc_set_mem_access;
 
-    dbprint(VMI_DEBUG_XEN, "%s: xc_set_mem_access, func addr: %p\n", 
-        __FUNCTION__, (uint64_t)&xc_set_mem_access);
+    // dbprint(VMI_DEBUG_XEN, "%s: xc_set_mem_access, func addr: %p\n", 
+    //     __FUNCTION__, (uint64_t)&xc_set_mem_access);
 
     wrapper->xc_get_mem_access = &xc_get_mem_access;
     // wrapper->xc_mem_access_enable = &xc_mem_access_enable;

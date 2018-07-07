@@ -54,11 +54,11 @@ int main(void) {
 		// module_list(name);
 		//event_example(name, 0);
 		// test_event_example(name, 0);
-		// interrupt_event_example(name);
+		interrupt_event_example(name);
 		// test_interrupt_event_example(name);
 		// // 6 newly added, 05122018:
 		// msr_event_example(name);
-		process_list(name);
+		// process_list(name);
 		// singlestep_event_example(name);
 		// step_event_example(name);
 		// va_pages(name);
