@@ -24,7 +24,9 @@
 #define LIBXC_WRAPPER_H
 
 #include <tiny_config.h>
+
 #include <xenctrl.h>
+#include <xendevicemodel.h> // Lele: xendevicemodel_inject_event (to replace xc_hvm_inject_trap)
 // #include <dlfcn.h>
 
 #include "tiny_libvmi.h"
@@ -43,6 +45,12 @@ typedef struct {
 
     int (*xc_interface_close)
             (xc_interface *xch);
+    
+    xendevicemodel_handle* (*xendevicemodel_open)
+        (struct xentoollog_logger *logger, unsigned int open_flags);
+
+    int (*xendevicemodel_close) 
+        (xendevicemodel_handle *dmod);
 
     int (*xc_version)
             (xc_interface *xch, int cmd, void *arg);
@@ -91,6 +99,11 @@ typedef struct {
 
     int (*xc_hvm_inject_trap)
             (xc_interface *xch, domid_t dom, int vcpu, uint32_t vector,
+             uint32_t type, uint32_t error_code, uint32_t insn_len, uint64_t cr2);
+
+    //lele: replace xc_hvm_inject_trap in xen_4.10.0
+    int (*xendevicemodel_inject_event)
+            (xendevicemodel_handle *domd, domid_t dom, int vcpu, uint32_t vector,
              uint32_t type, uint32_t error_code, uint32_t insn_len, uint64_t cr2);
 
     int (*xc_domain_getinfolist)

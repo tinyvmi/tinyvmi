@@ -487,7 +487,9 @@ xen_init(
     {
         dbprint(VMI_DEBUG_XEN, "Failed to find a suitable xenstore.so!\n");
         xen->libxcw.xc_interface_close(xen->xchandle);
-        xen->xchandle=0;
+        xen->xchandle = 0;
+        xen->libxcw.xendevicemodel_close(xen->xendevice_handle);
+        xen->xendevice_handle = 0;
         g_free(xen);
     
         return VMI_FAILURE;
@@ -500,6 +502,8 @@ xen_init(
         errprint("xs_domain_open failed\n");
         xen->libxcw.xc_interface_close(xen->xchandle);
         xen->xchandle=0;
+        xen->libxcw.xendevicemodel_close(xen->xendevice_handle);
+        xen->xendevice_handle = 0;
         g_free(xen);
         return VMI_FAILURE;
     }
@@ -627,6 +631,19 @@ xen_destroy(
             xen->libxcw.xc_interface_close(xen->xchandle);
             xen->xchandle = 0;// Lele: keep consistency
             dbprint(VMI_DEBUG_XEN, "%s: xchandle closed\n", __FUNCTION__);
+        }
+    }
+
+     if ( xen->xendevice_handle ){
+
+        if (!xen->libxcw.xendevicemodel_close){
+            dbprint(VMI_DEBUG_XEN, "%s: xendevicemodel_close not defined\n", __FUNCTION__);
+            return;
+        }else{
+            dbprint(VMI_DEBUG_XEN, "%s: close xendevice_handle\n", __FUNCTION__);
+            xen->libxcw.xendevicemodel_close(xen->xendevice_handle);
+            xen->xendevice_handle = 0;// Lele: keep consistency
+            dbprint(VMI_DEBUG_XEN, "%s: xendeivcemodel handle closed\n", __FUNCTION__);
         }
     }
 
