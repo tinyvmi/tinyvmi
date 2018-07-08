@@ -37,6 +37,9 @@ vmi_event_t interrupt_event;
 
 event_response_t int3_cb(vmi_instance_t vmi, vmi_event_t *event){
 
+
+    event_response_t resp = 0;
+
     ttprint(VMI_TEST_EVENTS, "Int 3 happened: GFN=%"PRIx64" RIP=%"PRIx64" Length: %"PRIu32"\n",
         event->interrupt_event.gfn, event->interrupt_event.gla,
         event->interrupt_event.insn_length);
@@ -45,7 +48,10 @@ event_response_t int3_cb(vmi_instance_t vmi, vmi_event_t *event){
      *  a debugger or similar inside the guest, and therefore
      *  unconditionally reinjects the interrupt.
      */
-    event->interrupt_event.reinject = 1;
+    //event->interrupt_event.reinject = 1;
+
+    // now don't reinject.
+    event->interrupt_event.reinject = 0;
 
     /*
      * By default int3 instructions have length of 1 byte unless
@@ -58,10 +64,16 @@ event_response_t int3_cb(vmi_instance_t vmi, vmi_event_t *event){
      */
     if ( !event->interrupt_event.insn_length )
         event->interrupt_event.insn_length = 1;
+    
+    
+    event->x86_regs->rip += event->interrupt_event.insn_length;
+
+    resp = VMI_EVENT_RESPONSE_SET_REGISTERS; 
 
     ttprint(VMI_TEST_EVENTS, "%s: done.\n", __FUNCTION__);
 
-    return 0;
+    // return 0;
+    return resp;
 }
 
 static int interrupted = 0;
