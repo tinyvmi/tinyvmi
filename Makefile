@@ -2,6 +2,8 @@ XEN_ROOT = $(CURDIR)/../..
 
 include $(XEN_ROOT)/Config.mk
 
+CFLAGS += -DXC_WANT_COMPAT_EVTCHN_API -DXC_WANT_COMPAT_MAP_FOREIGN_API -DXC_WANT_COMPAT_DEVICEMODEL_API
+
 SRC_CODE += ./include/tiny_private.h
 SRC_CODE += ./include/debug.h
 SRC_CODE += ./include/domain_id.h

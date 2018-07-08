@@ -258,17 +258,18 @@ status_t process_interrupt_event(vmi_instance_t vmi,
 
          DBG_LINE;
          
-        //  dbprint(VMI_DEBUG_XEN, "%s: now call libxc xc_hvm_inject_trap:\n", __FUNCTION__);
-        //  rc = xen->libxcw.xc_hvm_inject_trap(xen_get_xchandle(vmi),
-        //                 xen_get_domainid(vmi),
-        //                 req->vcpu_id,
-        //                 TRAP_int3,         /* Vector 3 for INT3 */
-        //                 X86_TRAP_sw_exc,   /* Trap type, here a software intr */
-        //                 ~0u, /* error code. ~0u means 'ignore' */
-        //                 event->interrupt_event.insn_length,
-        //                 0    /* cr2 need not be preserved */
-        //             );
-
+         #ifdef XC_WANT_COMPAT_DEVICEMODEL_API
+         dbprint(VMI_DEBUG_XEN, "%s: now call libxc xc_hvm_inject_trap:\n", __FUNCTION__);
+         rc = xen->libxcw.xc_hvm_inject_trap(xen_get_xchandle(vmi),
+                        xen_get_domainid(vmi),
+                        req->vcpu_id,
+                        TRAP_int3,         /* Vector 3 for INT3 */
+                        X86_TRAP_sw_exc,   /* Trap type, here a software intr */
+                        ~0u, /* error code. ~0u means 'ignore' */
+                        event->interrupt_event.insn_length,
+                        0    /* cr2 need not be preserved */
+                    );
+         #else
          dbprint(VMI_DEBUG_XEN, "%s: now call libxc devicemodel inject event:\n", __FUNCTION__);
          xendevicemodel_handle *domd = xen_get_xendevice_handle(vmi);
 
@@ -281,7 +282,7 @@ status_t process_interrupt_event(vmi_instance_t vmi,
                         event->interrupt_event.insn_length,
                         0    /* cr2 need not be preserved */
                     );
-        
+         #endif 
 
          DBG_LINE;
          

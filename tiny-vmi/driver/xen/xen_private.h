@@ -52,7 +52,9 @@ typedef struct xen_instance {
 
     xc_interface* xchandle; /**< handle to xenctrl library (libxc) */
 
+    #ifndef XC_WANT_COMPAT_DEVICEMODEL_API
     xendevicemodel_handle* xendevice_handle; /**< Lele: handle to xendevice model */
+    #endif // XC_WANT_COMPAT_DEVICEMODEL_API
 
     struct xs_handle *xshandle;  /**< handle to xenstore daemon (libxs) */
 
@@ -104,12 +106,14 @@ xc_interface* xen_get_xchandle(
     return xen_get_instance(vmi)->xchandle;
 }
 
+#ifndef XC_WANT_COMPAT_DEVICEMODEL_API
 static inline
 xc_interface* xen_get_xendevice_handle(
     vmi_instance_t vmi)
 {
     return xen_get_instance(vmi)->xendevice_handle;
 }
+#endif // XC_WANT_COMPAT_DEVICEMODEL_API
 
 #if ENABLE_XEN_EVENTS == 1 //tiny-VMI: events enabled
 static inline xen_events_t*

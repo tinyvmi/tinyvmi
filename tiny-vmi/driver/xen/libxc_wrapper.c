@@ -91,7 +91,7 @@ static status_t sanity_check(xen_instance_t *xen)
         return ret;
     }
 
-
+    #ifndef XC_WANT_COMPAT_DEVICEMODEL_API
     if ( !xen->xendevice_handle ){
     
         xen->xendevice_handle = xen->libxcw.xendevicemodel_open(NULL, 0);
@@ -99,12 +99,14 @@ static status_t sanity_check(xen_instance_t *xen)
         dbprint(VMI_DEBUG_XEN, "xen device handle oepn, success: xendevice_handle addr: 0x%lx\n", xen->xendevice_handle);
 
     }
-    
+
     if ( !xen->xendevice_handle ) {
         errprint("%s: Failed to open xendevicemodel handle.\n", __FUNCTION__);
         return ret;
     }
 
+    #endif //XC_WANT_COMPAT_DEVICEMODEL_API
+    
 
     /* get the Xen version */
     version = w->xc_version(xen->xchandle, XENVER_version, NULL);
@@ -231,8 +233,10 @@ status_t create_libxc_wrapper(xen_instance_t *xen)
 
     wrapper->xc_interface_open = &xc_interface_open;
     wrapper->xc_interface_close = &xc_interface_close_wrapper;
+    #ifndef XC_WANT_COMPAT_DEVICEMODEL_API
     wrapper->xendevicemodel_open = &xendevicemodel_open;
     wrapper->xendevicemodel_close = &xendevicemodel_close;
+    #endif 
     wrapper->xc_version = &xc_version;
     wrapper->xc_map_foreign_range = &xc_map_foreign_range;
     wrapper->xc_vcpu_getcontext = &xc_vcpu_getcontext;
@@ -254,8 +258,21 @@ status_t create_libxc_wrapper(xen_instance_t *xen)
     wrapper->xc_domain_debug_control = &xc_domain_debug_control;
     wrapper->xc_domain_set_access_required = &xc_domain_set_access_required;
     wrapper->xc_domain_decrease_reservation_exact = &xc_domain_decrease_reservation_exact;
-    // wrapper->xc_hvm_inject_trap = &xc_hvm_inject_trap;
+
+#ifdef XC_WANT_COMPAT_DEVICEMODEL_API
+
+    dbprint(VMI_DEBUG_XEN, "%s: found def XC_WANT_COMPAT_DEVICEMODEL_API .\n", 
+        __FUNCTION__);
+
+    wrapper->xc_hvm_inject_trap = &xc_hvm_inject_trap;
+#else
+
+    dbprint(VMI_DEBUG_XEN, "%s: no def XC_WANT_COMPAT_DEVICEMODEL_API\n", 
+        __FUNCTION__);
     wrapper->xendevicemodel_inject_event = &xendevicemodel_inject_event;
+
+#endif
+
     wrapper->xc_domain_populate_physmap_exact = &xc_domain_populate_physmap_exact;
     wrapper->xc_evtchn_open = &xenevtchn_open;
     wrapper->xc_evtchn_close = &xenevtchn_close;

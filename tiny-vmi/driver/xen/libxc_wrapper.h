@@ -26,7 +26,11 @@
 #include <tiny_config.h>
 
 #include <xenctrl.h>
-#include <xendevicemodel.h> // Lele: xendevicemodel_inject_event (to replace xc_hvm_inject_trap)
+
+#ifndef XC_WANT_COMPAT_DEVICEMODEL_API
+  #include <xendevicemodel.h> // Lele: xendevicemodel_inject_event (to replace xc_hvm_inject_trap)
+#endif // XC_WANT_COMPAT_DEVICEMODEL_API
+
 // #include <dlfcn.h>
 
 #include "tiny_libvmi.h"
@@ -46,11 +50,13 @@ typedef struct {
     int (*xc_interface_close)
             (xc_interface *xch);
     
+    #ifndef XC_WANT_COMPAT_DEVICEMODEL_API
     xendevicemodel_handle* (*xendevicemodel_open)
         (struct xentoollog_logger *logger, unsigned int open_flags);
 
     int (*xendevicemodel_close) 
         (xendevicemodel_handle *dmod);
+    #endif // XC_WANT_COMPAT_DEVICEMODEL_API
 
     int (*xc_version)
             (xc_interface *xch, int cmd, void *arg);
@@ -97,14 +103,16 @@ typedef struct {
             (xc_interface *xch, uint32_t domid, unsigned long nr_extents,
              unsigned int extent_order, xen_pfn_t *extent_start);
 
+    #ifdef XC_WANT_COMPAT_DEVICEMODEL_API
     int (*xc_hvm_inject_trap)
             (xc_interface *xch, domid_t dom, int vcpu, uint32_t vector,
              uint32_t type, uint32_t error_code, uint32_t insn_len, uint64_t cr2);
-
+    #else
     //lele: replace xc_hvm_inject_trap in xen_4.10.0
     int (*xendevicemodel_inject_event)
             (xendevicemodel_handle *domd, domid_t dom, int vcpu, uint32_t vector,
              uint32_t type, uint32_t error_code, uint32_t insn_len, uint64_t cr2);
+    #endif //XC_WANT_COMPAT_DEVICEMODEL_API
 
     int (*xc_domain_getinfolist)
             (xc_interface *xch, uint32_t first_domain, unsigned int max_domains,
