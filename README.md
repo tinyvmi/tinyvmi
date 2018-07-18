@@ -3,8 +3,8 @@
 
 ---
 
-+ Website: https://tinyvmi.github.io 
-+ Blog: https://tinyvmi.github.io/gsoc-blog 
++ Documentation: https://tinyvmi.github.io 
++ GSoC Blog: https://tinyvmi.github.io/gsoc-blog 
 
 ---
 
@@ -26,28 +26,20 @@ For libjson-c:
     -- How to enable XSM and install policy: https://wiki.xenproject.org/wiki/Xen_Security_Modules_:_XSM-FLASK
     
     
-2, install 32-bit Linux guest on Xen-4.4.0 (tested with Ubuntu 14.04.5 32-bit as HVM guest).
+2, install target guest VM on Xen.
     Note:
-    -- Now tinyVMI only support to introspect 32-bit VMs.
-    -- For easy testing, all guest vm are set with FLASK label: 
+    -- Both target guest vm and TinyVMI are set with FLASK label: 
         seclabel='system_u:system_r:domU_t'
 
 
-3, [optional] compile and install LibVMI-0.10.1, for comparison with tinyvmi.
+3, [optional] compile and install [LibVMI](https://github.com/libvmi/libvmi), for comparison with TinyVMI.
 
 4, compile and run tinyvmi as follows:
 
-    # cd ./stubdom/
-    # make tinyvmi-stubdom
-    # cd minios-x86_64-tinyvmi
-    # xl create -c ../../extras/mini-os/domain_config
-    
-    or you can run the handy script
-    # cd ./stubdom
-    # bash run.tiny.sh
+    # cd ./stubdom/tinyvmi
+    # bash run.tiny.sh buildrun
     
    Then you'll get outputs like:
-   
    
         Xen Minimal OS!
           start_info: 0xf6000(VA)
