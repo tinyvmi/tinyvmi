@@ -59,6 +59,7 @@ OB_tests += ./tests/examples/xen-emulate-response.o
 
 OBJS += $(OB_tests)
 
+OBJS += ./tiny-vmi/network/server.o
 # OBJS += ./tiny-vmi/tiny_cache.o ./tiny-vmi/mem_cache.o
 # OBJS += ./tiny-vmi/tiny_cache.o 
 OBJS += ./tiny-vmi/cache.o

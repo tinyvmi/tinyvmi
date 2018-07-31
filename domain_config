@@ -16,6 +16,8 @@ memory = 64
 # A name for your domain. All domains must have different names.
 name = "TinyVMI"
 
+vif = ['mac=00:16:3e:5b:db:4d,ip=10.0.0.100,bridge=netbr0' ]
+
 on_crash = 'destroy'
 
 seclabel='system_u:system_r:domU_t'

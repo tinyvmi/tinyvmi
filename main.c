@@ -7,6 +7,8 @@
 
 #include "config/libvmi_conf_file.h"
 
+#include "network/connection.h"
+
 #define PRINTTIMESTAMP \
 	{ struct timeval tv_begin; \
 		gettimeofday(&tv_begin,NULL); \
@@ -31,10 +33,26 @@ int main(void) {
 	struct timeval tv_begin,tv_end;
 
 	long long duration;
+	int i = 0;
+
     ttprint(VMI_TEST_MAIN,  "Hello, world!\n");
 
 	PRINTTIMESTAMP;
 	
+	ttprint(VMI_TEST_MAIN, "now start network server\n");
+	start_server(NULL);
+	ttprint(VMI_TEST_MAIN, "network server started ... \n");
+	
+	ttprint(VMI_TEST_MAIN, "now start network client\n");
+	start_client(NULL);
+	ttprint(VMI_TEST_MAIN, "network client started ... \n");
+
+	for (i=0; i< 10000; i++ ){
+		sleep(200000000); // wait here, used to test network thread.
+	}
+
+	return 0;
+
 	sleep(2); //let TinyVMI paused here; allows outside 'xenstore-chmod' to grant permissions.
 	
 	PRINTTIMESTAMP;
