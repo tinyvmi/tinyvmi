@@ -11,7 +11,7 @@
 #include <netinet/in.h>
 #include <netdb.h> 
 
-#define BUFSIZE 1024
+#define BUFSIZE 29
 
 /* 
  * error - wrapper for perror
@@ -51,20 +51,22 @@ int main(int argc, char **argv) {
         fprintf(stderr,"ERROR, no such host as %s\n", hostname);
         exit(0);
     }
-    printf("done get server by name\n");
+    //printf("done get server by name\n");
 
     /* build the server's Internet address */
     bzero((char *) &serveraddr, sizeof(serveraddr));
-    printf("server addr init to zero\n");
+    //printf("server addr init to zero\n");
 
     serveraddr.sin_family = AF_INET;
 
+    printf("now try to connect server: addr: %s, len: %d\n", (char *)server->h_addr, server->h_length);
+
     bcopy((char *)server->h_addr, 
 	  (char *)&serveraddr.sin_addr.s_addr, server->h_length);
+    printf("now try to connect server: addr: %s\n", (char *)server->h_addr);
 
     serveraddr.sin_port = htons(portno);
 
-    printf("now try to connect server: addr: %s\n", (char *)server->h_addr);
 
     /* connect: create a connection with the server */
     if (connect(sockfd, &serveraddr, sizeof(serveraddr)) < 0) 

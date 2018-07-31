@@ -1,7 +1,8 @@
-#CFLAGS+= -isystem ./lwip/src/include 
-#CFLAGS+= -isystem ./lwip/src/include/ipv4 
-CFLAGS+= -nostdlib -isystem ../../../lwip-x86_64/src/include 
-CFLAGS+= -isystem ../../../lwip-x86_64/src/include/ipv4 
+CFLAGS+= -isystem ./lwip/src/include 
+CFLAGS+= -isystem ./lwip/src/include/ipv4 
+
+# CFLAGS+= -nostdlib -isystem ../../../lwip-x86_64/src/include 
+# CFLAGS+= -isystem ../../../lwip-x86_64/src/include/ipv4 
 
 CFLAGS+= -isystem ../../../../extras/mini-os/include/x86
 CFLAGS+= -isystem ../../../../extras/mini-os/include/x86/x86_64

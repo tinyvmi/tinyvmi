@@ -39,19 +39,23 @@ int main(void) {
 
 	PRINTTIMESTAMP;
 	
-	ttprint(VMI_TEST_MAIN, "now start network server\n");
-	start_server(NULL);
-	ttprint(VMI_TEST_MAIN, "network server started ... \n");
+	ttprint(VMI_TEST_MAIN, "now start daytime server\n");
+	start_daytime();
+	ttprint(VMI_TEST_MAIN, "daytime server started ... \n");
 	
-	ttprint(VMI_TEST_MAIN, "now start network client\n");
-	start_client(NULL);
-	ttprint(VMI_TEST_MAIN, "network client started ... \n");
+	ttprint(VMI_TEST_MAIN, "now start chargen server\n");
+	start_chargen();
+	ttprint(VMI_TEST_MAIN, "chargen server started ... \n");
+	
+	// ttprint(VMI_TEST_MAIN, "now start network client\n");
+	// start_client(NULL);
+	// ttprint(VMI_TEST_MAIN, "network client started ... \n");
 
 	for (i=0; i< 10000; i++ ){
 		sleep(200000000); // wait here, used to test network thread.
 	}
 
-	return 0;
+	goto exit__;
 
 	sleep(2); //let TinyVMI paused here; allows outside 'xenstore-chmod' to grant permissions.
 	
@@ -99,6 +103,8 @@ int main(void) {
 	duration=(tv_end.tv_sec-tv_begin.tv_sec)*1000000LL+(tv_end.tv_usec-tv_begin.tv_usec);
 	ttprint(VMI_TEST_MAIN,  "%s: interval: (t2-t1): %lldus(%lldms)\n",__FUNCTION__, duration,duration/1000LL);
 	
+exit__:
+
     return 0;
 
 }

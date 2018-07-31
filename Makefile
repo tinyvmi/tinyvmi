@@ -18,6 +18,9 @@ SRC_CODE += ./include/x86.h
 OBJS=main.o 
 SRC_CODE += main.c
 
+# OBJS += ./tiny-vmi/network/daytime.o
+OBJS += ./tiny-vmi/network/chargen.o
+
 OB_tests += ./tests/tiny_test.o
 SRC_CODE += ./tests/tiny_test.c
 SRC_CODE += ./tests/tiny_test.h
@@ -59,7 +62,6 @@ OB_tests += ./tests/examples/xen-emulate-response.o
 
 OBJS += $(OB_tests)
 
-OBJS += ./tiny-vmi/network/server.o
 # OBJS += ./tiny-vmi/tiny_cache.o ./tiny-vmi/mem_cache.o
 # OBJS += ./tiny-vmi/tiny_cache.o 
 OBJS += ./tiny-vmi/cache.o
