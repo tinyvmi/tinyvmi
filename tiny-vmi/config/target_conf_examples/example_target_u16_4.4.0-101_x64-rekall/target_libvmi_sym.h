@@ -32,13 +32,13 @@ extern unsigned int System_map_4_4_0_101_generic_len;
 
 #define TARGET_REKALL
 
-#define linux_rekall_string ubuntu16_4_4_0_101_generic_json
-#define linux_rekall_string_len ubuntu16_4_4_0_101_generic_json_len
+#define guest_rekall_string ubuntu16_4_4_0_101_generic_json
+#define guest_rekall_string_len ubuntu16_4_4_0_101_generic_json_len
 
 extern unsigned char ubuntu16_4_4_0_101_generic_json[];
 extern unsigned int ubuntu16_4_4_0_101_generic_json_len;
 
-#define linux_rekall_string_SRC_FILE "/tiny-vmi/config/target_libvmi_rekall.c"
+#define guest_rekall_string_SRC_FILE "/tiny-vmi/config/target_libvmi_rekall.c"
 
 #endif // TARGET_LIBVMI_COMMON_H
 

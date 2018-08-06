@@ -25,7 +25,7 @@
 #include <json-c/json.h>
 
 
-// add declaration of linux_rekall_string and linux_rekall_string_len
+// add declaration of guest_rekall_string and guest_rekall_string_len
 #include "config/libvmi_conf_file.h"
 
 
@@ -45,12 +45,12 @@ rekall_profile_symbol_to_rva(
 #ifdef REKALL_FILE_FROM_STRING
 
 
-    //char *rekall_str = g_malloc0(linux_rekall_string_len + 1);
+    //char *rekall_str = g_malloc0(guest_rekall_string_len + 1);
 
-    //sprintf(rekall_str, "%s", linux_rekall_string);
+    //sprintf(rekall_str, "%s", guest_rekall_string);
     DBG_LINE;
 
-    json_object *root = json_tokener_parse(linux_rekall_string);
+    json_object *root = json_tokener_parse(guest_rekall_string);
     
     //free(rekall_str);
 
