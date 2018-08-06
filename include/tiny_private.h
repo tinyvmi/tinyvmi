@@ -70,7 +70,7 @@
 // #define OS_DISABLED_Linux
 
 // #define SYM_FILE_FROM_STRING
-#define REKALL_FILE_FROM_STRING
+// #define REKALL_FILE_FROM_STRING
 
 /* * Legacy from LibVMI 0.10.1
 */

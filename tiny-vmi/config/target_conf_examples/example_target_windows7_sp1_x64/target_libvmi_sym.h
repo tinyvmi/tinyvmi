@@ -34,7 +34,9 @@
 * 
 */
 
-// uncomment the following if no system symbol is used by TinyVMI
+#ifdef SYM_FILE_FROM_STRING
+#undef SYM_FILE_FROM_STRING
+#endif
 
 #ifndef REKALL_FILE_FROM_STRING
 #define REKALL_FILE_FROM_STRING

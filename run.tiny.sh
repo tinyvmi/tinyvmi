@@ -120,13 +120,13 @@ function createTinyVMI(){
   echo "$tinyVM started"
   sleep 1
   xl pause $tinyVM
-  
+
   echo "$tinyVM paused"
   xl list
-  
+
   tinyID=$(xl domid $tinyVM)
   echo "get tinyID: $tinyID"
-  
+
   # now change the permission of xenstore directory.
   # this will allow TinyVMI to convert a VM's string name into its 
   # domain ID.
