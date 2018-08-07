@@ -5,3 +5,7 @@
 *NOTUSE
 tmp-test/
 .vscode/
+tiny-vmi/config/target_conf_examples/example_target_3.19.0.25_x64/
+tiny-vmi/config/target_conf_examples/example_target_4.4.0_32/
+tiny-vmi/config/target_conf_examples/example_target_u16_4.4.0-101_x64-rekall/
+
