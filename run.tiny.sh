@@ -28,25 +28,25 @@ function Usage(){
 }
 function hasGuestDom(){
 
- lists="$(xl list)"
+ lists="$(sudo xl list)"
 
- lines=$(echo "$(xl list)" | wc -l)
+ lines=$(echo "$(sudo xl list)" | wc -l)
 
  #echo "get $lines lines"
 
  if [ "$lines" -eq 2 ]
  then
 	echo "No domU guest on Xen"
-	xl list
+	sudo xl list
 	return 0
  elif [ "$lines" -gt 2 ]
  then
 	echo "found domU guests"
-	xl list
+	sudo xl list
 	return 1
  else
 	echo "something wrong, number of domains is less than 1"
-	xl list
+	sudo xl list
 	return 0
  fi
 
@@ -116,13 +116,13 @@ function createTinyVMI(){
   echo "wait for $waitTime seconds before start tinyVMI"
   sleep $waitTime
   cd mini-os-x86_64-tinyvmi
-  xl create -c ../tinyvmi/domain_config &
+  sudo xl create -c ../tinyvmi/domain_config &
   echo "$tinyVM started"
   sleep 1
-  xl pause $tinyVM
+  sudo xl pause $tinyVM
 
   echo "$tinyVM paused"
-  xl list
+  sudo xl list
 
   tinyID=$(xl domid $tinyVM)
   echo "get tinyID: $tinyID"
@@ -131,12 +131,12 @@ function createTinyVMI(){
   # this will allow TinyVMI to convert a VM's string name into its 
   # domain ID.
 
-  xenstore-chmod -r '/local/domain' r$tinyID
+  sudo xenstore-chmod -r '/local/domain' r$tinyID
 
   echo "DONE: xenstore-chmod -r '/local/domain' r$tinyID"
-  xenstore-ls -p '/local/domain'
+  sudo xenstore-ls -p '/local/domain'
   # unpause TinyVMI to resume normal run
-  xl unpause $tinyVM
+  sudo xl unpause $tinyVM
   echo "$tinyVM ($tinyID) unpaused"
 
   cd -
