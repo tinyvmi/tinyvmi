@@ -2,8 +2,6 @@ XEN_ROOT = $(CURDIR)/../..
 
 include $(XEN_ROOT)/Config.mk
 
-CFLAGS += -DXC_WANT_COMPAT_EVTCHN_API -DXC_WANT_COMPAT_MAP_FOREIGN_API -DXC_WANT_COMPAT_DEVICEMODEL_API
-
 SRC_CODE_H += ./include/tiny_private.h
 SRC_CODE_H += ./include/debug.h
 SRC_CODE_H += ./include/domain_id.h
@@ -13,34 +11,24 @@ SRC_CODE_H += ./include/tiny_glib.h
 SRC_CODE_H += ./include/tiny_libvmi.h
 SRC_CODE_H += ./include/x86.h
 
-
-
 SRC_CODE_C += main.c
 
 SRC_CODE_C += ./tests/tiny_test.c
 SRC_CODE_H += ./tests/tiny_test.h
-
 SRC_CODE_H += ./tests/unit_tests/unit_tests.h
-
 SRC_CODE_C += ./tests/unit_tests/unit_test_vmi_init.c
 
 SRC_CODE_C += ./tests/examples/examples.c
 SRC_CODE_H += ./tests/examples/examples.h
-
 SRC_CODE_C += ./tests/examples/module-list.c
-
 SRC_CODE_C += ./tests/examples/map-addr.c
-
 SRC_CODE_C += ./tests/examples/event-example.c
-
 SRC_CODE_C += ./tests/examples/interrupt-event-example.c
-
 SRC_CODE_C += ./tests/examples/map-symbol.c
-
 SRC_CODE_C += ./tests/examples/dump-memory.c
 SRC_CODE_C += ./tests/examples/msr-event-example.c
 SRC_CODE_C += ./tests/examples/process-list.c
-# SRC_CODE_C += ./tests/examples/shm-snapshot-process-list.c
+# SRC_CODE_C += ./tests/examples/shm-snapshot-process-list.c # todo: not tested yet.
 SRC_CODE_C += ./tests/examples/singlestep-event-example.c
 SRC_CODE_C += ./tests/examples/step-event-example.c
 SRC_CODE_C += ./tests/examples/va-pages.c
@@ -114,10 +102,10 @@ SRC_CODE_C += ./tiny-vmi/tiny_glib/slist.c
 SRC_CODE_C += ./tiny-vmi/tiny_glib/hashtable.c
 SRC_CODE_C += ./tiny-vmi/tiny_glib/queue.c
 
-
+# get objects *.o from *.c list
 OBJS := $(patsubst %.c,%.o,$(SRC_CODE_C))
 
-
+# set search path of header files
 CFLAGS += -I../libxc-$(XEN_TARGET_ARCH)/include 
 CFLAGS += -I../libs-$(XEN_TARGET_ARCH)/call/include
 CFLAGS += -I../libs-$(XEN_TARGET_ARCH)/devicemodel/include
@@ -128,12 +116,11 @@ CFLAGS += -I../libs-$(XEN_TARGET_ARCH)/toollog/include
 CFLAGS += -I$(CURDIR)/include
 CFLAGS += -I$(CURDIR)/tiny-vmi
 
+CFLAGS += -DXC_WANT_COMPAT_EVTCHN_API -DXC_WANT_COMPAT_MAP_FOREIGN_API -DXC_WANT_COMPAT_DEVICEMODEL_API
 
 all: main.a 
 
-
-# $(OBJS): get_config_string $(SRC_CODE)
-$(OBJS): $(SRC_CODE)
+$(OBJS): $(SRC_CODE_H) $(SRC_CODE_C)
 
 main.a: $(OBJS)
 	$(AR) cr $@ $^
@@ -155,11 +142,10 @@ OB_CLEAN_DIR += tiny-vmi/os/linux
 OB_CLEAN_DIR += tiny-vmi/os/windows
 OB_CLEAN_DIR += tiny-vmi/tiny_glib
 
-
+# remove all object files, temporary files
 clean:
 	rm -f *.o *~
 	(for sub_dir in $(OB_CLEAN_DIR); do \
 	  	rm -f $$sub_dir/*.o ; \
 		rm -f $$sub_dir/*~ ; \
 	done; )
-
