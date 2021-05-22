@@ -22,6 +22,7 @@ A complete list for ubuntu: [ubuntu](https://gist.github.com/cnlelema/5f14675364
 
 ## Citation
 
+```
 @article{tinyvmi-2015,
 author = {MA Lele, YUE Xiaomeng, WANG Yuqing, YANG Qiusong},
 title = {Virtual machine introspection and memory security monitoring based on light-weight operating system},
@@ -37,3 +38,4 @@ keywords = {<p>Virtual Machine Introspection (VMI);Xen Mini Operating System (Xe
 url = {http://www.joca.cn/EN/abstract/article_18228.shtml},
 doi = {10.11772/j.issn.1001-9081.2015.06.1555}
 }    
+```
